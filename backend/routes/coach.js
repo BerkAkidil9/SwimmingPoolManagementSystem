@@ -1,0 +1,58 @@
+const express = require("express");
+const router = express.Router();
+const db = require("../db");
+const path = require("path");
+const fs = require("fs");
+
+// Middleware to check if user is coach
+const isCoach = (req, res, next) => {
+  if (!req.session.user || req.session.user.role !== "coach") {
+    return res.status(403).json({ error: "Unauthorized access" });
+  }
+  next();
+};
+
+// Get list of members with their swimming knowledge status
+router.get("/members", isCoach, async (req, res) => {
+  try {
+    const [users] = await db.promise().query(`
+      SELECT id, name, surname, email, phone, swimming_ability
+      FROM users
+      WHERE role = 'user'
+      ORDER BY surname ASC, name ASC
+    `);
+
+    res.json(users);
+  } catch (error) {
+    console.error("Error fetching members:", error);
+    res.status(500).json({ error: "Error fetching members" });
+  }
+});
+
+// Update swimming knowledge status of a member
+router.put("/members/:userId/swimming-status", isCoach, async (req, res) => {
+  const { userId } = req.params;
+  const { swimming_ability } = req.body;
+
+  if (!["yes", "no"].includes(swimming_ability)) {
+    return res.status(400).json({ error: "Invalid swimming ability value" });
+  }
+
+  try {
+    const [result] = await db.promise().query(
+      `UPDATE users SET swimming_ability = ? WHERE id = ?`,
+      [swimming_ability, userId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({ success: true, message: "Swimming ability updated successfully" });
+  } catch (error) {
+    console.error("Error updating swimming status:", error);
+    res.status(500).json({ error: "Error updating swimming ability" });
+  }
+});
+
+module.exports = router;

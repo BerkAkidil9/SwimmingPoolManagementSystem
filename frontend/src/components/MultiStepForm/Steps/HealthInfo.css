@@ -1,0 +1,46 @@
+.health-info-step {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.health-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.metric-card {
+    background: linear-gradient(135deg, #f8f9fa, #e3f2fd);
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.metric-value {
+    font-size: 2rem;
+    color: #0396FF;
+    font-weight: 600;
+    margin: 1rem 0;
+}
+
+.health-conditions {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    margin-top: 2rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+/* Textarea'lar için sabit boyut */
+.health-info-step textarea {
+  resize: none;  /* Boyut değiştirmeyi devre dışı bırakır */
+  height: 100px;  /* Biraz daha yüksek */
+  width: 100%;   /* Tam genişlik */
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  overflow-y: auto; /* Dikey scroll çubuğu gerekirse gösterir */
+  box-sizing: border-box; /* Padding'i yüksekliğe dahil eder */
+} 

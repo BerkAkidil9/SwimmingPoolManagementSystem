@@ -1,0 +1,194 @@
+/* Main Container Styles */
+.privacy-policy {
+    width: 100vw;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+    padding: 2rem 4rem;
+    margin: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    box-sizing: border-box;
+}
+
+.privacy-policy-container {
+    width: 100%;
+    max-width: none;
+    background-color: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    padding: 2.5rem;
+    box-sizing: border-box;
+}
+
+/* Header Styles */
+.privacy-policy h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 2.5rem;
+    font-size: 2rem;
+    border-bottom: 2px solid #333;
+    padding-bottom: 1rem;
+}
+
+/* Content Section Styles */
+.policy-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    width: 100%;
+}
+
+.policy-content section {
+    background: linear-gradient(135deg, #0396FF, #0D47A1);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(3, 150, 255, 0.2);
+    transition: all 0.3s ease;
+    color: white;
+}
+
+.policy-content section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(3, 150, 255, 0.3);
+}
+
+.privacy-policy .policy-content section h2 {
+    color: #f44336 !important; /* Kırmızı tonu */
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: 0.8rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.policy-content p {
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+/* List Styles */
+.policy-content ul {
+    list-style-type: none;
+    padding-left: 1.5rem;
+    margin-top: 1rem;
+}
+
+.policy-content ul li {
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 1rem;
+    position: relative;
+    padding-left: 1.5rem;
+    line-height: 1.5;
+}
+
+.policy-content ul li::before {
+    content: "•";
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.5rem;
+    position: absolute;
+    left: 0;
+    top: -2px;
+}
+
+/* Her section için farklı gradient tonları */
+.policy-content section:nth-child(2n) {
+    background: linear-gradient(135deg, #0D47A1, #1565C0);
+}
+
+.policy-content section:nth-child(3n) {
+    background: linear-gradient(135deg, #1565C0, #1976D2);
+}
+
+.policy-content section:nth-child(4n) {
+    background: linear-gradient(135deg, #1976D2, #1E88E5);
+}
+
+/* Contact Info Styles */
+.contact-info {
+    background: linear-gradient(135deg, #0396FF, #0D47A1);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-top: 1rem;
+    color: white;
+    box-shadow: 0 4px 12px rgba(3, 150, 255, 0.2);
+}
+
+.contact-info p {
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 0.8rem;
+    font-size: 1rem;
+}
+
+.contact-info strong {
+    color: white;
+    font-weight: 600;
+    margin-right: 0.5rem;
+}
+
+.contact-info p:last-child {
+    margin-bottom: 0;
+}
+
+/* Button Styles */
+.button-container {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.back-button {
+    padding: 12px 24px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.back-button:hover {
+    background-color: #45a049;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.back-button:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .privacy-policy {
+        padding: 2rem 3rem;
+    }
+
+    .policy-content {
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .privacy-policy {
+        padding: 1rem;
+    }
+
+    .privacy-policy-container {
+        padding: 1.5rem;
+    }
+
+    .policy-content {
+        grid-template-columns: 1fr;
+    }
+
+    .privacy-policy h1 {
+        font-size: 1.8rem;
+    }
+}

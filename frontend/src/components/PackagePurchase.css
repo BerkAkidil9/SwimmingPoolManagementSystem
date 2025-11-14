@@ -1,0 +1,347 @@
+.package-purchase {
+  padding: 32px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  margin-bottom: 30px;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.package-purchase::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(to right, #007bff, #00c6ff);
+}
+
+.package-purchase h2 {
+  color: #2c3e50;
+  font-size: 28px;
+  margin-bottom: 25px;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: -0.5px;
+}
+
+.package-purchase-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.close-package-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #718096;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.close-package-btn:hover {
+  background-color: #f3f4f6;
+  color: #e53e3e;
+  transform: rotate(90deg);
+}
+
+.swimming-status {
+  background-color: #f8fafc;
+  padding: 16px 20px;
+  border-radius: 10px;
+  margin: 20px 0;
+  border-left: 4px solid #007bff;
+  transition: transform 0.3s ease;
+}
+
+.swimming-status:hover {
+  transform: translateX(5px);
+}
+
+.swimming-status p {
+  margin: 5px 0;
+  color: #4a5568;
+  font-size: 15px;
+}
+
+.swimming-status p strong {
+  color: #2d3748;
+  font-weight: 600;
+}
+
+.swimming-status.warning {
+  border-left-color: #f59e0b;
+  background-color: #fffbeb;
+}
+
+.package-eligibility-note {
+  font-style: italic;
+  color: #718096;
+}
+
+.package-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  margin: 30px 0;
+}
+
+.package-card {
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 28px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.package-card::after {
+  content: '';
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: #f7fafc;
+  top: -15px;
+  right: -15px;
+  transform: rotate(45deg);
+  transition: all 0.3s ease;
+  z-index: 1;
+}
+
+.package-card.selected {
+  border-color: #3182ce;
+  background-color: #ebf8ff;
+  transform: scale(1.02);
+}
+
+.package-card.selected::after {
+  background: #3182ce;
+  width: 60px;
+  height: 60px;
+}
+
+.package-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.07);
+}
+
+.package-card.selected:hover {
+  transform: translateY(-6px) scale(1.02);
+}
+
+.package-card h3 {
+  margin-top: 0;
+  color: #2d3748;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  position: relative;
+  padding-bottom: 12px;
+}
+
+.package-card h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 50px;
+  height: 3px;
+  background: #cbd5e0;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.package-card.selected h3::after {
+  width: 80px;
+  background: #3182ce;
+}
+
+.package-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+  flex-grow: 1;
+}
+
+.package-card li {
+  margin: 12px 0;
+  color: #4a5568;
+  position: relative;
+  padding-left: 28px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.package-card li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #38b2ac;
+  font-weight: bold;
+}
+
+.package-card.selected li::before {
+  color: #3182ce;
+}
+
+.price {
+  font-size: 28px;
+  font-weight: 800;
+  color: #3182ce;
+  margin: 20px 0 10px;
+  text-align: center;
+}
+
+.package-card.selected .price {
+  color: #2b6cb0;
+}
+
+.package-unavailable-message {
+  font-size: 14px;
+  color: #e53e3e;
+  text-align: center;
+  margin-top: 10px;
+  padding: 8px;
+  background-color: #fff5f5;
+  border-radius: 6px;
+}
+
+.purchase-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(to right, #3182ce, #4299e1);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+  margin-top: 10px;
+  box-shadow: 0 4px 10px rgba(66, 153, 225, 0.3);
+  text-transform: uppercase;
+}
+
+.purchase-btn:hover {
+  background: linear-gradient(to right, #2b6cb0, #3182ce);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(66, 153, 225, 0.4);
+}
+
+.purchase-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 5px rgba(66, 153, 225, 0.4);
+}
+
+.purchase-btn:disabled {
+  background: linear-gradient(to right, #a0aec0, #cbd5e0);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.error-message {
+  color: #e53e3e;
+  margin-top: 15px;
+  padding: 15px;
+  background: #fff5f5;
+  border-radius: 8px;
+  border-left: 4px solid #e53e3e;
+  font-size: 15px;
+  animation: fadeIn 0.3s ease;
+}
+
+.retry-btn {
+  background-color: #f56565;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  margin-top: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.retry-btn:hover {
+  background-color: #e53e3e;
+}
+
+.loading-message {
+  text-align: center;
+  color: #4a5568;
+  padding: 20px;
+  font-style: italic;
+}
+
+/* Loading indicator */
+.loading-message::after {
+  content: '...';
+  animation: dots 1.5s infinite;
+  display: inline-block;
+  width: 20px;
+}
+
+@keyframes dots {
+  0%, 20% { content: '.'; }
+  40% { content: '..'; }
+  60%, 100% { content: '...'; }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Media queries for responsive design */
+@media (max-width: 768px) {
+  .package-purchase {
+    padding: 20px;
+  }
+  
+  .package-options {
+    grid-template-columns: 1fr;
+  }
+  
+  .package-card {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 576px) {
+  .package-purchase h2 {
+    font-size: 24px;
+  }
+  
+  .package-card h3 {
+    font-size: 20px;
+  }
+  
+  .price {
+    font-size: 24px;
+  }
+}

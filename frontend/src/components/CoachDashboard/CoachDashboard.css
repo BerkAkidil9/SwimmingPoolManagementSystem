@@ -1,0 +1,63 @@
+.coach-dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.coach-dashboard h2 {
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 24px;
+}
+
+.coach-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.coach-table th, 
+.coach-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.coach-table th {
+  background-color: #2c3e50;
+  color: white;
+  font-weight: bold;
+}
+
+.coach-table tr:hover {
+  background-color: #f5f5f5;
+}
+
+.coach-table tr:last-child td {
+  border-bottom: none;
+}
+
+.no-data-message {
+  text-align: center;
+  padding: 40px 20px;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+.no-data-message p {
+  font-size: 16px;
+  color: #777;
+}
+
+/* Button styles are already defined inline in the component, 
+   but can be moved here for better organization */

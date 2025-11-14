@@ -1,0 +1,361 @@
+.transaction-history {
+  width: 100%;
+  background-color: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  margin-bottom: 2rem;
+}
+
+.transaction-header {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #0396FF, #0D47A1);
+  color: white;
+}
+
+.transaction-header h2 {
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.6rem;
+}
+
+.transaction-tabs {
+  display: flex;
+  gap: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 0.5rem;
+}
+
+.transaction-tabs button {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  padding: 0.8rem 1.5rem;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.transaction-tabs button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.transaction-tabs button.active {
+  background: white;
+  color: #0D47A1;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.packages-history,
+.reservations-history {
+  padding: 1.5rem;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.history-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #eee;
+}
+
+.history-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.history-card-header {
+  padding: 1.2rem;
+  background: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+}
+
+.history-card-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.history-card-title h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.history-card-date {
+  color: #666;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.history-card-details {
+  padding: 1.2rem;
+}
+
+.package-info-row,
+.reservation-info-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+
+.package-info-item,
+.reservation-info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem;
+  background: white;
+  border-radius: 8px;
+  transition: transform 0.2s ease;
+}
+
+.package-info-item:hover,
+.reservation-info-item:hover {
+  transform: translateY(-2px);
+}
+
+.package-info-item svg,
+.reservation-info-item svg {
+  color: #0396FF;
+  font-size: 1.2rem;
+}
+
+.package-info-item h4,
+.reservation-info-item h4 {
+  margin: 0 0 0.2rem 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.package-info-item p,
+.reservation-info-item p {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.package-usage {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.2rem;
+}
+
+.package-usage h4 {
+  margin: 0 0 0.8rem 0;
+  font-size: 1rem;
+  color: #333;
+}
+
+.usage-bar {
+  height: 24px;
+  background: #e0e0e0;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+  position: relative;
+}
+
+.usage-progress {
+  height: 100%;
+  background: linear-gradient(to right, #0396FF, #0D47A1);
+  border-radius: 5px;
+}
+
+.usage-percentage {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: 700;
+  font-size: 1rem;
+  color: #fff;
+  text-shadow: 0 0 2px rgba(0,0,0,0.5);
+  z-index: 1;
+}
+
+.package-usage p {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  text-align: right;
+}
+
+.package-validity {
+  display: flex;
+  justify-content: space-between;
+}
+
+.validity-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: white;
+  padding: 0.8rem;
+  border-radius: 8px;
+  transition: transform 0.2s ease;
+}
+
+.validity-item:hover {
+  transform: translateY(-2px);
+}
+
+.validity-item h4 {
+  margin: 0 0 0.2rem 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.validity-item p {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.reservation-history-meta {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.meta-item svg {
+  color: #0396FF;
+}
+
+.status-badge {
+  padding: 0.3rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-badge.active {
+  background: #e8f5e9;
+  color: #4caf50;
+}
+
+.status-badge.expired {
+  background: #eeeeee;
+  color: #9e9e9e;
+}
+
+.status-badge.canceled {
+  background: #ffebee;
+  color: #f44336;
+}
+
+.status-badge.completed {
+  background: #e3f2fd;
+  color: #2196f3;
+}
+
+.status-badge.missed {
+  background-color: #ff9800;
+  color: white;
+}
+
+.type-badge {
+  padding: 0.3rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  background: #e3f2fd;
+  color: #0d47a1;
+}
+
+.type-badge.education {
+  background: #e8f5e9;
+  color: #4caf50;
+}
+
+.type-badge.free_swimming {
+  background: #e3f2fd;
+  color: #2196f3;
+}
+
+.reservation-badges {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.3rem;
+}
+
+.no-history {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 8px;
+  color: #666;
+}
+
+.no-history p {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .transaction-header {
+    padding: 1.2rem;
+  }
+
+  .transaction-tabs {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .package-info-row,
+  .reservation-info-row {
+    grid-template-columns: 1fr;
+  }
+
+  .history-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+}
+
+.toggle-indicator {
+  font-size: 0.7rem;
+  margin-left: 8px;
+}
+
+.transaction-tabs button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+} 

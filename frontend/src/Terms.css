@@ -1,0 +1,125 @@
+/* Main Container Styles */
+.terms {
+    width: 100vw;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+    padding: 2rem 4rem;
+    margin: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    box-sizing: border-box;
+}
+
+.terms-container {
+    width: 100%;
+    max-width: none;
+    background-color: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    padding: 2.5rem;
+    box-sizing: border-box;
+}
+
+/* Header Styles */
+.terms h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 2.5rem;
+    font-size: 2rem;
+    border-bottom: 2px solid #333;
+    padding-bottom: 1rem;
+}
+
+/* Content Section Styles */
+.terms-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    width: 100%;
+}
+
+.terms-content section {
+    background: linear-gradient(135deg, #0396FF, #0D47A1);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(3, 150, 255, 0.2);
+    transition: all 0.3s ease;
+    color: white;
+    text-align: center;
+}
+
+.terms-content section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(3, 150, 255, 0.3);
+}
+
+.terms-content section h2 {
+    color: #f44336 !important;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    font-weight: 600;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: 0.8rem;
+    letter-spacing: 0.5px;
+}
+
+.terms-content p {
+    color: rgba(255, 255, 255, 0.9);
+    margin: 1.5rem 0;
+    font-size: 1.2rem;
+    line-height: 1.6;
+}
+
+/* List Styles */
+.terms-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+}
+
+.terms-content ul li {
+    color: rgba(255, 255, 255, 0.9);
+    margin: 1rem 0;
+    font-size: 1.1rem;
+    line-height: 1.5;
+}
+
+/* Gradient variations */
+.terms-content section:nth-child(2) {
+    background: linear-gradient(135deg, #0D47A1, #1565C0);
+}
+
+.terms-content section:nth-child(3) {
+    background: linear-gradient(135deg, #1565C0, #1976D2);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .terms {
+        padding: 1rem;
+    }
+
+    .terms-container {
+        padding: 1.5rem;
+    }
+
+    .terms h1 {
+        font-size: 1.8rem;
+    }
+
+    .terms-content h2 {
+        font-size: 1.6rem;
+    }
+
+    .terms-content p {
+        font-size: 1rem;
+    }
+
+    .terms-content ul li {
+        font-size: 1rem;
+    }
+}
+  

@@ -1,0 +1,280 @@
+.feedback-management {
+  width: 100%;
+}
+
+.feedback-filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.filter-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  background: #f0f2f5;
+  color: #555;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+  background: #e3e6ea;
+}
+
+.filter-btn.active {
+  background: linear-gradient(135deg, #0396FF, #0D47A1);
+  color: white;
+}
+
+.feedback-container {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+  height: calc(100vh - 250px);
+}
+
+.feedback-list {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  overflow-y: auto;
+  height: 100%;
+}
+
+.feedback-item {
+  padding: 1.5rem;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.feedback-item:hover {
+  background-color: #f8f9fa;
+}
+
+.feedback-item.selected {
+  background-color: #e3f2fd;
+  border-left: 4px solid #0396FF;
+}
+
+.feedback-item.new {
+  background-color: #fff8e1;
+}
+
+.feedback-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.feedback-item-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.status-badge.new {
+  background-color: #fff8e1;
+  color: #ffa000;
+}
+
+.status-badge.read {
+  background-color: #e8f5e9;
+  color: #4caf50;
+}
+
+.status-badge.archived {
+  background-color: #eeeeee;
+  color: #9e9e9e;
+}
+
+.feedback-meta {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.feedback-user, .feedback-date {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.feedback-preview {
+  margin: 0;
+  color: #666;
+  font-size: 0.95rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.feedback-detail {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  padding: 2rem;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.detail-header h2 {
+  margin: 0;
+  color: #1a237e;
+  font-size: 1.6rem;
+}
+
+.feedback-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.status-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.status-btn.mark-read {
+  background-color: #e8f5e9;
+  color: #4caf50;
+}
+
+.status-btn.mark-read:hover:not(:disabled) {
+  background-color: #c8e6c9;
+}
+
+.status-btn.archive {
+  background-color: #f5f5f5;
+  color: #9e9e9e;
+}
+
+.status-btn.archive:hover:not(:disabled) {
+  background-color: #e0e0e0;
+}
+
+.status-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.status-btn.active {
+  opacity: 0.7;
+}
+
+.detail-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-bottom: 2rem;
+  color: #666;
+}
+
+.meta-item {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.status-indicator {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.status-indicator.new {
+  background-color: #fff8e1;
+  color: #ffa000;
+}
+
+.status-indicator.read {
+  background-color: #e8f5e9;
+  color: #4caf50;
+}
+
+.status-indicator.archived {
+  background-color: #eeeeee;
+  color: #9e9e9e;
+}
+
+.detail-content {
+  line-height: 1.6;
+  color: #333;
+}
+
+.detail-content p {
+  margin: 0 0 1rem 0;
+}
+
+.no-feedback, .no-feedback-selected {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #9e9e9e;
+  text-align: center;
+  padding: 2rem;
+}
+
+.no-feedback svg, .no-feedback-selected svg {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.error-message {
+  background-color: #ffebee;
+  color: #f44336;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 1200px) {
+  .feedback-container {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  
+  .feedback-list, .feedback-detail {
+    height: 500px;
+  }
+}
+
+@media (max-width: 768px) {
+  .feedback-filters {
+    flex-wrap: wrap;
+  }
+  
+  .filter-btn {
+    flex: 1 0 calc(50% - 0.5rem);
+  }
+} 
