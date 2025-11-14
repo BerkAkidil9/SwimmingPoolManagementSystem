@@ -1,0 +1,618 @@
+/* Doctor Dashboard Styles */
+:root {
+  --doctor-primary: #2d98da;
+  --doctor-primary-dark: #2574a9;
+  --doctor-primary-light: #3498db;
+  --doctor-accent: #3867d6;
+  --doctor-text: #2c3e50;
+  --doctor-yes: #27ae60;
+  --doctor-no: #e74c3c;
+}
+
+.doctor-dashboard-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  color: var(--doctor-text);
+  overflow-x: hidden;
+}
+
+.doctor-dashboard {
+  display: flex;
+  min-height: calc(100vh - 60px); /* Adjust for navbar height */
+  background-color: #f0f2f5;
+  width: 100%;
+  margin-top: 60px; /* Add space for the navbar */
+  color: var(--doctor-text);
+}
+
+/* Sidebar Styles */
+.doctor-sidebar {
+  width: 250px;
+  background: #fff;
+  padding: 1.5rem;
+  position: fixed;
+  height: calc(100vh - 60px); /* Adjust for navbar height */
+  border-right: 1px solid #e0e0e0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  top: 60px; /* Add space for the navbar */
+}
+
+.doctor-profile {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #eee;
+}
+
+.doctor-avatar {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, var(--doctor-primary), var(--doctor-accent));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  font-size: 2rem;
+  color: white;
+}
+
+.doctor-profile h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--doctor-primary-dark);
+}
+
+.doctor-profile p {
+  color: #7f8c8d;
+  margin-bottom: 0;
+}
+
+/* Menu Styles */
+.doctor-menu {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+  color: #7f8c8d;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.menu-item:hover, .menu-item.active {
+  background-color: #ebf3ff;
+  color: var(--doctor-primary);
+}
+
+.menu-item svg {
+  margin-right: 10px;
+  font-size: 1.2rem;
+  color: var(--doctor-primary);
+}
+
+/* Content Styles */
+.doctor-content {
+  flex-grow: 1;
+  margin-left: 250px; /* Match width of sidebar */
+  padding: 2rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  color: var(--doctor-text);
+  width: calc(100% - 250px);
+}
+
+.doctor-content .page-card {
+  padding: 1.5rem 2rem;
+}
+
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 0 0.5rem 1rem 0.5rem;
+  border-bottom: 1px solid #eee;
+  width: 100%;
+}
+
+.content-header h2 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--doctor-primary);
+  margin-bottom: 0;
+  text-align: center;
+  width: 100%;
+  padding: 0;
+}
+
+/* Page card styles */
+.page-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  color: var(--doctor-text);
+}
+
+.section-title {
+  font-size: 1.2rem;
+  color: var(--doctor-primary);
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+/* Medical records styling */
+.patient-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1.5rem;
+  transition: transform 0.2s ease;
+  color: var(--doctor-text);
+}
+
+.patient-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.patient-header {
+  padding: 1.2rem;
+  border-bottom: 1px solid #f0f2f5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.patient-status {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 50px;
+  display: inline-block;
+  font-weight: 500;
+}
+
+.status-pending {
+  background-color: #fff8e1;
+  color: #e65100;
+  font-size: 1.2rem;
+  font-weight: 700;
+  padding: 10px 18px;
+  letter-spacing: 0.5px;
+  border: 2px solid #ffa000;
+  text-transform: uppercase;
+}
+
+.status-approved {
+  background-color: #e8f5e9;
+  color: #43a047;
+}
+
+.status-needs-report {
+  background-color: #ffebee;
+  color: #e53935;
+}
+
+.patient-body {
+  padding: 1.2rem;
+  color: var(--doctor-text);
+}
+
+.info-section {
+  margin-bottom: 1rem;
+  color: var(--doctor-text);
+}
+
+.info-section h5 {
+  font-size: 0.9rem;
+  color: var(--doctor-primary);
+  margin-bottom: 0.5rem;
+}
+
+.info-value {
+  font-size: 1rem;
+  color: var(--doctor-text);
+}
+
+.action-btn {
+  padding: 0.4rem 1rem;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+/* Ensure all headings have good contrast but with blue color */
+h1, h2, h3, h4, h5, h6, 
+.doctor-dashboard h1, 
+.doctor-dashboard h2, 
+.doctor-dashboard h3, 
+.doctor-dashboard h4, 
+.doctor-dashboard h5, 
+.doctor-dashboard h6 {
+  color: var(--doctor-primary);
+}
+
+/* Ensure paragraph text has good contrast */
+p, span, div, li, 
+.doctor-dashboard p, 
+.doctor-dashboard span, 
+.doctor-dashboard div {
+  color: inherit;
+}
+
+/* Specific overrides for components */
+.panel-card h3,
+.panel-card h4,
+.health-info-section h4,
+.section-title,
+.page-card .card-title {
+  color: var(--doctor-primary) !important;
+}
+
+/* Form elements */
+.form-control,
+.form-control::placeholder,
+.form-label,
+.input-group-text {
+  color: var(--doctor-text);
+}
+
+/* Text in loading and empty states */
+.text-center p,
+.no-data-message p,
+.no-data-message h4 {
+  color: var(--doctor-text);
+}
+
+/* Health answer styling - Yes in green, No in red */
+.health-answer.yes {
+  color: var(--doctor-yes);
+  font-weight: 500;
+}
+
+.health-answer.no {
+  color: var(--doctor-no);
+  font-weight: 500;
+}
+
+/* Apply blue color to icons */
+.doctor-dashboard .fa,
+.doctor-dashboard .fas,
+.doctor-dashboard .far,
+.doctor-dashboard .fab,
+.health-info-section h4 svg,
+.panel-card h3 svg,
+.panel-card h4 svg {
+  color: var(--doctor-primary);
+}
+
+/* Health Information Reviews Layout Improvements */
+.health-questions {
+  margin-bottom: 20px;
+  padding-left: 0;
+  display: table;
+  width: 100%;
+  position: relative;
+}
+
+.health-question {
+  display: block;
+  width: 100%;
+  margin-bottom: 12px;
+  position: relative;
+  height: 30px;
+}
+
+.health-question-label {
+  display: block;
+  font-weight: 500;
+  text-align: left;
+  float: left;
+  width: 500px;
+}
+
+.health-answer {
+  position: absolute;
+  left: 535px; /* Position under the 'A' in 'Assessment' */
+  text-align: center;
+  font-weight: 500;
+  margin-top: 0;
+  width: 60px;
+}
+
+
+
+.health-info-section h4 {
+  margin-bottom: 15px;
+  padding-left: 0;
+  font-size: 1.7rem;
+  width: 100%;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Base styles for all health info sections */
+.health-info-section {
+  padding: 0 20px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Center Basic Health Information section */
+.basic-health-section {
+  align-items: center !important;
+  text-align: center !important;
+}
+
+.basic-health-section h4 {
+  text-align: center !important;
+}
+
+.basic-health-section .row {
+  justify-content: center !important;
+  width: 100% !important;
+}
+
+.basic-health-section p {
+  text-align: center !important;
+}
+
+.basic-health-section strong {
+  display: inline-block;
+}
+
+/* Keep Health Assessment section aligned left */
+.assessment-section {
+  align-items: flex-start !important;
+  text-align: left !important;
+}
+
+/* Action buttons styling */
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  gap: 15px;
+}
+
+.action-buttons .btn {
+  padding: 10px 20px;
+  font-weight: 500;
+  min-width: 220px;
+}
+
+/* Reason Modal Styling - Admin Dashboard Style */
+.reason-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.reason-modal-content {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 550px;
+  max-height: 90vh;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  animation: slideDown 0.3s ease;
+}
+
+.reason-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #eee;
+  background: white;
+  border-radius: 12px 12px 0 0;
+}
+
+.reason-header h3 {
+  margin: 0;
+  color: var(--doctor-primary);
+  font-weight: 600;
+}
+
+.reason-container {
+  padding: 15px 20px;
+}
+
+.reason-textarea {
+  width: 100%;
+  height: 100px;
+  min-height: 100px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 16px;
+  resize: none;
+  margin-bottom: 15px;
+}
+
+.reason-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+}
+
+.submit-reason-btn, .cancel-reason-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submit-reason-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.submit-reason-btn.approve-btn {
+  background-color: var(--doctor-yes);
+  color: white;
+  border: none;
+}
+
+.submit-reason-btn.report-btn {
+  background-color: #f9a825;
+  color: white;
+  border: none;
+}
+
+.cancel-reason-btn {
+  background-color: #f1f1f1;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.submit-reason-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.cancel-reason-btn:hover {
+  background-color: #e7e7e7;
+}
+
+.close-modal {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #777;
+}
+
+.close-modal:hover {
+  color: #333;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.btn-primary {
+  background-color: var(--doctor-primary);
+  border-color: var(--doctor-primary-dark);
+}
+
+.btn-primary:hover {
+  background-color: var(--doctor-primary-dark);
+  border-color: var(--doctor-primary-dark);
+}
+
+.btn-outline-primary {
+  color: var(--doctor-primary);
+  border-color: var(--doctor-primary);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--doctor-primary);
+  border-color: var(--doctor-primary);
+}
+
+/* Fix bootstrap text utilities if needed */
+.text-muted {
+  color: #6c757d !important;
+}
+
+/* Make the dashboard more colorful */
+.card-header {
+  background-color: #f5f9ff;
+  border-bottom: 1px solid #e1eaff;
+}
+
+.table th {
+  color: var(--doctor-primary);
+}
+
+.modal-header {
+  background-color: #f5f9ff;
+  border-bottom: 1px solid #e1eaff;
+}
+
+.modal-title {
+  color: var(--doctor-primary);
+}
+
+/* No data message styling */
+.no-data-message {
+  text-align: center;
+  padding: 2rem;
+  background-color: #f5f9ff;
+  border-radius: 10px;
+  margin: 2rem auto;
+  max-width: 800px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.no-data-message svg {
+  font-size: 3rem;
+  color: var(--doctor-primary);
+  margin-bottom: 1rem;
+}
+
+.no-data-message h4 {
+  font-size: 1.7rem;
+  font-weight: 600;
+  color: var(--doctor-primary);
+  margin-bottom: 1rem;
+}
+
+.no-data-message p {
+  font-size: 1.1rem;
+  color: var(--doctor-text);
+}
+
+/* Badge colors */
+.badge-primary {
+  background-color: var(--doctor-primary);
+}
+
+.badge-success {
+  background-color: var(--doctor-yes);
+}
+
+.badge-danger {
+  background-color: var(--doctor-no);
+}
+
+/* Health status styling */
+.health-status-badge {
+  padding: 8px 15px;
+  border-radius: 15px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}

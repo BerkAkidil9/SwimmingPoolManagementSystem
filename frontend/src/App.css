@@ -1,0 +1,170 @@
+/* General App Styles */
+body {
+  background-color: #f4f4f4; /* Light background for better contrast */
+  color: #333; /* Dark text for visibility */
+  font-family: Arial, sans-serif; /* Global font style */
+}
+
+.App {
+  text-align: center;
+}
+
+/* Logo Styling */
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+/* App Header Section */
+.App-header {
+  background-color: #282c34; /* Dark background for header */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white; /* Text color set to white for dark background */
+}
+
+.App-header h1, .App-header h2 {
+  color: #61dafb; /* Highlight color for section names */
+  margin: 10px 0;
+}
+
+/* Link Styling */
+a {
+  text-decoration: none; /* Remove underline */
+  color: inherit; /* Inherit color for consistent styling */
+}
+
+a:visited {
+  text-decoration: none; /* Ensure underline is removed in visited state */
+}
+
+/* Keyframe animation for logo spin */
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Social Login Section */
+.social-login-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.social-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-weight: bold;
+}
+
+/* Social Button Logos */
+.social-logo {
+  height: 20px; /* Adjust the logo size */
+  width: 20px; /* Ensure the logo is square */
+  margin-right: 10px; /* Space between the logo and text */
+  vertical-align: middle;
+}
+
+/* Google Button */
+.google-button {
+  background-color: #34a853; /* Green background for Google */
+  color: white;
+}
+
+/* GitHub Button */
+.github-button {
+  background-color: #333; /* Dark background for GitHub */
+  color: white;
+}
+
+/* Facebook Button */
+.facebook-button {
+  background-color: #4267B2; /* Blue background for Facebook */
+  color: white;
+}
+
+/* Hover Effects */
+.social-button:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+/* Highlight Section Titles */
+.section-title {
+  font-size: 1.5em;
+  color: #282c34; /* Darker color for section titles */
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+/* Accessibility Improvements */
+a:focus, button:focus {
+  outline: 2px solid #61dafb;
+  outline-offset: 2px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .section {
+    padding: 15px;
+    font-size: 0.9em;
+  }
+
+  .button {
+    font-size: 0.9em;
+    padding: 8px 16px;
+  }
+}
+
+/* Keep your existing App.css styles and add these new styles */
+
+.registration-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.social-login-container {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .registration-container,
+  .social-login-container {
+    margin: 10px;
+    padding: 15px;
+  }
+}

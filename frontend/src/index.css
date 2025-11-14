@@ -1,0 +1,159 @@
+/* Global Styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  font-size: 16px; /* Default font size */
+  line-height: 1.5; /* Improve text readability */
+  color: #333; /* Default dark text color */
+  background-color: #f4f4f4; /* Light background */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Labels and Headings */
+label {
+  color: #333; /* Dark color for labels */
+  font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #282c34; /* Darker text color for headings */
+  margin: 10px 0;
+}
+
+h2 {
+  font-size: 1.2em; /* Reduce heading size */
+  margin-bottom: 15px; /* Add space below section titles */
+}
+
+/* Links */
+a {
+  color: #61dafb; /* Link color */
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Form Styling */
+form {
+  background-color: #fff; /* White background for contrast */
+  color: #333; /* Dark text color */
+  padding: 15px; /* Compact padding */
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  max-width: 500px; /* Limit the width of the form */
+  margin: 20px auto; /* Center the form horizontally */
+  font-size: 0.9em; /* Slightly smaller font for compactness */
+}
+
+/* Input and Select Styling */
+input, select {
+  color: #333; /* Input text color */
+  background-color: #fff; /* Input background */
+  padding: 6px; /* Reduce padding for smaller fields */
+  margin: 8px 0; /* Reduce vertical spacing */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%; /* Make inputs stretch to container width */
+  box-sizing: border-box; /* Include padding in width calculation */
+}
+
+input:focus, select:focus {
+  border-color: #61dafb;
+  outline: none;
+  box-shadow: 0 0 3px rgba(97, 218, 251, 0.6);
+}
+
+/* Buttons */
+button {
+  font-size: 0.9em; /* Slightly smaller font for buttons */
+  padding: 8px 16px; /* Reduce button size */
+  border-radius: 4px; /* Smooth corners */
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+  background-color: #5397c9;
+}
+
+/* Yes/No Question Styling */
+.question-container {
+  display: flex; /* Use flexbox to align items */
+  align-items: center; /* Vertically align the label with buttons */
+  justify-content: space-between; /* Space out label and buttons */
+  margin: 10px 0; /* Add vertical spacing between questions */
+}
+
+/* Question Label */
+.question-container label {
+  flex: 2; /* Label takes up more space */
+  text-align: left; /* Align text to the left */
+  margin-right: 10px; /* Add spacing between label and buttons */
+  font-weight: bold; /* Highlight the question label */
+}
+
+/* Buttons Wrapper */
+.button-group {
+  display: flex; /* Align Yes/No buttons in a row */
+  gap: 10px; /* Add spacing between Yes and No buttons */
+}
+
+/* Yes Button */
+.button-yes {
+  background-color: #34a853; /* Green for Yes */
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* No Button */
+.button-no {
+  background-color: #d93025; /* Red for No */
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Hover Effects */
+.button-yes:hover {
+  background-color: #2a7a41;
+}
+
+.button-no:hover {
+  background-color: #b8251d;
+}
+
+/* Vertical Layout (Yes above No) */
+.vertical-layout .button-group {
+  flex-direction: column; /* Stack Yes and No vertically */
+}
+
+/* Utility Classes */
+.text-center {
+  text-align: center;
+}
+
+.mt-20 {
+  margin-top: 20px;
+}
+
+.mb-20 {
+  margin-bottom: 20px;
+}

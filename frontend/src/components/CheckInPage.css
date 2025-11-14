@@ -1,0 +1,608 @@
+.check-in-page {
+  font-family: 'Roboto', sans-serif;
+  color: #333;
+  background-color: #f6f8fa;
+  min-height: 100vh;
+}
+
+.check-in-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.check-in-header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 40px 0 25px;
+  border-bottom: 1px solid #e1e8ed;
+}
+
+.header-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.header-title svg {
+  color: #0077cc;
+  margin-top: 15px;
+  font-size: 42px;
+}
+
+.check-in-header h1 {
+  color: #0077cc;
+  font-size: 2.2rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.check-in-instructions {
+  font-size: 1.1rem;
+  color: #555;
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+.upcoming-reservations {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 25px;
+  margin-bottom: 30px;
+}
+
+.upcoming-reservations h2 {
+  margin-bottom: 20px;
+  color: #0077cc;
+  font-size: 1.5rem;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 10px;
+}
+
+.loading-indicator {
+  text-align: center;
+  padding: 30px;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #0077cc;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 15px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-message, .no-reservations {
+  text-align: center;
+  padding: 30px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.error-message svg {
+  color: #dc3545;
+  font-size: 2rem;
+}
+
+.no-reservations svg {
+  color: #0077cc;
+  font-size: 2rem;
+}
+
+.link-button {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 8px 16px;
+  background-color: #0077cc;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.link-button:hover {
+  background-color: #005fa3;
+}
+
+.reservations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.reservation-card {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background-color: white;
+  border: 1px solid #e1e8ed;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.reservation-card:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.reservation-card.today {
+  border-left: 4px solid #28a745;
+}
+
+.reservation-card.checked-in {
+  background-color: #f8f9fa;
+  border-left: 4px solid #28a745;
+}
+
+.pool-name {
+  flex: 1;
+  min-width: 200px;
+}
+
+.pool-name h3 {
+  margin-bottom: 5px;
+  font-size: 1.2rem;
+  color: #0077cc;
+  display: flex;
+  align-items: center;
+}
+
+.reservation-type {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+  font-weight: 500;
+  margin-right: 10px;
+}
+
+.reservation-type.free_swimming {
+  background-color: #e1f5fe;
+  color: #0288d1;
+}
+
+.reservation-type.education {
+  background-color: #e8f5e9;
+  color: #43a047;
+}
+
+.reservation-basic-info {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1;
+  min-width: 300px;
+}
+
+.reservation-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.detail-item svg {
+  color: #0077cc;
+}
+
+.check-in-action {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  min-width: 150px;
+}
+
+.check-in-button {
+  padding: 8px 16px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.check-in-button:hover:not(.disabled) {
+  background-color: #218838;
+}
+
+.view-qr-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background-color: #17a2b8;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.view-qr-button:hover {
+  background-color: #138496;
+}
+
+.check-in-button.disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.checked-in-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #28a745;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.check-in-tooltip {
+  font-size: 0.8rem;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.check-in-info, .checked-in-section {
+  margin-top: 40px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 25px;
+  margin-bottom: 30px;
+}
+
+.check-in-info h2, .checked-in-section h2 {
+  margin-bottom: 20px;
+  color: #0077cc;
+  font-size: 1.5rem;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 10px;
+}
+
+.info-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+.info-card {
+  flex: 1;
+  min-width: 250px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  transition: transform 0.3s;
+}
+
+.info-card:hover {
+  transform: translateY(-5px);
+}
+
+.card-icon {
+  font-size: 2rem;
+  color: #0077cc;
+  margin-bottom: 15px;
+}
+
+.info-card h3 {
+  margin-bottom: 10px;
+  color: #444;
+}
+
+.info-card p {
+  color: #666;
+  line-height: 1.5;
+}
+
+/* Checked-in reservation styles */
+.checked-in-reservations {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.checked-in-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background-color: #f8fff8;
+  border: 1px solid #e1e8ed;
+  border-left: 4px solid #28a745;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+}
+
+.checked-in-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.no-checked-in {
+  text-align: center;
+  padding: 30px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.no-checked-in svg {
+  color: #6c757d;
+  font-size: 2rem;
+}
+
+/* Modal styling */
+.check-in-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.check-in-modal {
+  background-color: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+.check-in-modal.success {
+  border-top: 5px solid #28a745;
+}
+
+.check-in-modal.error {
+  border-top: 5px solid #dc3545;
+}
+
+.modal-header {
+  padding: 20px;
+  position: relative;
+  border-bottom: 1px solid #e1e8ed;
+}
+
+.modal-header-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 15px 0;
+  width: 100%;
+}
+
+.modal-header h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 1.5rem;
+  width: 100%;
+  text-align: center;
+}
+
+/* Custom Checkmark */
+.custom-checkmark {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  margin: 0 auto;
+  display: block;
+}
+
+.checkmark-circle {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  background-color: #28a745;
+  border-radius: 50%;
+}
+
+/* Use a single element and border-based checkmark for cleaner look */
+.checkmark-stem,
+.checkmark-kick {
+  display: none; /* Hide the old implementation */
+}
+
+/* Add a new, more professional checkmark using border properties */
+.custom-checkmark:after {
+  content: '';
+  position: absolute;
+  width: 15px;
+  height: 30px;
+  border-right: 4px solid white;
+  border-bottom: 4px solid white;
+  top: 11px;
+  left: 22px;
+  transform: rotate(45deg);
+}
+
+.error-icon {
+  color: #dc3545;
+  font-size: 2rem;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #777;
+  padding: 5px 10px;
+  border-radius: 50%;
+  line-height: 1;
+  transition: all 0.2s;
+  z-index: 10;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #555;
+}
+
+.modal-content {
+  padding: 20px;
+}
+
+.check-in-confirmation {
+  margin-top: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.confirmation-details {
+  margin-bottom: 20px;
+}
+
+.detail-row {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.detail-row strong {
+  width: 120px;
+  color: #555;
+}
+
+
+
+.qr-code-container {
+  text-align: center;
+  padding: 20px;
+  border: 1px dashed #ccc;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.real-qr-code {
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: inline-block;
+  margin: 0 auto 15px;
+}
+
+.qr-code-container p {
+  margin-top: 15px;
+  font-weight: 500;
+  color: #555;
+}
+
+.modal-footer {
+  padding: 15px 20px;
+  text-align: center;
+  border-top: 1px solid #e1e8ed;
+}
+
+.close-modal-button {
+  padding: 8px 24px;
+  background-color: #0077cc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.close-modal-button:hover {
+  background-color: #005fa3;
+}
+
+@media (max-width: 768px) {
+  .reservation-basic-info,
+  .check-in-action {
+    flex: 1 0 100%;
+  }
+  
+  .check-in-action {
+    margin-top: 15px;
+    align-items: flex-start;
+  }
+  
+  .check-in-action {
+    flex: 1;
+    margin-top: 15px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .checked-in-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .checked-in-card .view-qr-button {
+    margin-top: 15px;
+    width: 100%;
+  }
+}

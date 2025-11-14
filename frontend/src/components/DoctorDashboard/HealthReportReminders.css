@@ -1,0 +1,51 @@
+/* Styles for the Health Report Reminders component */
+
+.health-report-reminders h2,
+.health-report-reminders h3,
+.health-report-reminders h4,
+.health-report-reminders h5,
+.health-report-reminders p,
+.health-report-reminders th,
+.health-report-reminders td,
+.health-report-reminders strong {
+  color: #333 !important;
+}
+
+.health-report-reminders .table-header {
+  background-color: #f8f9fa !important;
+}
+
+.health-report-reminders .table {
+  color: #212529 !important;
+}
+
+.health-report-reminders .card-header {
+  background-color: #f8f9fa;
+}
+
+.health-report-reminders .table thead tr {
+  background-color: #f8f9fa;
+}
+
+.health-report-reminders .no-data-message {
+  text-align: center;
+  padding: 2rem;
+}
+
+.health-report-reminders .no-data-message h5 {
+  margin-top: 1rem;
+  color: #333;
+}
+
+.health-report-reminders .no-data-message p {
+  color: #6c757d;
+}
+
+/* Ensure good contrast for table rows */
+.health-report-reminders .table tbody tr {
+  background-color: white;
+}
+
+.health-report-reminders .table tbody tr:nth-of-type(odd) {
+  background-color: rgba(0, 0, 0, 0.05);
+}

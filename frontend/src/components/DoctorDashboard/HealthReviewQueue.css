@@ -1,0 +1,66 @@
+.filter-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.filter-button:hover {
+  color: white !important;
+  background-color: #0d6efd !important;
+}
+
+/* Ensure good contrast for active and inactive states */
+.filter-button.btn-outline-primary {
+  color: #0d6efd;
+  border-color: #0d6efd;
+  background-color: transparent;
+}
+
+.filter-button.btn-primary {
+  color: white;
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+/* Add a visible but subtle hover effect even when already active */
+.filter-button.btn-primary:hover {
+  background-color: #0b5ed7 !important;
+  border-color: #0a58ca !important;
+}
+
+/* Health review cards styling */
+.health-review-card {
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.health-review-card.has-reports {
+  border-left: 5px solid #0d6efd;
+}
+
+.health-review-card.needs-report {
+  border-left: 5px solid #17a2b8;
+}
+
+/* Invalid reports styling */
+.invalid-report-item {
+  background-color: #fff5f5;
+  border-left: 3px solid #dc3545;
+}
+
+/* Styling for patients with invalid reports */
+.health-review-card.has-reports.needs-report {
+  border-left: 5px solid #dc3545;
+  background-color: #fff8f8;
+}
+
+/* Badge styling */
+.badge.report-badge {
+  background-color: #0d6efd;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+}

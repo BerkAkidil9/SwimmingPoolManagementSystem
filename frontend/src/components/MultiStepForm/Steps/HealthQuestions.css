@@ -1,0 +1,68 @@
+.health-questions-step {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.question-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: all 0.3s ease;
+}
+
+.question-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.question-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.yes-no-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.answer-btn {
+    flex: 1;
+    padding: 1rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+    color: #666;
+}
+
+.answer-btn.yes.active {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+}
+
+.answer-btn.no.active {
+    background: linear-gradient(135deg, #f44336, #d32f2f);
+    color: white;
+}
+
+.health-questions-step textarea {
+    resize: none;
+    height: 100px;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+.question-error {
+    margin-top: 4px;
+    margin-left: 4px;
+} 
