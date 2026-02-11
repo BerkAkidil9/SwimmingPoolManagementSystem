@@ -43,7 +43,7 @@ const sendVerificationEmail = async (email, token) => {
 };
 
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-const db = require("./db");
+const db = require("./config/database");
 const router = express.Router();
 
 // Configure multer for file uploads

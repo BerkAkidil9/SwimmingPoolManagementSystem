@@ -4,7 +4,7 @@ const passport = require('passport');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
-const pool = require('../db');
+const pool = require('../config/database');
 
 // Google authentication route
 router.get('/google/callback', 
