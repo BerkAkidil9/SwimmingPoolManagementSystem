@@ -1,1 +1,50 @@
-node_modules
+# === GÜVENLİK - ASLA GİTMEMELİ ===
+.env
+.env.*
+!.env.example
+backend/.env
+*.env.local
+*.env.development.local
+*.env.test.local
+*.env.production.local
+
+# Kullanıcı yüklemeleri (kişisel veri - KVKK)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# IDE/Editör (DB şifreleri vs. içerebilir)
+.vscode/
+.idea/
+*.session.sql
+
+# Veritabanı dump'ları - gerçek kullanıcı verisi içerir
+backend/sql/schema_and_data.sql
+
+# === NODE ===
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp
+.pnp.js
+
+# === BUILD / DERİVED ===
+frontend/build/
+coverage/
+dist/
+
+# === GEREKSİZ DOSYALAR ===
+*.bak
+*.tmp
+*.temp
+*.log
+*.swp
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Test/dump dosyaları (MySQL dump, hassas veri içerebilir)
+deneme.txt
+
+# Bozuk/geçici dosyalar
+backend/{
