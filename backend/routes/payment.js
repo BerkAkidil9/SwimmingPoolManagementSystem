@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../db");
+const db = require("../config/database");
 
 // Import Stripe with your secret key
 const stripe = require("stripe")("sk_test_51QsuZlBM71F34f4S6Lplb7Cr1jc0xyfRVqcC4u5FwwiBDg5el5j5P6Z2yNCjmKpwgNqgMQpYt93dzjYO6avJUtHh00phQ2vbih");

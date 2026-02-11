@@ -1,6 +1,6 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
-const db = require("../db");
+const db = require("../config/database");
 const router = express.Router();
 
 router.post("/login", async (req, res) => {
@@ -15,6 +15,11 @@ router.post("/login", async (req, res) => {
 
     if (!user) {
       return res.status(401).json({ error: "Invalid email or password." });
+    }
+
+    // OAuth hesaplarının şifresi yok - bunlar Google/GitHub ile giriş yapmalı
+    if (!user.password) {
+      return res.status(403).json({ error: "Bu hesap Google/GitHub ile oluşturulmuş. Lütfen \"Continue with Google\" veya \"Continue with GitHub\" ile giriş yapın." });
     }
 
     // Verify the password
@@ -69,8 +74,10 @@ router.post("/login", async (req, res) => {
       }
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error. Please try again." });
+    console.error("LOGIN ERROR:", err);
+    console.error("LOGIN ERROR - Message:", err.message);
+    console.error("LOGIN ERROR - Stack:", err.stack);
+    res.status(500).json({ error: err.message || "Server error. Please try again." });
   }
 });
 

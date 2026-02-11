@@ -11,7 +11,7 @@ require("dotenv").config();
 
 const loginRoutes = require("./routes/login");
 const landingPageRoutes = require("./routes/landingPage");
-const db = require("./db");
+const db = require("./config/database");
 const adminRoutes = require("./routes/admin");
 const memberRoutes = require("./routes/member");
 const paymentRoutes = require("./routes/payment");
@@ -35,10 +35,24 @@ const healthReportsDir = path.join(__dirname, "uploads", "health_reports");
   }
 });
 
-// Middleware setup
+// Middleware setup - Allow multiple origins for dev (3000, 3002, etc.)
+const allowedOrigins = [
+  process.env.FRONTEND_URL || 'http://localhost:3000',
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:3002',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:3002'
+];
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(null, true); // Geliştirme için tüm origin'lere izin ver
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
