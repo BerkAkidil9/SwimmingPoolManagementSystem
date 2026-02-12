@@ -2,11 +2,15 @@
   max-width: 1200px;
   margin: 90px auto 40px;
   padding: 20px;
+  background-color: #f6f8fa;
+  min-height: calc(100vh - 130px);
 }
 
-.billing-container h1 {
-  margin-bottom: 30px;
-  color: #333;
+.billing-container .page-header h1 {
+  margin-bottom: 0;
+  color: #263238;
+  font-size: 1.75rem;
+  font-weight: 700;
 }
 
 .billing-tabs {
@@ -467,15 +471,13 @@
 }
 
 /* Page Header */
-.page-header {
+.billing-container .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 30px;
-}
-
-.page-header h1 {
-  margin-bottom: 0;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #0077cc;
 }
 
 .close-button {

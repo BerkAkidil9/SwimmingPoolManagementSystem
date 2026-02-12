@@ -1,0 +1,120 @@
+.homepage {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 50%, #80deea 100%);
+}
+
+.homepage-main {
+  padding-top: 90px;
+  padding-bottom: 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.homepage-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  margin-bottom: 60px;
+  flex-wrap: wrap;
+}
+
+.homepage-hero-content {
+  flex: 1;
+  min-width: 280px;
+}
+
+.homepage-hero h1 {
+  font-size: 2.25rem;
+  color: #004080;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.homepage-subtitle {
+  font-size: 1.1rem;
+  color: #37474f;
+  line-height: 1.6;
+}
+
+.homepage-hero-image {
+  flex: 0 0 320px;
+}
+
+.homepage-hero-image img {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 64, 128, 0.15);
+}
+
+.homepage-cards h2 {
+  font-size: 1.5rem;
+  color: #004080;
+  margin-bottom: 24px;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+.homepage-card {
+  background: white;
+  border-radius: 12px;
+  padding: 28px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 2px solid #0077cc;
+}
+
+.homepage-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.card-icon {
+  font-size: 2.5rem;
+  color: #004080;
+  margin-bottom: 16px;
+}
+
+.homepage-card h3 {
+  font-size: 1.25rem;
+  color: #263238;
+  margin-bottom: 8px;
+}
+
+.homepage-card p {
+  font-size: 0.95rem;
+  color: #546e7a;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.card-link {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0077cc;
+}
+
+.homepage-card.link-card {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .homepage-hero {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .homepage-hero-image {
+    flex: none;
+  }
+}

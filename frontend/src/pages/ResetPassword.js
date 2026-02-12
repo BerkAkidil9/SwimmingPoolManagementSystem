@@ -151,6 +151,9 @@ const ResetPassword = () => {
                 required
                 minLength="8"
                 placeholder="Enter your new password"
+                onCopy={(e) => e.preventDefault()}
+                onPaste={(e) => e.preventDefault()}
+                onCut={(e) => e.preventDefault()}
               />
               <small>Password must be at least 8 characters long</small>
             </div>
@@ -166,6 +169,9 @@ const ResetPassword = () => {
                 required
                 minLength="8"
                 placeholder="Confirm your new password"
+                onCopy={(e) => e.preventDefault()}
+                onPaste={(e) => e.preventDefault()}
+                onCut={(e) => e.preventDefault()}
               />
             </div>
             

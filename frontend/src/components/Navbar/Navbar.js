@@ -73,22 +73,31 @@ const Navbar = () => {
   const navigateToDashboard = () => {
     if (user && user.role) {
       const role = user.role.toLowerCase();
-      console.log("Navbar navigateToDashboard() - user.role:", user.role);
       if (role === 'admin') {
         navigate('/admin');
       } else if (role === 'doctor') {
         navigate('/doctor/dashboard');
       } else if (role === 'coach') {
-        navigate('/coach/dashboard'); // ✅ Coach için yönlendirme eklendi
-      }
-       else {
+        navigate('/coach/dashboard');
+      } else if (role === 'staff') {
+        navigate('/staff/verification');
+      } else {
         navigate('/member/dashboard');
       }
     } else {
-      console.log("Navbar navigateToDashboard() - no user or role found");
       navigate('/dashboard');
     }
     setDropdownOpen(false);
+  };
+
+  const getDashboardLabel = () => {
+    if (!user || !user.role) return 'Dashboard';
+    const role = user.role.toLowerCase();
+    if (role === 'admin') return 'Admin Panel';
+    if (role === 'doctor') return 'Doctor Dashboard';
+    if (role === 'coach') return 'Coach Dashboard';
+    if (role === 'staff') return 'Staff Verification';
+    return 'Member Dashboard';
   };
 
   // Get profile image URL based on available data
@@ -112,7 +121,7 @@ const Navbar = () => {
     <nav className="navbar-container">
       <div className="navbar-content">
         <div className="navbar-logo">
-          <Link to="/">Swim Center</Link>
+          <Link to="/home">Swim Center</Link>
         </div>
         
         {user && (
@@ -136,7 +145,7 @@ const Navbar = () => {
                     <>
                       <li>
                         <div onClick={navigateToDashboard} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '.5rem' }}>
-                          <FaTachometerAlt /> Dashboard
+                          <FaTachometerAlt /> {getDashboardLabel()}
                         </div>
                       </li>
                       <li>

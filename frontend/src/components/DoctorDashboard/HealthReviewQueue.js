@@ -307,17 +307,17 @@ const HealthReviewQueue = () => {
           </div>
           
           {/* Filter buttons */}
-          <div className="mt-3 d-flex flex-wrap">
+          <div className="mt-3 filter-buttons-row">
             <Button 
               variant={activeFilter === 'all' ? 'primary' : 'outline-primary'} 
-              className="me-2 mb-2 filter-button"
+              className="filter-button"
               onClick={() => setActiveFilter('all')}
             >
               All Users
             </Button>
             <Button 
               variant={activeFilter === 'reports_uploaded' ? 'primary' : 'outline-primary'} 
-              className="me-2 mb-2 filter-button"
+              className="filter-button"
               onClick={() => setActiveFilter('reports_uploaded')}
             >
               <FaFileMedical className="me-1" />
@@ -325,21 +325,21 @@ const HealthReviewQueue = () => {
             </Button>
             <Button 
               variant={activeFilter === 'invalid_reports' ? 'primary' : 'outline-primary'} 
-              className="me-2 mb-2 filter-button"
+              className="filter-button"
               onClick={() => setActiveFilter('invalid_reports')}
             >
               <span role="img" aria-label="Invalid">❌</span> Invalid Reports
             </Button>
             <Button 
               variant={activeFilter === 'awaiting_first_review' ? 'primary' : 'outline-primary'} 
-              className="me-2 mb-2 filter-button"
+              className="filter-button"
               onClick={() => setActiveFilter('awaiting_first_review')}
             >
               First Time Review
             </Button>
             <Button 
               variant={activeFilter === 'report_requested_no_upload' ? 'primary' : 'outline-primary'} 
-              className="mb-2 filter-button"
+              className="filter-button"
               onClick={() => setActiveFilter('report_requested_no_upload')}
             >
               Awaiting Upload
