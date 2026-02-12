@@ -1,0 +1,59 @@
+.verify-result-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 40%, #80deea 70%, #4dd0e1 100%);
+  padding: 24px;
+}
+
+.verify-result-card {
+  background: rgba(255, 255, 255, 0.97);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 64, 128, 0.12);
+  padding: 48px 40px;
+  text-align: center;
+  max-width: 480px;
+  width: 100%;
+}
+
+.verify-result-card .success-icon {
+  font-size: 64px;
+  color: #4caf50;
+  margin-bottom: 16px;
+}
+
+.verify-result-card .error-icon {
+  font-size: 64px;
+  color: #f44336;
+  margin-bottom: 16px;
+}
+
+.verify-result-card h2 {
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.verify-result-card p {
+  color: #666;
+  margin-bottom: 16px;
+}
+
+.redirect-message {
+  font-size: 14px;
+  color: #0077cc;
+}
+
+.login-button {
+  padding: 12px 24px;
+  background: #0077cc;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.login-button:hover {
+  background: #005fa3;
+}

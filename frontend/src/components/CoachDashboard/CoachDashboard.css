@@ -59,5 +59,60 @@
   color: #777;
 }
 
-/* Button styles are already defined inline in the component, 
-   but can be moved here for better organization */
+.coach-select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  min-width: 160px;
+  background: white;
+  cursor: pointer;
+}
+
+.coach-select:focus {
+  outline: none;
+  border-color: #2c3e50;
+  box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.2);
+}
+
+.coach-actions-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.coach-save-btn {
+  padding: 8px 18px;
+  background-color: #2c3e50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.coach-save-btn:hover:not(:disabled) {
+  background-color: #34495e;
+}
+
+.coach-save-btn:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+.coach-saved-badge {
+  color: #27ae60;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.coach-error-message {
+  padding: 12px 16px;
+  background-color: #fee;
+  color: #c0392b;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}

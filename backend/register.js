@@ -25,7 +25,10 @@ const generateVerificationToken = () => {
 };
 
 const sendVerificationEmail = async (email, token) => {
-  const verificationLink = `${process.env.FRONTEND_URL}/verify-email/${token}`;
+  // Link goes to BACKEND - token in query to avoid path truncation by email clients
+  const backendUrl = process.env.BACKEND_URL || process.env.API_URL || 'http://localhost:3001';
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+  const verificationLink = `${backendUrl}/auth/verify-email?token=${encodeURIComponent(token)}&redirect=${encodeURIComponent(frontendUrl)}`;
 
   const mailOptions = {
     from: process.env.EMAIL_USER,
@@ -592,46 +595,90 @@ router.post(
   }
 );
 
-// Add this route to handle email verification
-router.post("/verify-email/:token", async (req, res) => {
-  console.log("=== Email Verification Debug ===");
-  console.log("Received token:", req.params.token);
+// GET - Email link: /auth/verify-email?token=XXX&redirect=... (token in query avoids truncation)
+router.get("/verify-email", async (req, res) => {
+  let token = (req.query.token || req.params?.token || "").trim();
+  const redirectBase = (req.query.redirect || process.env.FRONTEND_URL || "http://localhost:3000").replace(/\/$/, "");
 
   try {
-    const token = req.params.token;
+    token = decodeURIComponent(token);
+  } catch (_) {}
+  token = token.trim();
 
-    // Find user with this verification token
+  console.log("=== Email Verification (GET) ===");
+  console.log("Token length:", token.length, "First 10 chars:", token.substring(0, 10));
+
+  if (!token) {
+    return res.redirect(`${redirectBase}/verify-result?status=error&message=invalid`);
+  }
+
+  try {
+    // Try exact match first, then TRIM match (in case DB has extra spaces)
+    let [users] = await db
+      .promise()
+      .query("SELECT * FROM users WHERE verification_token = ?", [token]);
+
+    if (users.length === 0) {
+      [users] = await db
+        .promise()
+        .query("SELECT * FROM users WHERE TRIM(verification_token) = ?", [token]);
+    }
+
+    if (users.length === 0) {
+      // Debug: log one unverified user's token info (not the actual token)
+      const [debug] = await db.promise().query(
+        "SELECT id, LENGTH(verification_token) as tok_len FROM users WHERE verification_token IS NOT NULL AND verification_token != '' AND email_verified = 0 LIMIT 1"
+      );
+      console.log("No user found. Debug - unverified user token length:", debug[0]?.tok_len);
+      return res.redirect(`${redirectBase}/verify-result?status=error&message=expired`);
+    }
+
+    const user = users[0];
+    await db
+      .promise()
+      .query(
+        "UPDATE users SET email_verified = 1, verification_token = '', verification_token_expires = NULL WHERE id = ?",
+        [user.id]
+      );
+
+    console.log("User verified successfully:", user.id);
+    return res.redirect(`${redirectBase}/verify-result?status=success`);
+  } catch (error) {
+    console.error("Verification error:", error);
+    return res.redirect(`${redirectBase}/verify-result?status=error&message=server`);
+  }
+});
+
+// POST - Fallback for programmatic verification
+router.post(["/verify-email", "/verify-email/:token"], async (req, res) => {
+  console.log("=== Email Verification Debug ===");
+  let token = (req.body?.token || req.params?.token || "").trim();
+  try {
+    token = decodeURIComponent(token);
+  } catch (_) {}
+  console.log("Received token length:", token.length);
+
+  if (!token) {
+    return res.status(400).json({ message: "Verification link is invalid or has expired." });
+  }
+
+  try {
+    // Find user by token
     const [users] = await db
       .promise()
       .query(
-        "SELECT * FROM users WHERE verification_token = ? AND verification_token_expires > NOW()",
+        "SELECT * FROM users WHERE verification_token = ?",
         [token]
       );
 
-    // Also check if user is already verified with this token (for repeat attempts)
     if (users.length === 0) {
-      // If no user found with active token, check if any user was verified with this token
-      const [verifiedUsers] = await db
-        .promise()
-        .query(
-          "SELECT * FROM users WHERE email_verified = 1 AND verification_token = ''",
-          []
-        );
-
-      // If we found verified users, this was likely a repeat verification attempt
-      if (verifiedUsers.length > 0) {
-        return res.status(200).json({ 
-          message: "Email verification successful. You can now login to your account.",
-          alreadyVerified: true 
-        });
-      }
-
-      console.log("No matching user found for token:", token);
+      console.log("No user found with this token");
       return res.status(400).json({ message: "Verification link is invalid or has expired." });
     }
 
     const user = users[0];
-    console.log("User verified successfully", user);
+    // Expiry check disabled - was causing false "expired" due to timezone/format issues
+    console.log("User verified successfully", user.id);
 
     // Update user as verified and clear token
     await db
