@@ -304,34 +304,50 @@ p, span, div, li,
 .health-questions {
   margin-bottom: 20px;
   padding-left: 0;
-  display: table;
   width: 100%;
-  position: relative;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .health-question {
-  display: block;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
   width: 100%;
-  margin-bottom: 12px;
-  position: relative;
-  height: 30px;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.health-question:last-of-type {
+  border-bottom: none;
 }
 
 .health-question-label {
-  display: block;
   font-weight: 500;
   text-align: left;
-  float: left;
-  width: 500px;
+  min-width: 0;
+  word-break: break-word;
 }
 
 .health-answer {
-  position: absolute;
-  left: 535px; /* Position under the 'A' in 'Assessment' */
-  text-align: center;
   font-weight: 500;
-  margin-top: 0;
-  width: 60px;
+  white-space: nowrap;
+  justify-self: end;
+  margin-right: 24px;
+}
+
+@media (max-width: 576px) {
+  .health-question {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  
+  .health-answer {
+    justify-self: start;
+  }
 }
 
 
@@ -381,6 +397,12 @@ p, span, div, li,
 .assessment-section {
   align-items: flex-start !important;
   text-align: left !important;
+  overflow: visible;
+  max-width: 100%;
+}
+
+.assessment-section .health-questions {
+  max-width: 100%;
 }
 
 /* Action buttons styling */

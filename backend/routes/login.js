@@ -43,6 +43,20 @@ router.post("/login", async (req, res) => {
         .json({ error: "Your account is pending verification. Please wait for admin approval." });
     }
     
+    // Block login if rejected 3 times - account permanently banned from verification
+    if (user.verification_status === 'rejected' && (user.rejection_count || 0) >= 3) {
+      return res
+        .status(403)
+        .json({ error: "Your account has reached the maximum number of verification attempts. Access is no longer available. Please contact support or create a new account." });
+    }
+    
+    // Block login if health assessment was rejected by doctor
+    if (user.health_status === 'rejected') {
+      return res
+        .status(403)
+        .json({ error: "Your health assessment has been rejected. You are unable to participate in swimming activities. Access is no longer available." });
+    }
+    
     // Debug logs for doctor role issue
     console.log("LOGIN BACKEND - User found:", {
       id: user.id,

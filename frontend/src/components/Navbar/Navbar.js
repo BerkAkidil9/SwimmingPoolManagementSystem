@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FaUser, FaSignOutAlt, FaTachometerAlt, FaCreditCard, FaUserEdit, FaUserCircle } from 'react-icons/fa';
+import { FaUser, FaSignOutAlt, FaTachometerAlt, FaCreditCard, FaUserEdit, FaUserCircle, FaSwimmer } from 'react-icons/fa';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -148,6 +148,13 @@ const Navbar = () => {
                           <FaTachometerAlt /> {getDashboardLabel()}
                         </div>
                       </li>
+                      {['admin', 'doctor', 'coach'].includes(user?.role?.toLowerCase()) && (
+                        <li>
+                          <Link to="/member/dashboard" onClick={() => setDropdownOpen(false)}>
+                            <FaSwimmer /> Member Dashboard
+                          </Link>
+                        </li>
+                      )}
                       <li>
                         <Link to="/billing">
                           <FaCreditCard /> Billing

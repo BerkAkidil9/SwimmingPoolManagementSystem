@@ -95,7 +95,6 @@ router.get("/health-reviews", isDoctor, async (req, res) => {
       JOIN health_info h ON u.id = h.user_id
       WHERE u.verification_status = 'approved' 
       AND u.health_status IN ('pending', 'needs_report')
-      AND u.role = 'user'
       ORDER BY 
         CASE 
           WHEN u.health_status = 'needs_report' AND (SELECT COUNT(*) FROM health_reports hr WHERE hr.user_id = u.id) > 0 THEN 1 
@@ -125,13 +124,16 @@ router.put("/health-status/:userId", isDoctor, async (req, res) => {
       return res.status(400).json({ error: "Invalid status" });
     }
     
-    if ((status === 'needs_report' || status === 'rejected') && (!reason || reason.trim() === '')) {
-      return res.status(400).json({ error: "Reason is required when requesting additional health report or rejecting health status" });
+    if (!reason || reason.trim() === '') {
+      return res.status(400).json({ error: "Reason/notes are required for all health status updates (approval, rejection, or report request)" });
     }
     
     // Get user data before updating
     const [userRows] = await db.promise().query(
-      "SELECT email, name, surname, health_report_request_count FROM users WHERE id = ?",
+      `SELECT u.email, u.name, u.surname, u.health_report_request_count, u.health_status,
+       (SELECT COUNT(*) FROM health_reports hr WHERE hr.user_id = u.id 
+        AND (u.health_report_requested_at IS NULL OR hr.created_at >= u.health_report_requested_at)) as report_count
+       FROM users u WHERE u.id = ?`,
       [userId]
     );
     
@@ -140,6 +142,17 @@ router.put("/health-status/:userId", isDoctor, async (req, res) => {
     }
     
     const user = userRows[0];
+    
+    // Cannot approve when report was requested but user hasn't uploaded yet (need to review the report)
+    if (status === 'approved' && user.health_status === 'needs_report') {
+      const reportCount = user.report_count || 0;
+      if (reportCount === 0) {
+        return res.status(400).json({ 
+          error: "Cannot approve until the user has uploaded the requested health report" 
+        });
+      }
+    }
+    // Reject is allowed even without upload - e.g. user never submitted the requested report
     
     // Check request limit only when requesting a health report
     if (status === 'needs_report') {
@@ -312,10 +325,11 @@ router.put("/health-reports/:reportId", isDoctor, async (req, res) => {
     const userId = reportRows[0].user_id;
     
     // Update user health status based on report status
-    const healthStatus = status === 'approved' ? 'approved' : 'needs_report';
+    // When report is rejected: final rejection - user cannot participate (same as direct rejection)
+    const healthStatus = status === 'approved' ? 'approved' : 'rejected';
     const healthStatusReason = status === 'approved' 
       ? 'Your health report has been approved' 
-      : doctor_notes || 'Your health report has been rejected. Please submit a new one.';
+      : doctor_notes || 'Your health report did not meet our requirements. You are currently unable to participate in swimming activities.';
     
     await db.promise().query(
       "UPDATE users SET health_status = ?, health_status_reason = ? WHERE id = ?",
@@ -334,7 +348,8 @@ router.put("/health-reports/:reportId", isDoctor, async (req, res) => {
       if (status === 'approved') {
         await sendHealthReportApprovedEmail(user.email, user.name, user.surname);
       } else {
-        await sendHealthReportRejectedEmail(user.email, user.name, user.surname, doctor_notes);
+        const rejectionReason = doctor_notes || 'Your health report did not meet our requirements.';
+        await sendHealthRejectionEmail(user.email, user.name, user.surname, rejectionReason);
       }
     }
     
@@ -371,7 +386,6 @@ router.get("/users-with-reports", isDoctor, async (req, res) => {
       JOIN health_info h ON u.id = h.user_id
       WHERE u.verification_status = 'approved' 
       AND u.health_status = 'needs_report'
-      AND u.role = 'user'
     `);
     
     res.json(users);

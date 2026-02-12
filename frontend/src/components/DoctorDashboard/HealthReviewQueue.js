@@ -75,6 +75,9 @@ const HealthReviewQueue = () => {
   };
 
   const handleApprove = async () => {
+    if (!approvalReason.trim()) {
+      return;
+    }
     try {
       setProcessing(true);
       
@@ -157,9 +160,9 @@ const HealthReviewQueue = () => {
       setLoadingReports(true);
       const response = await axios.get(`/api/doctor/health-reports/${userId}`);
       
-      // Sort reports by creation date (newest first)
+      // Sort reports by creation date (oldest first) - Report #1 = first upload, Report #2 = second upload
       const sortedReports = response.data.sort((a, b) => {
-        return new Date(b.created_at) - new Date(a.created_at);
+        return new Date(a.created_at) - new Date(b.created_at);
       });
       
       setHealthReports(sortedReports);
@@ -211,6 +214,7 @@ const HealthReviewQueue = () => {
   const showInvalidDocumentModal = (report) => {
     setCurrentReport(report);
     setInvalidDocReason('');
+    setShowHealthReportsModal(false); // Close Health Reports modal first so Invalid modal appears on top
     setShowInvalidDocModal(true);
   };
 
@@ -535,15 +539,27 @@ const HealthReviewQueue = () => {
                       </div>
 
                       <div className="health-review-actions mt-4">
-                        <Button 
-                          variant="success" 
-                          size="sm" 
-                          className="me-2"
-                          onClick={() => handleShowApprovalModal(user)}
+                        <OverlayTrigger
+                          placement="top"
+                          overlay={<Tooltip id={`tooltip-approve-${user.id}`}>
+                            {user.health_status === 'needs_report' && (user.report_count || 0) === 0 
+                              ? "Cannot approve until the user has uploaded the requested health report" 
+                              : "Approve health status"}
+                          </Tooltip>}
                         >
-                          <i className="fas fa-check-circle me-1"></i>
-                          Approve
-                        </Button>
+                          <span>
+                            <Button 
+                              variant="success" 
+                              size="sm" 
+                              className="me-2"
+                              onClick={() => handleShowApprovalModal(user)}
+                              disabled={user.health_status === 'needs_report' && (user.report_count || 0) === 0}
+                            >
+                              <i className="fas fa-check-circle me-1"></i>
+                              Approve
+                            </Button>
+                          </span>
+                        </OverlayTrigger>
                         <OverlayTrigger
                           placement="top"
                           overlay={<Tooltip id={`tooltip-request-${user.id}`}>
@@ -567,15 +583,26 @@ const HealthReviewQueue = () => {
                             </Button>
                           </span>
                         </OverlayTrigger>
-                        <Button 
-                          variant="danger" 
-                          size="sm"
-                          onClick={() => handleShowRejectModal(user)}
-                          className="me-2"
+                        <OverlayTrigger
+                          placement="top"
+                          overlay={<Tooltip id={`tooltip-reject-${user.id}`}>
+                            {user.health_status === 'needs_report' && (user.report_count || 0) === 0 
+                              ? "Reject (e.g. user did not submit requested report)" 
+                              : "Reject health status"}
+                          </Tooltip>}
                         >
-                          <i className="fas fa-times-circle me-1"></i>
-                          Reject
-                        </Button>
+                          <span>
+                            <Button 
+                              variant="danger" 
+                              size="sm"
+                              className="me-2"
+                              onClick={() => handleShowRejectModal(user)}
+                            >
+                              <i className="fas fa-times-circle me-1"></i>
+                              Reject
+                            </Button>
+                          </span>
+                        </OverlayTrigger>
                         {user.report_count > 0 && (
                           <Button 
                             variant="info" 
@@ -612,12 +639,13 @@ const HealthReviewQueue = () => {
               </button>
             </div>
             <div className="reason-container">
-              <p>Approval notes (optional):</p>
+              <p className="required-field">Approval notes:</p>
               <textarea
                 className="reason-textarea"
                 value={approvalReason}
                 onChange={(e) => setApprovalReason(e.target.value)}
                 placeholder="Example: All health information verified successfully"
+                required
                 disabled={processing}
               />
               <div className="reason-actions">
@@ -631,7 +659,7 @@ const HealthReviewQueue = () => {
                 <button
                   className="submit-reason-btn approve-btn"
                   onClick={handleApprove}
-                  disabled={processing}
+                  disabled={processing || !approvalReason.trim()}
                 >
                   {processing ? 'Processing...' : 'Confirm Approval'}
                 </button>
@@ -742,7 +770,10 @@ const HealthReviewQueue = () => {
               <h3>Mark Document as Invalid</h3>
               <button 
                 className="close-modal" 
-                onClick={() => setShowInvalidDocModal(false)}
+                onClick={() => {
+                  setShowInvalidDocModal(false);
+                  if (currentUser) setShowHealthReportsModal(true); // Re-open Health Reports when cancelling
+                }}
               >
                 ×
               </button>
@@ -771,7 +802,10 @@ const HealthReviewQueue = () => {
               <div className="reason-actions">
                 <button
                   className="cancel-reason-btn"
-                  onClick={() => setShowInvalidDocModal(false)}
+                  onClick={() => {
+                    setShowInvalidDocModal(false);
+                    if (currentUser) setShowHealthReportsModal(true); // Re-open Health Reports when cancelling
+                  }}
                   disabled={processing}
                 >
                   Cancel
@@ -793,7 +827,7 @@ const HealthReviewQueue = () => {
       {/* View Health Reports Modal */}
       {showHealthReportsModal && currentUser && (
         <div className="reason-modal">
-          <div className="reason-modal-content">
+          <div className="reason-modal-content health-reports-modal">
             <div className="reason-header">
               <h3>Health Reports - {currentUser?.name} {currentUser?.surname}</h3>
               <button 
@@ -812,53 +846,53 @@ const HealthReviewQueue = () => {
                 </div>
               ) : healthReports.length > 0 ? (
                 <>
-                  <p>This user has submitted the following health reports:</p>
-                  <ListGroup className="mb-3">
+                  <p className="mb-3">This user has submitted the following health reports:</p>
+                  <div className="health-reports-list">
                     {healthReports.map((report, index) => (
-                      <ListGroup.Item 
+                      <div 
                         key={report.id} 
-                        className={`d-flex justify-content-between align-items-center ${report.status === 'invalid' || report.status === 'rejected' ? 'invalid-report-item' : ''}`}
+                        className={`health-report-item ${report.status === 'invalid' || report.status === 'rejected' ? 'invalid-report-item' : ''}`}
                       >
-                        <div>
+                        <div className="health-report-info">
                           <strong>Report #{index + 1}</strong>
-                          <div className="text-muted small">Submitted: {formatDate(report.created_at)}</div>
+                          <span className="health-report-date">Submitted: {formatDate(report.created_at)}</span>
                         </div>
-                        <div>
+                        <div className="health-report-actions">
                           <Button
-                            variant="outline-primary"
+                            variant="outline-secondary"
                             size="sm"
-                            className="me-2"
-                            href={`http://localhost:3001/uploads/health_reports/${report.report_path.split('/').pop()}`}
-                            target="_blank"
+                            className="health-report-btn"
+                            onClick={() => window.open(`http://localhost:3001/uploads/health_reports/${report.report_path.split('/').pop()}`, '_blank')}
                           >
                             <FaEye className="me-1" /> View
                           </Button>
                           <Button
-                            variant="outline-success"
+                            variant="outline-secondary"
                             size="sm"
-                            className="me-2"
-                            href={`http://localhost:3001/uploads/health_reports/${report.report_path.split('/').pop()}?download=true`}
+                            className="health-report-btn"
+                            onClick={() => window.open(`http://localhost:3001/uploads/health_reports/${report.report_path.split('/').pop()}?download=true`, '_blank')}
                           >
                             <FaFileDownload className="me-1" /> Download
                           </Button>
-                          {/* Only show 'Mark Invalid' button if this is the newest report for this patient */}
-                          {index === 0 && report.status !== 'invalid' && report.status !== 'rejected' && (
+                          {report.status !== 'invalid' && report.status !== 'rejected' && (
                             <Button
-                              variant="outline-danger"
+                              variant="outline-secondary"
                               size="sm"
+                              className="health-report-btn"
                               onClick={() => showInvalidDocumentModal(report)}
+                              disabled={(currentUser?.health_report_request_count || 0) >= 3}
+                              title={(currentUser?.health_report_request_count || 0) >= 3 ? "Maximum report request limit (3/3) reached. Reject health status instead." : ""}
                             >
-                              <span role="img" aria-label="Invalid">❌</span> Mark Invalid
+                              <span role="img" aria-label="Invalid">✕</span> Mark Invalid
                             </Button>
                           )}
-                          {/* Only show 'Marked Invalid' badge on the newest report if it's invalid */}
-                          {index === 0 && (report.status === 'invalid' || report.status === 'rejected') && (
-                            <Badge bg="danger" className="ms-2">Marked Invalid</Badge>
+                          {(report.status === 'invalid' || report.status === 'rejected') && (
+                            <Badge bg="secondary" className="health-report-badge">Marked Invalid</Badge>
                           )}
                         </div>
-                      </ListGroup.Item>
+                      </div>
                     ))}
-                  </ListGroup>
+                  </div>
                 </>
               ) : (
                 <Alert variant="info">

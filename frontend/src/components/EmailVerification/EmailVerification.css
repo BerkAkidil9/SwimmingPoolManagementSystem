@@ -1,48 +1,103 @@
 .email-verification-container {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    padding: 20px;
+    background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 40%, #80deea 70%, #4dd0e1 100%);
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Decorative water pattern overlay */
+.email-verification-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 20% 80%, rgba(0, 119, 204, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 80% 20%, rgba(0, 64, 128, 0.06) 0%, transparent 35%);
+    pointer-events: none;
 }
 
 .email-verification-card {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    padding: 40px;
+    position: relative;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.97);
+    border-radius: 20px;
+    box-shadow: 
+        0 20px 60px rgba(0, 64, 128, 0.12),
+        0 0 0 1px rgba(0, 119, 204, 0.08);
+    padding: 48px 40px;
     text-align: center;
-    max-width: 500px;
+    max-width: 480px;
     width: 100%;
-    transition: all 0.3s ease;
-    animation: fadeIn 0.6s ease-out;
+    transition: all 0.4s ease;
+    animation: cardFadeIn 0.7s ease-out;
+    border: 1px solid rgba(0, 119, 204, 0.15);
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+@keyframes cardFadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(30px) scale(0.97);
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0) scale(1);
+    }
 }
 
 .email-verification-card h2 {
-    margin-bottom: 20px;
-    color: #344767;
+    margin-bottom: 16px;
+    color: #004080;
     font-size: 28px;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: -0.02em;
 }
 
 .email-verification-card p {
-    color: #64748b;
+    color: #37474f;
     font-size: 16px;
-    line-height: 1.6;
-    margin-bottom: 15px;
+    line-height: 1.65;
+    margin-bottom: 12px;
+}
+
+.email-verification-card p:last-of-type {
+    margin-bottom: 0;
 }
 
 .spinner {
-    animation: spin 1.5s linear infinite;
-    color: #3b82f6;
-    font-size: 50px;
-    margin-bottom: 20px;
+    display: block;
+    margin: 0 auto 24px;
+    animation: spin 1.2s linear infinite;
+    color: #0077cc;
+    font-size: 48px;
+}
+
+.success-icon {
+    display: block;
+    margin: 0 auto 24px;
+    color: #10b981;
+    font-size: 56px;
+}
+
+.error-icon {
+    display: block;
+    margin: 0 auto 24px;
+    color: #ef4444;
+    font-size: 56px;
+}
+
+.link-used-icon {
+    display: block;
+    margin: 0 auto 24px;
+    color: #0077cc;
+    font-size: 56px;
 }
 
 @keyframes spin {
@@ -50,64 +105,30 @@
     100% { transform: rotate(360deg); }
 }
 
-.success-icon {
-    color: #22c55e;
-    font-size: 60px;
-    margin-bottom: 20px;
-    animation: scaleIn 0.5s ease-out;
-}
-
-.error-icon {
-    color: #ef4444;
-    font-size: 60px;
-    margin-bottom: 20px;
-    animation: shakeIcon 0.5s ease-out;
-}
-
-@keyframes scaleIn {
-    0% { transform: scale(0); }
-    60% { transform: scale(1.2); }
-    100% { transform: scale(1); }
-}
-
-@keyframes shakeIcon {
-    0%, 100% { transform: translateX(0); }
-    20%, 60% { transform: translateX(-10px); }
-    40%, 80% { transform: translateX(10px); }
-}
-
 .redirect-message {
-    color: #94a3b8;
+    color: #546e7a;
     font-size: 14px;
     font-style: italic;
-    margin-top: 20px;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% { opacity: 0.6; }
-    50% { opacity: 1; }
-    100% { opacity: 0.6; }
+    margin-top: 24px;
 }
 
 .login-button {
-    background-color: #3b82f6;
+    background: linear-gradient(135deg, #0077cc 0%, #004080 100%);
     color: white;
     border: none;
-    padding: 12px 30px;
-    margin-top: 20px;
-    border-radius: 6px;
+    padding: 14px 36px;
+    margin-top: 28px;
+    border-radius: 12px;
     font-size: 16px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 6px rgba(59, 130, 246, 0.25);
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 14px rgba(0, 119, 204, 0.35);
 }
 
 .login-button:hover {
-    background-color: #2563eb;
     transform: translateY(-2px);
-    box-shadow: 0 6px 10px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 6px 20px rgba(0, 119, 204, 0.4);
 }
 
 .login-button:active {
@@ -116,23 +137,33 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+    .email-verification-container {
+        padding: 20px;
+    }
+
     .email-verification-card {
-        padding: 30px 20px;
+        padding: 36px 24px;
     }
     
     .email-verification-card h2 {
         font-size: 24px;
     }
-    
+
     .success-icon,
-    .error-icon {
-        font-size: 50px;
+    .error-icon,
+    .link-used-icon {
+        font-size: 48px;
+    }
+
+    .spinner {
+        font-size: 42px;
     }
 }
 
 @media (max-width: 480px) {
     .email-verification-card {
-        padding: 25px 15px;
+        padding: 32px 20px;
+        border-radius: 16px;
     }
     
     .email-verification-card h2 {
@@ -141,12 +172,14 @@
     
     .success-icon,
     .error-icon,
+    .link-used-icon,
     .spinner {
-        font-size: 45px;
+        font-size: 42px;
     }
     
     .login-button {
-        padding: 10px 25px;
+        padding: 12px 28px;
         font-size: 15px;
+        width: 100%;
     }
 } 
