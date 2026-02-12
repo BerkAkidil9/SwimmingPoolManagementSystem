@@ -18,7 +18,6 @@ router.get("/members", isCoach, async (req, res) => {
     const [users] = await db.promise().query(`
       SELECT id, name, surname, email, phone, swimming_ability
       FROM users
-      WHERE role = 'user'
       ORDER BY surname ASC, name ASC
     `);
 

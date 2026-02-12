@@ -290,9 +290,9 @@ router.post("/send-invalid-document-notification", isDoctorOrAdmin, async (req, 
       });
     }
     
-    // Get user information
+    // Get user information and check request count
     const [users] = await db.promise().query(
-      "SELECT id, name, surname, email FROM users WHERE id = ?", 
+      "SELECT id, name, surname, email, health_report_request_count FROM users WHERE id = ?", 
       [userId]
     );
     
@@ -305,6 +305,15 @@ router.post("/send-invalid-document-notification", isDoctorOrAdmin, async (req, 
     
     const user = users[0];
     
+    // Mark Invalid counts toward the 3-request limit - block if already at 3
+    const currentCount = user.health_report_request_count || 0;
+    if (currentCount >= 3) {
+      return res.status(400).json({ 
+        error: "Maximum report request limit reached (3/3). You can no longer mark documents as invalid. Please reject the health status instead.",
+        success: false 
+      });
+    }
+    
     // Mark the report as invalid if reportId is provided
     if (reportId) {
       await db.promise().query(
@@ -313,9 +322,9 @@ router.post("/send-invalid-document-notification", isDoctorOrAdmin, async (req, 
       );
     }
     
-    // Update user health status to request a new report
+    // Update user: needs_report, increment health_report_request_count (Mark Invalid counts as a request)
     await db.promise().query(
-      "UPDATE users SET health_status = 'needs_report', health_status_reason = ?, health_report_requested_at = CURRENT_TIMESTAMP WHERE id = ?",
+      "UPDATE users SET health_status = 'needs_report', health_status_reason = ?, health_report_requested_at = CURRENT_TIMESTAMP, health_report_request_count = health_report_request_count + 1 WHERE id = ?",
       [`Previous document invalid: ${invalidReason}`, userId]
     );
     

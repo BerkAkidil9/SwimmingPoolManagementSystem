@@ -43,7 +43,7 @@
 .health-review-card {
   transition: all 0.2s ease;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .health-review-card.has-reports {
@@ -76,4 +76,69 @@
   align-items: center;
   justify-content: center;
   font-weight: 500;
+}
+
+/* Health Reports Modal */
+.health-reports-modal {
+  max-width: 600px;
+  min-width: 380px;
+}
+
+.health-reports-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.health-report-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fafafa;
+  min-width: 0;
+}
+
+.health-report-item.invalid-report-item {
+  background-color: #fff5f5;
+  border-color: #dc3545;
+  border-left: 4px solid #dc3545;
+}
+
+.health-report-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.health-report-info strong {
+  font-size: 1.05rem;
+}
+
+.health-report-date {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+.health-report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+
+.health-report-btn {
+  flex: 1 1 auto;
+  min-width: 90px;
+  white-space: nowrap;
+  padding: 5px 12px !important;
+  font-size: 0.85rem !important;
+}
+
+.health-report-badge {
+  margin-left: 4px;
 }

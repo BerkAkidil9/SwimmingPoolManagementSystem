@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { FaCheckCircle, FaTimesCircle, FaSpinner } from 'react-icons/fa';
+import { FaCheckCircle, FaTimesCircle, FaSpinner, FaInfoCircle } from 'react-icons/fa';
 import './EmailVerification.css';
 
 const EmailVerification = () => {
@@ -10,12 +10,11 @@ const EmailVerification = () => {
   const [message, setMessage] = useState("");
 
   const verifyEmail = useCallback(async () => {
-    // Check if we've already verified this token to prevent duplicate requests
+    // Check if we've already verified this token (from previous visit in same browser)
     const verifiedToken = localStorage.getItem("verified_token");
     if (verifiedToken === token) {
-      setStatus("success");
-      setMessage("Email verification successful. You can now login to your account.");
-      setTimeout(() => navigate("/login"), 3000);
+      setStatus("link_used");
+      setMessage("This verification link has already been used. Your email is verified.");
       return;
     }
 
@@ -25,32 +24,34 @@ const EmailVerification = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // Include cookies for session
+        credentials: "include",
       });
 
       const data = await response.json();
       console.log("Verification response:", data);
 
       if (response.ok) {
-        // Store the token as verified to prevent duplicate verification attempts
+        if (data.alreadyVerified) {
+          setStatus("link_used");
+          setMessage("This verification link has already been used. Your email is verified.");
+          return;
+        }
         localStorage.setItem("verified_token", token);
-        
         setStatus("success");
         setMessage(data.message);
         setTimeout(() => navigate("/login"), 3000);
       } else {
-        setStatus("error");
-        setMessage(data.message || "Verification failed");
+        setStatus("link_expired");
+        setMessage("This verification link has expired. Please request a new verification email from the login page.");
       }
     } catch (error) {
       console.error("Verification error:", error);
-      setStatus("error");
-      setMessage("An error occurred during verification");
+      setStatus("link_expired");
+      setMessage("This verification link has expired. Please request a new verification email from the login page.");
     }
   }, [token, navigate]);
 
   useEffect(() => {
-    // Only verify if we haven't already verified this token
     verifyEmail();
   }, [verifyEmail]);
 
@@ -74,10 +75,24 @@ const EmailVerification = () => {
           </>
         )}
 
-        {status === "error" && (
+        {status === "link_used" && (
+          <>
+            <FaInfoCircle className="link-used-icon" />
+            <h2>Link Already Used</h2>
+            <p>{message}</p>
+            <button 
+              className="login-button" 
+              onClick={() => navigate("/login")}
+            >
+              Go to Login
+            </button>
+          </>
+        )}
+
+        {status === "link_expired" && (
           <>
             <FaTimesCircle className="error-icon" />
-            <h2>Verification Failed</h2>
+            <h2>Link Expired</h2>
             <p>{message}</p>
             <button 
               className="login-button" 

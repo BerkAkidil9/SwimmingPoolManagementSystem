@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './MemberDashboard.css';
 import PackagePurchase from './PackagePurchase';
@@ -8,29 +7,6 @@ import TransactionHistory from './TransactionHistory';
 import Navbar from './Navbar/Navbar';
 
 const MemberDashboard = () => {
-  // Check if user is coach and redirect appropriately
-  const navigate = useNavigate();
-  
-  useEffect(() => {
-    // Get user from session storage
-    const userStr = sessionStorage.getItem('user');
-    if (userStr) {
-      try {
-        const userData = JSON.parse(userStr);
-        console.log("MemberDashboard - User data from session:", userData);
-        console.log("MemberDashboard - User role:", userData.role);
-        
-        // If role is coach, redirect to coach dashboard
-        if (userData.role === 'coach') {
-          console.log("MemberDashboard - Detected coach, redirecting to coach dashboard");
-          navigate('/coach/dashboard');
-          return;
-        }
-      } catch (error) {
-        console.error('MemberDashboard - Error parsing user data:', error);
-      }
-    }
-  }, [navigate]);
   const [pools, setPools] = useState([]);
   const [selectedPool, setSelectedPool] = useState(null);
   const [sessions, setSessions] = useState([]);
