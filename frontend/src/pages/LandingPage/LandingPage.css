@@ -224,6 +224,26 @@ body {
   padding: 20px;
   background-color: #004080;
   color: white;
+  text-align: center;
+}
+
+.footer-logo {
+  display: inline-block;
+  color: white;
+  text-decoration: none;
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  padding: 8px 16px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.footer-logo:hover {
+  color: #80deea;
+  border-color: white;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .navbar {
@@ -233,8 +253,22 @@ body {
   position: sticky;
   top: 0;
   z-index: 1000;
-  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-logo {
+  color: white;
+  text-decoration: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.navbar-logo:hover {
+  color: #80deea;
 }
 
 .navbar-list {

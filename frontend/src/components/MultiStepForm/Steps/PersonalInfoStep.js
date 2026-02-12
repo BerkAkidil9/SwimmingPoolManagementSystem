@@ -336,6 +336,9 @@ const PersonalInfoStep = ({ formData, handleInputChange, nextStep, errors, setEr
                                 onChange={handleChange}
                                 onKeyDown={handleKeyEvent}
                                 onKeyUp={handleKeyEvent}
+                                onCopy={(e) => e.preventDefault()}
+                                onPaste={(e) => e.preventDefault()}
+                                onCut={(e) => e.preventDefault()}
                                 className={errors?.password ? "error-input" : ""}
                                 disabled={isSocialRegistration}
                                 placeholder={isSocialRegistration ? "No password needed with social login" : "Enter your password"}
@@ -377,6 +380,9 @@ const PersonalInfoStep = ({ formData, handleInputChange, nextStep, errors, setEr
                                 onChange={handleChange}
                                 onKeyDown={handleKeyEvent}
                                 onKeyUp={handleKeyEvent}
+                                onCopy={(e) => e.preventDefault()}
+                                onPaste={(e) => e.preventDefault()}
+                                onCut={(e) => e.preventDefault()}
                                 className={errors?.confirmPassword ? "error-input" : ""}
                                 disabled={isSocialRegistration}
                                 placeholder={isSocialRegistration ? "No password needed with social login" : "Confirm your password"}

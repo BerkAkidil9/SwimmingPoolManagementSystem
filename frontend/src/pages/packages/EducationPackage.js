@@ -36,7 +36,10 @@ const EducationPackage = () => {
           <li><strong>Available:</strong> 7:00 - 18:00</li>
           <li><strong>Price:</strong> ${price}</li>
         </ul>
-        <Link to="/register" className="package-button">Register Now</Link>
+        <div className="package-actions">
+          <Link to="/" className="package-button secondary">Back to Homepage</Link>
+          <Link to="/register" className="package-button">Register Now</Link>
+        </div>
       </section>
     </div>
   );

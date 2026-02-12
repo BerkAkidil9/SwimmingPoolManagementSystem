@@ -9,6 +9,7 @@ const LandingPage = () => {
     <div className="landing-page">
       {/* Navigation Bar */}
       <nav className="navbar">
+        <a href="#hero-section" className="navbar-logo">Swim Center</a>
         <ul className="navbar-list">
           <li><a href="#hero-section">Home</a></li>
           <li><a href="#about-section">About Us</a></li>
@@ -92,6 +93,7 @@ const LandingPage = () => {
 
       {/* Footer */}
       <footer className="footer">
+        <a href="#hero-section" className="footer-logo">Swim Center</a>
         <p>&copy; 2025 Swimming Center. All rights reserved.</p>
       </footer>
     </div>

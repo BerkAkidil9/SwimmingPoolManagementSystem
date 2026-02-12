@@ -819,6 +819,9 @@ const EditProfile = () => {
                   value="••••••••••••"
                   disabled
                   className="password-field"
+                  onCopy={(e) => e.preventDefault()}
+                  onPaste={(e) => e.preventDefault()}
+                  onCut={(e) => e.preventDefault()}
                 />
                 <button 
                   type="button" 

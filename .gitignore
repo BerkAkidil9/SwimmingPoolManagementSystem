@@ -47,4 +47,4 @@ Desktop.ini
 deneme.txt
 
 # Bozuk/geçici dosyalar
-backend/{
+backend/*

@@ -2,18 +2,24 @@
   max-width: 900px;
   margin: 90px auto 40px;
   padding: 20px;
+  background-color: #f6f8fa;
+  min-height: calc(100vh - 130px);
 }
 
-.page-header {
+.edit-profile-container .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #0077cc;
 }
 
-.page-header h1 {
+.edit-profile-container .page-header h1 {
   margin-bottom: 0;
-  color: #333;
+  color: #263238;
+  font-size: 1.75rem;
+  font-weight: 700;
 }
 
 .close-button {

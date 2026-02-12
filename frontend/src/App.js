@@ -24,6 +24,7 @@ import EditProfile from "./pages/EditProfile";
 import ResetPassword from "./pages/ResetPassword";
 import CoachDashboard from "./components/CoachDashboard/CoachDashboard";
 import ForgotPassword from './pages/ForgotPassword';
+import HomePage from './pages/HomePage/HomePage';
 
 
 // Set default base URL for axios
@@ -117,6 +118,16 @@ function App() {
 
             {/* Login Page */}
             <Route path="/login" element={<LoginPage />} />
+
+            {/* Home Page - for logged-in users */}
+            <Route
+              path="/home"
+              element={
+                <ProtectedRoute>
+                  <HomePage />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Dashboard (Protected Route) */}
             <Route

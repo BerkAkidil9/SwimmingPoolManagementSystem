@@ -103,23 +103,8 @@ const LoginPage = () => {
           JSON.parse(sessionStorage.getItem("user"))
         );
 
-        // Redirect based on role
-        if (user.role === "admin") {
-          console.log("LOGIN - Redirecting to admin dashboard");
-          navigate("/admin");
-        } else if (user.role === "doctor") {
-          console.log("LOGIN - Redirecting to doctor dashboard");
-          navigate("/doctor/dashboard");
-        } else if (user.role === "staff") {
-          console.log("LOGIN - Redirecting to staff verification portal");
-          navigate("/staff/verification");
-        } else if (user.role === "coach") {
-          console.log("LOGIN - Redirecting to coach dashboard");
-          navigate("/coach/dashboard");
-        } else {
-          console.log("LOGIN - Redirecting to member dashboard");
-          navigate("/member/dashboard");
-        }
+        // Redirect to homepage - logged-in users land here first
+        navigate("/home");
       } else {
         setError("Invalid email or password.");
       }
@@ -159,6 +144,9 @@ const LoginPage = () => {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onCopy={(e) => e.preventDefault()}
+              onPaste={(e) => e.preventDefault()}
+              onCut={(e) => e.preventDefault()}
             />
             <button
               type="button"

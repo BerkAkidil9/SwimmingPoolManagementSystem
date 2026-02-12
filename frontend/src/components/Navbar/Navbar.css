@@ -57,7 +57,9 @@
   position: absolute;
   top: 55px;
   right: 0;
-  width: 250px;
+  min-width: 280px;
+  width: max-content;
+  max-width: min(350px, 95vw);
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
@@ -82,6 +84,8 @@
 .user-email {
   font-size: 0.9rem;
   color: #666;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .dropdown-menu {
@@ -97,6 +101,7 @@
   align-items: center;
   transition: background-color 0.2s;
   color: #333;
+  white-space: nowrap;
 }
 
 .dropdown-menu li a {
@@ -105,6 +110,7 @@
   display: flex;
   align-items: center;
   width: 100%;
+  white-space: nowrap;
 }
 
 .dropdown-menu li:hover {
