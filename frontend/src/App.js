@@ -7,6 +7,7 @@ import PrivacyPolicy from "./components/PrivacyPolicy/PrivacyPolicy";
 import LoginPage from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import EmailVerification from "./components/EmailVerification/EmailVerification";
+import VerifyResult from "./components/VerifyResult/VerifyResult";
 import LandingPage from "./pages/LandingPage/LandingPage"; 
 import ProtectedRoute from "./components/ProtectedRoute";
 import "./App.css";
@@ -139,8 +140,10 @@ function App() {
               }
             />
 
-            {/* Email Verification */}
+            {/* Email Verification - old flow (kept for backwards compatibility) */}
             <Route path="/verify-email/:token" element={<EmailVerification />} />
+            {/* Verify result - backend redirects here after GET /auth/verify-email/:token */}
+            <Route path="/verify-result" element={<VerifyResult />} />
 
             {/* Admin Dashboard */}
             <Route 

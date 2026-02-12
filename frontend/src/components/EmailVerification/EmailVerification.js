@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FaCheckCircle, FaTimesCircle, FaSpinner, FaInfoCircle } from 'react-icons/fa';
+import { API_BASE_URL } from '../../config';
 import './EmailVerification.css';
 
 const EmailVerification = () => {
@@ -9,7 +10,13 @@ const EmailVerification = () => {
   const [status, setStatus] = useState("verifying");
   const [message, setMessage] = useState("");
 
-  const verifyEmail = useCallback(async () => {
+  const verifyEmail = useCallback(async (abortSignal) => {
+    if (!token) {
+      setStatus("link_expired");
+      setMessage("Invalid verification link. Please request a new verification email.");
+      return;
+    }
+
     // Check if we've already verified this token (from previous visit in same browser)
     const verifiedToken = localStorage.getItem("verified_token");
     if (verifiedToken === token) {
@@ -19,16 +26,24 @@ const EmailVerification = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:3001/auth/verify-email/${token}`, {
+      // Token in body to avoid URL encoding/truncation issues
+      const response = await fetch(`${API_BASE_URL}/auth/verify-email`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         credentials: "include",
+        body: JSON.stringify({ token }),
+        signal: abortSignal,
       });
 
-      const data = await response.json();
-      console.log("Verification response:", data);
+      let data = {};
+      try {
+        data = await response.json();
+      } catch (_) {
+        data = { message: "Server error. Please try again." };
+      }
+      console.log("Verification response:", response.status, data);
 
       if (response.ok) {
         if (data.alreadyVerified) {
@@ -42,9 +57,10 @@ const EmailVerification = () => {
         setTimeout(() => navigate("/login"), 3000);
       } else {
         setStatus("link_expired");
-        setMessage("This verification link has expired. Please request a new verification email from the login page.");
+        setMessage(data.message || "This verification link has expired. Please request a new verification email from the login page.");
       }
     } catch (error) {
+      if (error.name === "AbortError") return; // Ignore abort from Strict Mode
       console.error("Verification error:", error);
       setStatus("link_expired");
       setMessage("This verification link has expired. Please request a new verification email from the login page.");
@@ -52,7 +68,9 @@ const EmailVerification = () => {
   }, [token, navigate]);
 
   useEffect(() => {
-    verifyEmail();
+    const controller = new AbortController();
+    verifyEmail(controller.signal);
+    return () => controller.abort(); // Cancel if effect re-runs (Strict Mode) or unmount
   }, [verifyEmail]);
 
   return (
