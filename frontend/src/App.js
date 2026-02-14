@@ -165,7 +165,11 @@ function App() {
               } 
             />
 
-            {/* Health Report Upload */}
+            {/* Health Report Upload - email link uses this path with ?userId= */}
+            <Route 
+              path="/health-report-upload" 
+              element={<HealthReportUpload />} 
+            />
             <Route 
               path="/upload-health-report/:userId" 
               element={<HealthReportUpload />} 
