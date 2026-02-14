@@ -236,72 +236,92 @@ tbody tr:hover {
   background-color: #f8f9fa;
 }
 
-/* Action Buttons */
-.action-buttons {
-  display: flex;
-  gap: 0.5rem;
+/* Pool Management Table - balanced compact layout */
+.pool-management .pools-list table {
+  table-layout: fixed;
 }
 
-.edit-btn, .delete-btn {
-  padding: 0.5rem 1rem;
+.pool-management .pools-list td {
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+.pool-management .pools-list td:first-child {
+  font-weight: 500;
+}
+
+.pool-management .pools-list th {
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+}
+
+/* Action Buttons - Pool Management, all same size */
+.pool-management .action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+}
+
+.pool-management .action-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0.6rem 0.5rem;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 500;
-  transition: all 0.3s ease;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  white-space: nowrap;
 }
 
-.edit-btn {
+.pool-management .action-btn svg {
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.pool-management .maps-btn {
   background: #e3f2fd;
   color: #0396FF;
 }
 
-.edit-btn:hover {
+.pool-management .maps-btn:hover {
   background: #bbdefb;
 }
 
-.delete-btn {
+.pool-management .edit-btn {
+  background: #e3f2fd;
+  color: #0396FF;
+}
+
+.pool-management .edit-btn:hover {
+  background: #bbdefb;
+}
+
+.pool-management .delete-btn {
   background: #ffebee;
   color: #f44336;
 }
 
-.delete-btn:hover {
+.pool-management .delete-btn:hover {
   background: #ffcdd2;
 }
 
 /* Table Styles */
 th.location-header {
   text-align: center;
-  padding-right: 8rem;
 }
 
-td.location-cell {
-  text-align: right;
-  padding-right: 2rem;
+.pool-management .location-cell {
+  word-break: break-all;
+  color: #555;
 }
 
-/* Map Link Style */
-.map-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #0396FF;
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  background: #e3f2fd;
-  transition: all 0.3s ease;
-  font-weight: 500;
-}
-
-.map-link:hover {
-  background: #bbdefb;
-  transform: translateY(-2px);
-}
-
-.map-link svg {
-  font-size: 1.1rem;
-}
 
 /* Location Picker Styles */
 .location-picker {

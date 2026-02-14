@@ -129,6 +129,7 @@ const LoginPage = () => {
         justifyContent: "center",
       }}
     >
+      <Link to="/" className="login-page-logo">Swim Center</Link>
       <div className="login-container">
         <h2>Login to Your Account</h2>
         <form onSubmit={handleSubmit}>

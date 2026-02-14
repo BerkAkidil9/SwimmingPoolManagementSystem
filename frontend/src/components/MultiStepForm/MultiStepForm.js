@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import PersonalInfoStep from './Steps/PersonalInfoStep';
 import HealthInfoStep from './Steps/HealthInfoStep';
 import EmergencyContactStep from './Steps/EmergencyContactStep';
@@ -324,6 +325,7 @@ const MultiStepForm = ({ isSocialRegistration: isFromSocial }) => {
 
     return (
         <div className="multi-step-form">
+            <Link to="/" className="register-page-logo">Swim Center</Link>
             <ProgressBar
                 currentStep={currentStep - 1}        // 0-based for ProgressBar
                 steps={steps}

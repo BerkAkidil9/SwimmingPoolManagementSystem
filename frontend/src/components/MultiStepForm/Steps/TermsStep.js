@@ -125,20 +125,25 @@ const TermsStep = ({ formData, handleInputChange, prevStep, handleSubmit: submit
                 </div>
 
                 <div className="form-navigation">
-                    <button 
-                        type="button" 
-                        className="nav-button prev-button"
-                        onClick={prevStep}
-                    >
-                        Previous
-                    </button>
-                    <button 
-                        type="submit" 
-                        className="nav-button next-button submit-button"
-                        disabled={isSubmitting || !formData.terms_accepted || !formData.privacy_accepted}
-                    >
-                        {isSubmitting ? 'Submitting...' : 'Submit Registration'}
-                    </button>
+                    <span className="already-have-account-inline">
+                        Already have an account? <Link to="/login">Log in</Link>
+                    </span>
+                    <div className="form-navigation-buttons">
+                        <button 
+                            type="button" 
+                            className="nav-button prev-button"
+                            onClick={prevStep}
+                        >
+                            Previous
+                        </button>
+                        <button 
+                            type="submit" 
+                            className="nav-button next-button submit-button"
+                            disabled={isSubmitting || !formData.terms_accepted || !formData.privacy_accepted}
+                        >
+                            {isSubmitting ? 'Submitting...' : 'Submit Registration'}
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>

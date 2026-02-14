@@ -967,6 +967,30 @@ router.post("/update-profile", isAuthenticated, async (req, res) => {
       return res.status(400).json({ error: "All fields are required" });
     }
 
+    // If email is being changed, check it's not already used by another user
+    const [currentUser] = await db.promise().query(
+      "SELECT email FROM users WHERE id = ?",
+      [userId]
+    );
+    if (currentUser.length > 0 && currentUser[0].email !== email) {
+      const [existingEmail] = await db.promise().query(
+        "SELECT id FROM users WHERE email = ? AND id != ?",
+        [email, userId]
+      );
+      if (existingEmail.length > 0) {
+        return res.status(400).json({ error: "This email is already in use by another account." });
+      }
+    }
+
+    // Same check for phone if unique
+    const [existingPhone] = await db.promise().query(
+      "SELECT id FROM users WHERE phone = ? AND id != ?",
+      [phone, userId]
+    );
+    if (existingPhone.length > 0) {
+      return res.status(400).json({ error: "This phone number is already in use by another account." });
+    }
+
     // Update user profile in database
     await db.promise().query(
       `UPDATE users 
@@ -987,7 +1011,16 @@ router.post("/update-profile", isAuthenticated, async (req, res) => {
     res.json({ message: "Profile updated successfully" });
   } catch (error) {
     console.error("Error updating profile:", error);
-    res.status(500).json({ error: "Error updating profile" });
+    // Kullanıcıya anlamlı hata mesajı göster
+    if (error.code === "ER_DUP_ENTRY") {
+      if (error.message && error.message.includes("email")) {
+        return res.status(400).json({ error: "This email is already in use by another account." });
+      }
+      if (error.message && error.message.includes("phone")) {
+        return res.status(400).json({ error: "This phone number is already in use by another account." });
+      }
+    }
+    res.status(500).json({ error: error.message || "Error updating profile. Please try again." });
   }
 });
 

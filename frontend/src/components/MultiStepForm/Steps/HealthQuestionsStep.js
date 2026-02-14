@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { FaQuestion, FaNotesMedical } from 'react-icons/fa';
 import { validateHealthQuestions } from '../../../utils/validations';
 import './HealthQuestions.css';
@@ -181,19 +182,24 @@ const HealthQuestionsStep = ({ formData, handleInputChange, nextStep, prevStep, 
                 )}
 
                 <div className="form-navigation">
-                    <button 
-                        type="button" 
-                        className="nav-button prev-button"
-                        onClick={prevStep}
-                    >
-                        Previous
-                    </button>
-                    <button 
-                        type="submit" 
-                        className="nav-button next-button"
-                    >
-                        Next
-                    </button>
+                    <span className="already-have-account-inline">
+                        Already have an account? <Link to="/login">Log in</Link>
+                    </span>
+                    <div className="form-navigation-buttons">
+                        <button 
+                            type="button" 
+                            className="nav-button prev-button"
+                            onClick={prevStep}
+                        >
+                            Previous
+                        </button>
+                        <button 
+                            type="submit" 
+                            className="nav-button next-button"
+                        >
+                            Next
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>

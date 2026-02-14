@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import SocialLogin from '../../../SocialLogin';
 import './PersonalInfo.css';
 import { FaUser, FaPhone, FaCalendarAlt, FaVenusMars, FaEnvelope, FaIdCard, FaCamera, FaSwimmer, FaKey, FaEye, FaEyeSlash } from 'react-icons/fa';
@@ -476,6 +477,9 @@ const PersonalInfoStep = ({ formData, handleInputChange, nextStep, errors, setEr
 
                 {/* Navigation Buttons */}
                 <div className="form-navigation">
+                    <span className="already-have-account-inline">
+                        Already have an account? <Link to="/login">Log in</Link>
+                    </span>
                     <button type="submit" className="nav-button next-button">
                         Next
                     </button>

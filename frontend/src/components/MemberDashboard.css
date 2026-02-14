@@ -493,14 +493,14 @@
 }
 
 .feedback-form textarea {
-  height: 90px !important;
-  min-height: 90px !important;
-  max-height: 90px !important;
-  resize: none !important;
+  min-height: 120px;
+  height: 120px;
+  resize: vertical;
   font-size: 0.85rem;
-  padding: 0.4rem 0.6rem;
+  padding: 0.5rem 0.7rem;
   overflow-y: auto;
   margin-bottom: 0;
+  box-sizing: border-box;
 }
 
 .submit-feedback-btn {
@@ -926,6 +926,45 @@
   justify-content: center;
   background: none;
   margin: 2rem 0;
+}
+
+.sessions-placeholder.no-package-message {
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 2rem;
+  background: rgba(248, 249, 250, 0.9);
+  border-radius: 16px;
+  color: #333;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+}
+
+.sessions-placeholder.no-package-message p {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.sessions-placeholder.no-package-message .no-package-hint {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.sessions-placeholder.no-package-message .buy-package-cta-btn {
+  margin-top: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  background: linear-gradient(135deg, #0396FF, #0D47A1);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.sessions-placeholder.no-package-message .buy-package-cta-btn:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
 }
 
 .subtle-loading {
@@ -1583,6 +1622,31 @@
   transform: translateY(-5px);
 }
 
+/* Top row: left (pool + date/time) and right (3 details) equal width when expanded */
+.reservation-top-row {
+  display: flex;
+  flex-wrap: nowrap;
+  min-height: 0;
+}
+
+.reservation-left-col,
+.reservation-right-col {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* Açık kart: iki sütun eşit */
+.reservation-card-expanded .reservation-left-col,
+.reservation-card-expanded .reservation-right-col {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.reservation-right-col .reservation-details {
+  padding: 1rem 1.5rem;
+  height: 100%;
+}
+
 .reservation-header {
   padding: 1.5rem;
   background: linear-gradient(135deg, #0396FF, #0D47A1);
@@ -1651,6 +1715,31 @@
   padding: 1.5rem;
 }
 
+.reservation-actions {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+.reservation-actions .cancel-btn,
+.reservation-actions .check-in-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 1rem 1.2rem;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  text-decoration: none;
+}
+
+.reservation-actions .check-in-btn {
+  margin-top: 0;
+}
+
 .reservation-info {
   display: flex;
   flex-direction: column;
@@ -1688,19 +1777,17 @@
 }
 
 .cancel-btn {
-  width: 100%;
-  padding: 1.2rem;
   border: none;
   background: #ff4444;
   color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.8rem;
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 600;
-  font-size: 1rem;
+  border-radius: 8px;
+}
+
+.reservation-actions .cancel-btn {
+  width: auto;
 }
 
 .cancel-btn:hover {

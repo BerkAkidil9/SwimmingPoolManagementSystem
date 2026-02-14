@@ -60,6 +60,22 @@ const PoolManagement = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!newPool.name?.trim()) {
+      alert('Lütfen havuz adını girin.');
+      return;
+    }
+    if (!newPool.capacity || Number(newPool.capacity) <= 0) {
+      alert('Lütfen geçerli bir kapasite girin.');
+      return;
+    }
+    if (!newPool.rules?.trim()) {
+      alert('Lütfen havuz kurallarını girin.');
+      return;
+    }
+    if (!newPool.location?.trim()) {
+      alert('Lütfen haritadan konum seçin.');
+      return;
+    }
     try {
       if (isEditing) {
         await axios.put(`/api/admin/pools/${editingPoolId}`, newPool);
@@ -72,7 +88,8 @@ const PoolManagement = () => {
       fetchPools();
       alert(isEditing ? 'Pool updated successfully!' : 'Pool added successfully!');
     } catch (err) {
-      alert(isEditing ? 'Failed to update pool' : 'Failed to add pool');
+      const msg = err.response?.data?.error || (isEditing ? 'Havuz güncellenemedi.' : 'Havuz eklenemedi.');
+      alert(msg);
     }
   };
 
@@ -147,6 +164,7 @@ const PoolManagement = () => {
               onChange={(e) => setNewPool({...newPool, rules: e.target.value})}
               placeholder="Enter pool rules"
               maxLength="200"
+              required
             />
           </div>
           
@@ -158,6 +176,7 @@ const PoolManagement = () => {
                 value={newPool.location}
                 readOnly
                 placeholder="Select location from map"
+                required
               />
               <button 
                 type="button" 
@@ -208,6 +227,12 @@ const PoolManagement = () => {
         {isPoolListVisible && (
           <>
             <table>
+              <colgroup>
+                <col style={{ width: '90px' }} />
+                <col style={{ width: '65px' }} />
+                <col style={{ width: '22%' }} />
+                <col />
+              </colgroup>
               <thead>
                 <tr>
                   <th onClick={() => handleSort('name')} className="sortable">
@@ -225,21 +250,19 @@ const PoolManagement = () => {
                   <tr key={pool.id}>
                     <td>{pool.name}</td>
                     <td>{pool.capacity}</td>
-                    <td className="location-cell">
-                      <a 
-                        href={`https://www.google.com/maps?q=${pool.location}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="map-link"
-                      >
-                        <FaMapMarkerAlt />
-                        <span>Open in Maps</span>
-                      </a>
-                    </td>
+                    <td className="location-cell">{pool.location || '-'}</td>
                     <td>
                       <div className="action-buttons">
-                        <button className="edit-btn" onClick={() => handleEdit(pool.id)}>Edit</button>
-                        <button className="delete-btn" onClick={() => handleDelete(pool.id)}>Delete</button>
+                        <button 
+                          type="button" 
+                          className="action-btn maps-btn"
+                          onClick={() => window.open(`https://www.google.com/maps?q=${pool.location}`, '_blank', 'noopener,noreferrer')}
+                        >
+                          <FaMapMarkerAlt />
+                          Open in Maps
+                        </button>
+                        <button type="button" className="action-btn edit-btn" onClick={() => handleEdit(pool.id)}>Edit</button>
+                        <button type="button" className="action-btn delete-btn" onClick={() => handleDelete(pool.id)}>Delete</button>
                       </div>
                     </td>
                   </tr>

@@ -606,13 +606,7 @@ const MemberDashboard = () => {
           ) : (
             <div className="package-purchase-needed">
               <p className="package-status-message">
-                {pools && pools.length > 0 ? 
-                  (new Date(pools[0].expiry_date) < new Date() ? 
-                    "Your package has expired" : 
-                    "You've used all your sessions"
-                  ) : 
-                  "You don't have an active package"
-                }
+                You don't have an active package
               </p>
               <button 
                 className="buy-package-btn"
@@ -658,7 +652,18 @@ const MemberDashboard = () => {
           <h2 className="section-header">Available Sessions</h2>
           
           {selectedPool ? (
-            sessions.length > 0 ? (
+            !userPackage ? (
+              <div className="sessions-placeholder no-package-message">
+                <p>To view and book sessions, you need an active package.</p>
+                <p className="no-package-hint">Please purchase a package first.</p>
+                <button 
+                  className="buy-package-cta-btn"
+                  onClick={() => setShowPackagePurchase(true)}
+                >
+                  Purchase New Package
+                </button>
+              </div>
+            ) : sessions.length > 0 ? (
               <div className="sessions-grid">
                 {sessions.map(session => (
                   <div key={session.id} className={`session-card ${session.user_has_booked ? 'already-booked' : ''}`}>
@@ -708,10 +713,7 @@ const MemberDashboard = () => {
               </div>
             ) : (
               <div className="sessions-placeholder">
-                <div className="subtle-loading">
-                  <div className="dot-pulse"></div>
-                  <p>There is no available session at the moment.</p>
-                </div>
+                <p>There is no available session at the moment.</p>
               </div>
             )
           ) : (
@@ -728,57 +730,88 @@ const MemberDashboard = () => {
               reservations
                 .filter(r => r.status !== 'canceled' && r.status !== 'completed')
                 .map(reservation => (
-                  <div key={reservation.id} className="reservation-card">
-                    <div 
-                      className="reservation-header"
-                      onClick={() => toggleReservationDetails(reservation.id)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      <h3>{reservation.poolName}</h3>
-                      <span className={`reservation-type ${reservation.type}`}>
-                        {reservation.type}
-                      </span>
-                    </div>
-                    <div className="reservation-basic-info">
-                      <div className="reservation-date">
-                        <FaCalendarAlt />
-                        <span>{new Date(reservation.session_date).toLocaleDateString()}</span>
-                      </div>
-                      <div className="reservation-time">
-                        <FaClock />
-                        <span>{reservation.start_time} - {reservation.end_time}</span>
-                      </div>
-                    </div>
-                    {selectedReservation === reservation.id && (
+                  <div key={reservation.id} className={`reservation-card ${selectedReservation === reservation.id ? 'reservation-card-expanded' : ''}`}>
+                    {selectedReservation === reservation.id ? (
                       <>
-                        <div className="reservation-details">
-                          <div className="reservation-info">
-                            <div className="reservation-status">
-                              <FaCheckCircle />
-                              <span>Status: {reservation.status || 'Active'}</span>
+                        <div className="reservation-top-row">
+                          <div className="reservation-left-col">
+                            <div 
+                              className="reservation-header"
+                              onClick={() => toggleReservationDetails(reservation.id)}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              <h3>{reservation.poolName}</h3>
+                              <span className={`reservation-type ${reservation.type}`}>
+                                {reservation.type}
+                              </span>
                             </div>
-                            <div className="reservation-location">
-                              <FaMapMarkerAlt />
-                              <span>Pool: {reservation.poolName}</span>
+                            <div className="reservation-basic-info">
+                              <div className="reservation-date">
+                                <FaCalendarAlt />
+                                <span>{new Date(reservation.session_date).toLocaleDateString()}</span>
+                              </div>
+                              <div className="reservation-time">
+                                <FaClock />
+                                <span>{reservation.start_time} - {reservation.end_time}</span>
+                              </div>
                             </div>
-                            <div className="reservation-session">
-                              <FaSwimmer />
-                              <span>Session Type: {reservation.type}</span>
+                          </div>
+                          <div className="reservation-right-col">
+                            <div className="reservation-details">
+                              <div className="reservation-info">
+                                <div className="reservation-status">
+                                  <FaCheckCircle />
+                                  <span>Status: {reservation.status || 'Active'}</span>
+                                </div>
+                                <div className="reservation-location">
+                                  <FaMapMarkerAlt />
+                                  <span>Pool: {reservation.poolName}</span>
+                                </div>
+                                <div className="reservation-session">
+                                  <FaSwimmer />
+                                  <span>Session Type: {reservation.type}</span>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
-                        <button 
-                          onClick={() => cancelReservation(reservation.id)}
-                          className="cancel-btn"
+                        <div className="reservation-actions">
+                          <button 
+                            onClick={() => cancelReservation(reservation.id)}
+                            className="cancel-btn"
+                          >
+                            <FaTimes /> Cancel Reservation
+                          </button>
+                          <a 
+                            href="/check-in"
+                            className="check-in-btn"
+                          >
+                            <FaCheckCircle /> Go to Check-In
+                          </a>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div 
+                          className="reservation-header"
+                          onClick={() => toggleReservationDetails(reservation.id)}
+                          style={{ cursor: 'pointer' }}
                         >
-                          <FaTimes /> Cancel Reservation
-                        </button>
-                        <a 
-                          href="/check-in"
-                          className="check-in-btn"
-                        >
-                          <FaCheckCircle /> Go to Check-In
-                        </a>
+                          <h3>{reservation.poolName}</h3>
+                          <span className={`reservation-type ${reservation.type}`}>
+                            {reservation.type}
+                          </span>
+                        </div>
+                        <div className="reservation-basic-info">
+                          <div className="reservation-date">
+                            <FaCalendarAlt />
+                            <span>{new Date(reservation.session_date).toLocaleDateString()}</span>
+                          </div>
+                          <div className="reservation-time">
+                            <FaClock />
+                            <span>{reservation.start_time} - {reservation.end_time}</span>
+                          </div>
+                        </div>
                       </>
                     )}
                   </div>
