@@ -4,8 +4,11 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
+    "test:unit": "jest --testPathIgnorePatterns=integration",
+    "test:integration": "jest --config=jest.integration.config.js --forceExit",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "db:test:setup": "node scripts/init-test-db.js"
   },
   "keywords": [],
   "author": "",

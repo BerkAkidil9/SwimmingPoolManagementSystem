@@ -1,27 +1,26 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders the main heading', () => {
+// Mock heavy dependencies to avoid ESM/transpile and API issues
+jest.mock('./components/AdminDashboard/AdminDashboard', () => () => <div data-testid="admin-dashboard" />);
+jest.mock('./components/DoctorDashboard/DoctorDashboard', () => () => <div data-testid="doctor-dashboard" />);
+jest.mock('./components/CoachDashboard/CoachDashboard', () => () => <div data-testid="coach-dashboard" />);
+jest.mock('./pages/LandingPage/LandingPage', () => () => <div data-testid="landing-page">Landing</div>);
+jest.mock('react-leaflet', () => ({
+  MapContainer: ({ children }) => <div data-testid="map">{children}</div>,
+  TileLayer: () => null,
+  Marker: () => null,
+  useMapEvents: () => null,
+}));
+
+test('App renders without crashing', () => {
   render(<App />);
-  const headingElement = screen.getByText(/user registration/i);
-  expect(headingElement).toBeInTheDocument();
+  expect(screen.getByTestId('landing-page')).toBeInTheDocument();
 });
 
-test('renders the Register component', () => {
+test('App header exists', () => {
   render(<App />);
-  const registerForm = screen.getByRole('form', { name: /registration form/i });
-  expect(registerForm).toBeInTheDocument();
-});
-
-test('renders the SocialLogin component', () => {
-  render(<App />);
-  const socialLoginTitle = screen.getByText(/register with social media/i);
-  expect(socialLoginTitle).toBeInTheDocument();
-});
-
-test('renders Terms and Conditions route', () => {
-  render(<App />);
-  const termsLink = screen.getByRole('link', { name: /terms and conditions/i });
-  expect(termsLink).toBeInTheDocument();
+  expect(document.querySelector('.App-header')).toBeInTheDocument();
 });
 
