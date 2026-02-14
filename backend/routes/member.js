@@ -839,7 +839,7 @@ router.get("/profile", isAuthenticated, async (req, res) => {
   }
 });
 
-// Modify the member check-in endpoint
+// Member check-in endpoint (no transaction - mysql2 createConnection transaction API can cause errors)
 router.post("/check-in", isAuthenticated, async (req, res) => {
   const { reservationId } = req.body;
   const userId = req.session.user.id;
@@ -849,9 +849,6 @@ router.post("/check-in", isAuthenticated, async (req, res) => {
   }
 
   try {
-    // Start a transaction for data consistency
-    await db.promise().beginTransaction();
-
     // Verify that the reservation belongs to the user and is still active
     const [reservationResult] = await db.promise().query(
       `SELECT r.*, s.session_date, s.start_time, s.end_time, s.type, s.pool_id, p.name as pool_name,
@@ -866,67 +863,54 @@ router.post("/check-in", isAuthenticated, async (req, res) => {
     );
 
     if (!reservationResult.length) {
-      await db.promise().rollback();
       return res.status(404).json({ error: "Reservation not found or not active" });
     }
 
     const reservation = reservationResult[0];
-    
+
     // Check if already checked in
     if (reservation.status === 'completed') {
-      await db.promise().rollback();
       return res.status(400).json({ error: "Already checked in for this session" });
     }
-    
-    // Check if the session is for today
-    const sessionDate = new Date(reservation.session_date);
-    const today = new Date();
-    
-    if (sessionDate.toDateString() !== today.toDateString()) {
-      await db.promise().rollback();
-      return res.status(400).json({ 
-        error: "Check-in is only available on the day of the session" 
-      });
-    }
-    
-    // Check if it's within 1 hour of the session start time or after the start time
+
+    // Check-in window: from 1 day before session start to 15 minutes after session start
     const sessionStartTime = new Date(
       `${reservation.formatted_date}T${reservation.formatted_start}`
     );
     const now = new Date();
-    const oneHourBefore = new Date(sessionStartTime);
-    oneHourBefore.setHours(oneHourBefore.getHours() - 1);
-    
-    if (now < oneHourBefore) {
-      await db.promise().rollback();
-      return res.status(400).json({ 
-        error: "Check-in is only available within 1 hour of the session start time" 
+    const oneDayBefore = new Date(sessionStartTime.getTime() - 24 * 60 * 60 * 1000);
+    const fifteenMinutesAfter = new Date(sessionStartTime);
+    fifteenMinutesAfter.setMinutes(fifteenMinutesAfter.getMinutes() + 15);
+
+    if (now < oneDayBefore) {
+      return res.status(400).json({
+        error: "Check-in is only available from 1 day before your session starts."
       });
     }
-    
+    if (now > fifteenMinutesAfter) {
+      return res.status(400).json({
+        error: "Check-in window has closed. You can only check in up to 15 minutes after your session starts."
+      });
+    }
+
     // Get user's package information
     const [packageResult] = await db.promise().query(
       "SELECT * FROM packages WHERE user_id = ? AND remaining_sessions > 0 AND expiry_date >= CURDATE() ORDER BY created_at DESC LIMIT 1",
       [userId]
     );
-    
+
     if (!packageResult.length) {
-      await db.promise().rollback();
       return res.status(400).json({ error: "No active package found" });
     }
-    
+
     const userPackage = packageResult[0];
-    
+
     // Update reservation status to completed
     await db.promise().query(
       "UPDATE reservations SET status = 'completed' WHERE id = ?",
       [reservationId]
     );
-    
-    // Commit the transaction
-    await db.promise().commit();
 
-    // Return detailed success response
     res.json({
       success: true,
       message: "Check-in successful",
@@ -948,11 +932,12 @@ router.post("/check-in", isAuthenticated, async (req, res) => {
         remaining_sessions: userPackage.remaining_sessions
       }
     });
-
   } catch (error) {
-    await db.promise().rollback();
     console.error("Error during member check-in:", error);
-    res.status(500).json({ error: "Error processing check-in" });
+    res.status(500).json({
+      error: error.message || "Error processing check-in",
+      message: error.message || "Error processing check-in"
+    });
   }
 });
 

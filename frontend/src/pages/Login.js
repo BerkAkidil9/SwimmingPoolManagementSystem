@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import poolImage from "../pool.jpg";
 import "./LoginPage.css";
@@ -64,10 +64,18 @@ const LoginPage = () => {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     document.title = "Welcome Back - Swimming Pool Project";
   }, []);
+
+  useEffect(() => {
+    const err = searchParams.get("error");
+    if (err === "verify_email") {
+      setError("Lütfen e-posta adresinizi doğrulayın. Gelen linke tıklayıp ardından tekrar giriş yapın.");
+    }
+  }, [searchParams]);
 
   const handleSocialLogin = (provider) => {
     window.location.href = `http://localhost:3001/auth/${provider}`;

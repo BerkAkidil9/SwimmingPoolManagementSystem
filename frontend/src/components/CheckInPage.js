@@ -152,15 +152,7 @@ const CheckInPage = () => {
       const sessionDate = new Date(reservation.session_date);
       const today = new Date();
       
-      if (sessionDate.toDateString() !== today.toDateString()) {
-        setCheckInInfoStatus('error');
-        setCheckInInfoMessage('You can only check in on the day of your reservation.');
-        setShowCheckInInfoModal(true);
-        setLoading(false);
-        return;
-      }
-      
-      // Check if the current time is within the allowed check-in window (1 hour before to 15 minutes after start time)
+      // Check if the current time is within the allowed check-in window (1 day before to 15 minutes after start time)
       const sessionTime = reservation.start_time.split(':');
       const sessionHour = parseInt(sessionTime[0]);
       const sessionMinute = parseInt(sessionTime[1]);
@@ -168,15 +160,14 @@ const CheckInPage = () => {
       const sessionDateTime = new Date(sessionDate);
       sessionDateTime.setHours(sessionHour, sessionMinute);
       
-      const oneHourBefore = new Date(sessionDateTime);
-      oneHourBefore.setHours(oneHourBefore.getHours() - 1);
+      const oneDayBefore = new Date(sessionDateTime.getTime() - 24 * 60 * 60 * 1000);
       
       const fifteenMinutesAfter = new Date(sessionDateTime);
       fifteenMinutesAfter.setMinutes(fifteenMinutesAfter.getMinutes() + 15);
       
-      if (today < oneHourBefore) {
+      if (today < oneDayBefore) {
         setCheckInInfoStatus('error');
-        setCheckInInfoMessage('Check-in is only available 1 hour before your session starts.');
+        setCheckInInfoMessage('Check-in is only available from 1 day before your session starts.');
         setShowCheckInInfoModal(true);
         setLoading(false);
         return;
@@ -252,7 +243,11 @@ const CheckInPage = () => {
       }
     } catch (error) {
       setCheckInInfoStatus('error');
-      setCheckInInfoMessage(error.response?.data?.message || 'An error occurred during check-in.');
+      const msg = error.response?.data?.message
+        || error.response?.data?.error
+        || error.message
+        || 'An error occurred during check-in.';
+      setCheckInInfoMessage(msg);
       setShowCheckInInfoModal(true);
     } finally {
       setLoading(false);
@@ -307,7 +302,7 @@ const CheckInPage = () => {
           
           <p className="check-in-instructions">
             Check in for your swimming session by selecting your reservation below. 
-            You can check in up to 1 hour before your session starts.
+            You can check in from 1 day before your session starts.
           </p>
         </header>
 
@@ -345,14 +340,12 @@ const CheckInPage = () => {
                   parseInt(startTimeParts[1])
                 );
                 
-                // Calculate if check-in is available (1 hour before to 15 minutes after session start)
-                const checkInTime = new Date(sessionDateTime);
-                checkInTime.setHours(checkInTime.getHours() - 1);
-                
+                // Calculate if check-in is available (1 day before to 15 minutes after session start)
+                const checkInOpenTime = new Date(sessionDateTime.getTime() - 24 * 60 * 60 * 1000);
                 const checkInCloseTime = new Date(sessionDateTime);
                 checkInCloseTime.setMinutes(checkInCloseTime.getMinutes() + 15);
                 
-                const isCheckInAvailable = isToday && today >= checkInTime && today <= checkInCloseTime;
+                const isCheckInAvailable = today >= checkInOpenTime && today <= checkInCloseTime;
                 
                 const isCheckedIn = reservation.status === 'checked-in';
 
@@ -430,7 +423,7 @@ const CheckInPage = () => {
                       {!isCheckInAvailable && isToday && (
                         <div className="check-in-tooltip">
                           <FaInfoCircle />
-                          <span>Check-in will be available 1 hour before your session</span>
+                          <span>Check-in will be available from 1 day before your session</span>
                         </div>
                       )}
                     </div>
@@ -447,7 +440,7 @@ const CheckInPage = () => {
             <div className="info-card">
               <div className="card-icon"><FaClock /></div>
               <h3>Timing</h3>
-              <p>Check-in opens 1 hour before your scheduled session and closes 15 minutes after the session starts.</p>
+              <p>Check-in opens 1 day before your scheduled session and closes 15 minutes after the session starts.</p>
             </div>
             <div className="info-card">
               <div className="card-icon"><FaSwimmer /></div>
