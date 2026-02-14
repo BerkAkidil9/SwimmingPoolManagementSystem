@@ -29,7 +29,7 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid email or password." });
     }
 
-    // Check if email is verified
+    // E-posta doğrulaması zorunlu (sosyal dahil tüm hesaplar)
     if (!user.email_verified) {
       return res
         .status(403)

@@ -457,7 +457,7 @@ router.post(
       // Hash password only if it's provided (not social registration)
       const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
 
-      // Generate verification token
+      // Generate verification token (tüm kayıtlar için - sosyal dahil)
       const verificationToken = generateVerificationToken();
       const tokenExpires = new Date();
       tokenExpires.setHours(tokenExpires.getHours() + 24);
@@ -493,11 +493,10 @@ router.post(
           profilePhotoPath,
           verificationToken,
           tokenExpires,
-          false, // email_verified
+          false, // email_verified - doğrulama tüm hesaplar için gerekli
         ]
       );
 
-      // Add this after the insert
       const [checkUser] = await db
         .promise()
         .query(
@@ -509,7 +508,7 @@ router.post(
       console.log("User created with ID:", userResult.insertId);
       const userId = userResult.insertId;
 
-      // Send verification email
+      // Doğrulama e-postası tüm kayıtlar için (sosyal dahil)
       await sendVerificationEmail(
         socialUser?.email || email,
         verificationToken
@@ -560,7 +559,7 @@ router.post(
 
       console.log("Health information inserted successfully");
 
-      // Response without auto-login since email needs verification
+      // Tüm kayıtlarda e-posta doğrulama gerekli
       res.status(201).json({
         message:
           "Registration successful. Please check your email to verify your account.",
@@ -711,8 +710,12 @@ router.get(
   (req, res) => {
     console.log("Google callback - user object:", JSON.stringify(req.user, null, 2));
     
-    // If user is not temporary (i.e., it's an existing user), create a proper session
+    // If user is not temporary (i.e., it's an existing user), e-posta doğrulaması kontrolü
     if (!req.user.isTemp) {
+      if (!req.user.email_verified) {
+        req.session.destroy(() => {});
+        return res.redirect(`${process.env.FRONTEND_URL}/login?error=verify_email`);
+      }
       console.log("Redirecting existing user to dashboard");
       console.log("User role is:", req.user.role);
       
@@ -788,7 +791,11 @@ router.get(
         return res.redirect(`${process.env.FRONTEND_URL}/register/social`);
       });
     } else {
-      // Existing user - create session and redirect to dashboard
+      // Existing user - e-posta doğrulanmamışsa girişe izin verme
+      if (!req.user.email_verified) {
+        req.session.destroy(() => {});
+        return res.redirect(`${process.env.FRONTEND_URL}/login?error=verify_email`);
+      }
       req.session.user = {
         id: req.user.id,
         email: req.user.email,
@@ -842,7 +849,11 @@ router.get('/facebook/callback',
           return res.redirect(`${process.env.FRONTEND_URL}/register/social`);
         });
       } else {
-        // Existing user - create session and redirect to dashboard
+        // Existing user - e-posta doğrulanmamışsa girişe izin verme
+        if (!users[0].email_verified) {
+          req.session.destroy(() => {});
+          return res.redirect(`${process.env.FRONTEND_URL}/login?error=verify_email`);
+        }
         req.session.user = {
           id: users[0].id,
           email: users[0].email,
