@@ -26,6 +26,19 @@ router.get("/pools", isAdmin, async (req, res) => {
 router.post("/pools", isAdmin, async (req, res) => {
   const { name, capacity, rules, location } = req.body;
   
+  if (!name || !String(name).trim()) {
+    return res.status(400).json({ error: "Havuz adı zorunludur." });
+  }
+  if (!capacity || isNaN(capacity) || Number(capacity) <= 0) {
+    return res.status(400).json({ error: "Geçerli bir kapasite zorunludur." });
+  }
+  if (!rules || !String(rules).trim()) {
+    return res.status(400).json({ error: "Havuz kuralları zorunludur." });
+  }
+  if (!location || !String(location).trim()) {
+    return res.status(400).json({ error: "Konum zorunludur." });
+  }
+  
   try {
     const [result] = await db.promise().query(
       "INSERT INTO Pools (name, capacity, rules, location) VALUES (?, ?, ?, ?)",
@@ -56,6 +69,19 @@ router.delete("/pools/:poolId", isAdmin, async (req, res) => {
 router.put("/pools/:poolId", isAdmin, async (req, res) => {
   const { poolId } = req.params;
   const { name, capacity, rules, location } = req.body;
+  
+  if (!name || !String(name).trim()) {
+    return res.status(400).json({ error: "Havuz adı zorunludur." });
+  }
+  if (!capacity || isNaN(capacity) || Number(capacity) <= 0) {
+    return res.status(400).json({ error: "Geçerli bir kapasite zorunludur." });
+  }
+  if (!rules || !String(rules).trim()) {
+    return res.status(400).json({ error: "Havuz kuralları zorunludur." });
+  }
+  if (!location || !String(location).trim()) {
+    return res.status(400).json({ error: "Konum zorunludur." });
+  }
   
   try {
     await db.promise().query(

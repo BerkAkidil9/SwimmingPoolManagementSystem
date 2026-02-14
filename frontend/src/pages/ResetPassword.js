@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FaKey, FaEnvelope, FaExclamationTriangle, FaCheckCircle } from 'react-icons/fa';
+import { FaKey, FaEnvelope, FaExclamationTriangle, FaCheckCircle, FaEye, FaEyeSlash } from 'react-icons/fa';
 import './ResetPassword.css';
 
 const ResetPassword = () => {
@@ -14,6 +14,13 @@ const ResetPassword = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [capsLockOn, setCapsLockOn] = useState(false);
+
+  const handleKeyEvent = (e) => {
+    setCapsLockOn(e.getModifierState('CapsLock'));
+  };
 
   // Verify token on component mount
   useEffect(() => {
@@ -144,17 +151,34 @@ const ResetPassword = () => {
               <label>
                 <FaKey /> New Password
               </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength="8"
-                placeholder="Enter your new password"
-                onCopy={(e) => e.preventDefault()}
-                onPaste={(e) => e.preventDefault()}
-                onCut={(e) => e.preventDefault()}
-              />
+              <div className="password-input-container">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={handleKeyEvent}
+                  onKeyUp={handleKeyEvent}
+                  required
+                  minLength="8"
+                  placeholder="Enter your new password"
+                  onCopy={(e) => e.preventDefault()}
+                  onPaste={(e) => e.preventDefault()}
+                  onCut={(e) => e.preventDefault()}
+                />
+                {capsLockOn && (
+                  <div className="caps-lock-warning" aria-live="polite">
+                    <span>CAPS</span>
+                  </div>
+                )}
+                <button
+                  type="button"
+                  className="password-toggle-button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
               <small>Password must be at least 8 characters long</small>
             </div>
             
@@ -162,17 +186,34 @@ const ResetPassword = () => {
               <label>
                 <FaKey /> Confirm New Password
               </label>
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                minLength="8"
-                placeholder="Confirm your new password"
-                onCopy={(e) => e.preventDefault()}
-                onPaste={(e) => e.preventDefault()}
-                onCut={(e) => e.preventDefault()}
-              />
+              <div className="password-input-container">
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onKeyDown={handleKeyEvent}
+                  onKeyUp={handleKeyEvent}
+                  required
+                  minLength="8"
+                  placeholder="Confirm your new password"
+                  onCopy={(e) => e.preventDefault()}
+                  onPaste={(e) => e.preventDefault()}
+                  onCut={(e) => e.preventDefault()}
+                />
+                {capsLockOn && (
+                  <div className="caps-lock-warning" aria-live="polite">
+                    <span>CAPS</span>
+                  </div>
+                )}
+                <button
+                  type="button"
+                  className="password-toggle-button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
             </div>
             
             <button 

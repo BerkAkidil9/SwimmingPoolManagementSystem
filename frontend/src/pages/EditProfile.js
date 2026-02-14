@@ -691,7 +691,8 @@ const EditProfile = () => {
       window.scrollTo(0, 0);
     } catch (error) {
       console.error('Error updating profile:', error);
-      setErrorMessage(error.response?.data?.error || 'Failed to update profile. Please try again.');
+      const msg = error.response?.data?.error || error.response?.data?.message || 'Failed to update profile. Please try again.';
+      setErrorMessage(msg);
       setSuccessMessage('');
       
       // Scroll to top to show error message

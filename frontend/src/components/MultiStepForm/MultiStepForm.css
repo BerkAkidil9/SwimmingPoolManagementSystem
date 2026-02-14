@@ -12,6 +12,23 @@
     top: 0;
 }
 
+.register-page-logo {
+    position: fixed;
+    top: 24px;
+    left: 28px;
+    color: #004080;
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-weight: bold;
+    z-index: 100;
+    letter-spacing: 0.02em;
+    transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.register-page-logo:hover {
+    color: #0288d1;
+}
+
 /* Form Container */
 .form-step {
     width: 100%;
@@ -140,9 +157,30 @@
 .form-navigation {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin-top: 2rem;
     padding-top: 2rem;
     border-top: 1px solid #eee;
+}
+
+.form-navigation-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.already-have-account-inline {
+    color: #4a5568;
+    font-size: 14px;
+}
+
+.already-have-account-inline a {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.already-have-account-inline a:hover {
+    text-decoration: underline;
 }
 
 .nav-button {

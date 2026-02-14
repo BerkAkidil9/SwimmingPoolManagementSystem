@@ -418,7 +418,7 @@ const SessionManagement = () => {
       )}
       
       <button 
-        className="create-session-btn"
+        className={`create-session-btn ${showCreateForm ? 'cancel-btn' : ''}`}
         onClick={() => setShowCreateForm(!showCreateForm)}
       >
         {showCreateForm ? 'Cancel' : 'Create New Session'}

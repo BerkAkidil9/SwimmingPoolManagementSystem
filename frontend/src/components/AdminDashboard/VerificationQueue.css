@@ -1,16 +1,20 @@
 .verification-queue {
-  padding: 20px;
+  padding: 24px;
   max-width: 800px;
   margin: 0 auto;
-  background-color: #f5f5f5;
+  background-color: #fff;
   min-height: 100vh;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 
 .verification-queue h2 {
-  color: #333;
-  margin-bottom: 20px;
+  color: #1a1a1a;
+  margin-bottom: 24px;
   text-align: center;
   font-size: 24px;
+  font-weight: 600;
 }
 
 .verification-list {
@@ -20,11 +24,11 @@
 }
 
 .verification-item {
-  border: 1px solid #ddd;
+  border: 1px solid #b0bec5;
   border-radius: 8px;
   padding: 20px;
-  background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background-color: #fafafa;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
   transition: transform 0.2s ease;
 }
 
@@ -142,15 +146,19 @@
   box-shadow: none;
 }
 
-.loading {
+.verification-queue .loading {
   text-align: center;
-  color: #666;
+  color: #0D47A1;
   padding: 40px;
   font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 200px;
+  background: #E3F2FD;
+  border-radius: 12px;
+  border: 2px solid #1976D2;
+  margin: 20px 0;
 }
 
 .error {
@@ -172,6 +180,26 @@
   border-radius: 8px;
   margin: 20px 0;
   border: 1px solid #ddd;
+}
+
+/* No pending verifications - high contrast, clearly distinct */
+.no-verifications {
+  background: #E3F2FD;
+  border: 2px solid #1976D2;
+  border-radius: 12px;
+  padding: 40px 24px;
+  margin: 20px 0;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.2);
+}
+
+.no-verifications p {
+  color: #0D47A1;
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
 }
 
 /* Responsive adjustments */
