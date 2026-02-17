@@ -24,7 +24,7 @@ const VerificationQueue = () => {
   const fetchVerifications = async () => {
     try {
       const response = await axios.get('/api/admin/verifications');
-      console.log('Verifications:', response.data); // Debug için
+      console.log('Verifications:', response.data); // Debug
       setVerifications(response.data);
       setLoading(false);
     } catch (err) {

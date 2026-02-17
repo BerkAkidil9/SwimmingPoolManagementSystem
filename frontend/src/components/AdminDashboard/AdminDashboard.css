@@ -231,7 +231,7 @@ tr:last-child td {
   border-bottom: none;
 }
 
-/* Sadece tbody içindeki satırlara hover efekti uygula */
+/* Apply hover effect only to rows inside tbody */
 tbody tr:hover {
   background-color: #f8f9fa;
 }

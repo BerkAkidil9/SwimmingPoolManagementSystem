@@ -457,7 +457,7 @@ router.post(
       // Hash password only if it's provided (not social registration)
       const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
 
-      // Generate verification token (tüm kayıtlar için - sosyal dahil)
+      // Generate verification token (for all registrations - including social)
       const verificationToken = generateVerificationToken();
       const tokenExpires = new Date();
       tokenExpires.setHours(tokenExpires.getHours() + 24);
@@ -493,7 +493,7 @@ router.post(
           profilePhotoPath,
           verificationToken,
           tokenExpires,
-          false, // email_verified - doğrulama tüm hesaplar için gerekli
+          false, // email_verified - verification required for all accounts
         ]
       );
 
@@ -508,7 +508,7 @@ router.post(
       console.log("User created with ID:", userResult.insertId);
       const userId = userResult.insertId;
 
-      // Doğrulama e-postası tüm kayıtlar için (sosyal dahil)
+      // Verification email for all registrations (including social)
       await sendVerificationEmail(
         socialUser?.email || email,
         verificationToken
@@ -559,7 +559,7 @@ router.post(
 
       console.log("Health information inserted successfully");
 
-      // Tüm kayıtlarda e-posta doğrulama gerekli
+      // Email verification required for all registrations
       res.status(201).json({
         message:
           "Registration successful. Please check your email to verify your account.",
@@ -710,7 +710,7 @@ router.get(
   (req, res) => {
     console.log("Google callback - user object:", JSON.stringify(req.user, null, 2));
     
-    // If user is not temporary (i.e., it's an existing user), e-posta doğrulaması kontrolü
+    // If user is not temporary (i.e., it's an existing user), check email verification
     if (!req.user.isTemp) {
       if (!req.user.email_verified) {
         req.session.destroy(() => {});
@@ -791,7 +791,7 @@ router.get(
         return res.redirect(`${process.env.FRONTEND_URL}/register/social`);
       });
     } else {
-      // Existing user - e-posta doğrulanmamışsa girişe izin verme
+      // Existing user - do not allow login if email not verified
       if (!req.user.email_verified) {
         req.session.destroy(() => {});
         return res.redirect(`${process.env.FRONTEND_URL}/login?error=verify_email`);
@@ -849,7 +849,7 @@ router.get('/facebook/callback',
           return res.redirect(`${process.env.FRONTEND_URL}/register/social`);
         });
       } else {
-        // Existing user - e-posta doğrulanmamışsa girişe izin verme
+        // Existing user - do not allow login if email not verified
         if (!users[0].email_verified) {
           req.session.destroy(() => {});
           return res.redirect(`${process.env.FRONTEND_URL}/login?error=verify_email`);
@@ -881,7 +881,7 @@ router.post("/upload-id-card", upload.single("idCard"), async (req, res) => {
       return res.status(400).json({ error: "No file uploaded" });
     }
 
-    // Sadece dosya adını ve alt klasörü saklayalım
+    // Store only filename and subfolder
     const relativePath = req.file.path.replace('uploads/', '');
 
     await db
@@ -922,7 +922,7 @@ router.post(
         return res.status(401).json({ error: "User not authenticated" });
       }
 
-      // Sadece dosya adını ve alt klasörü saklayalım
+      // Store only filename and subfolder
       const relativePath = req.file.path.replace('uploads/', '');
 
       await db

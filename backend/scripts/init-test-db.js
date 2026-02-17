@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Test veritabanını oluşturur (SwimmingPoolManagementSystem_test).
- * .env dosyasındaki DB_HOST, DB_USER, DB_PASSWORD kullanılır.
- * Kullanım: node scripts/init-test-db.js
+ * Creates the test database (SwimmingPoolManagementSystem_test).
+ * Uses DB_HOST, DB_USER, DB_PASSWORD from .env file.
+ * Usage: node scripts/init-test-db.js
  */
 require('dotenv').config();
 const mysql = require('mysql2/promise');
@@ -27,9 +27,9 @@ async function initTestDb() {
     const sql = fs.readFileSync(schemaPath, 'utf8');
 
     await connection.query(sql);
-    console.log('SwimmingPoolManagementSystem_test veritabanı başarıyla oluşturuldu.');
+    console.log('SwimmingPoolManagementSystem_test database created successfully.');
   } catch (err) {
-    console.error('Hata:', err.message);
+    console.error('Error:', err.message);
     process.exit(1);
   } finally {
     if (connection) await connection.end();

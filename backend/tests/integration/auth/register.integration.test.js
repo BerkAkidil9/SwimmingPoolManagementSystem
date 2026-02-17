@@ -1,5 +1,5 @@
 /**
- * Register integration test - SwimmingPoolManagementSystem_test DB kullanır.
+ * Register integration test - Uses SwimmingPoolManagementSystem_test DB.
  */
 const request = require('supertest');
 const express = require('express');

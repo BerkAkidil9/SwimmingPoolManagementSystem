@@ -313,7 +313,7 @@
   background: #e3f2fd;
 }
 
-/* Eğer session yoksa farklı stil */
+/* Different style when no session */
 .session-count.empty {
   opacity: 0.6;
   background: #f5f5f5;
@@ -1635,7 +1635,7 @@
   min-width: 0;
 }
 
-/* Açık kart: iki sütun eşit */
+/* Expanded card: two equal columns */
 .reservation-card-expanded .reservation-left-col,
 .reservation-card-expanded .reservation-right-col {
   flex: 1 1 0;
@@ -1662,7 +1662,7 @@
   transform: translateY(-2px);
 }
 
-/* Tıklanabilir olduğunu göstermek için ikon ekleyelim */
+/* Add icon to indicate clickable */
 .reservation-header::after {
   content: '▼';
   font-size: 0.8rem;
@@ -1924,7 +1924,7 @@
   background: #e3f2fd;
 }
 
-/* Eğer session yoksa farklı stil */
+/* Different style when no session */
 .session-count.empty {
   opacity: 0.6;
   background: #f5f5f5;

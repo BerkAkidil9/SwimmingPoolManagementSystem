@@ -1,4 +1,4 @@
-# === GÜVENLİK - ASLA GİTMEMELİ ===
+# === SECURITY - NEVER COMMIT ===
 .env
 .env.*
 !.env.example
@@ -8,16 +8,16 @@ backend/.env
 *.env.test.local
 *.env.production.local
 
-# Kullanıcı yüklemeleri (kişisel veri - KVKK)
+# User uploads (personal data - GDPR)
 backend/uploads/*
 !backend/uploads/.gitkeep
 
-# IDE/Editör (DB şifreleri vs. içerebilir)
+# IDE/Editor (may contain DB passwords etc.)
 .vscode/
 .idea/
 *.session.sql
 
-# Veritabanı dump'ları ve migration dosyaları - gerçek kullanıcı verisi içerebilir
+# Database dumps and migration files - may contain real user data
 backup.sql
 backend/sql/schema_and_data.sql
 backend/sql/update_schema_health_report_reminders.sql
@@ -31,12 +31,12 @@ yarn-error.log*
 .pnp
 .pnp.js
 
-# === BUILD / DERİVED ===
+# === BUILD / DERIVED ===
 frontend/build/
 coverage/
 dist/
 
-# === GEREKSİZ DOSYALAR ===
+# === UNNECESSARY FILES ===
 *.bak
 *.tmp
 *.temp
@@ -46,17 +46,17 @@ Thumbs.db
 Desktop.ini
 .DS_Store
 
-# Test/dump dosyaları (MySQL dump, hassas veri içerebilir)
+# Test/dump files (MySQL dump, may contain sensitive data)
 deneme.txt
 
-# Gereksiz/geçici dosyalar
+# Unnecessary/temporary files
 NASIL_CALISTIRILIR.md
 GIT_HISTORY_CLEANUP.md
 MyDatabase.session.sql
 frontend/README.md
 frontend/src/components/DoctorDashboard/backup
 
-# Kişisel yardımcı scriptler ve migration dosyaları (hassas veri içerebilir)
+# Personal helper scripts and migration files (may contain sensitive data)
 backend/reset_mysql_password.ps1
 backend/mysql_reset_init.sql
 backend/mysql84_kullan.ps1

@@ -50,7 +50,7 @@ app.use(
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(null, true); // Geliştirme için tüm origin'lere izin ver
+        callback(null, true); // Allow all origins for development
       }
     },
     credentials: true,

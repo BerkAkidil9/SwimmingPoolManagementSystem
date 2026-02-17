@@ -17,9 +17,9 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid email or password." });
     }
 
-    // OAuth hesaplarının şifresi yok - bunlar Google/GitHub ile giriş yapmalı
+    // OAuth accounts have no password - they must log in with Google/GitHub
     if (!user.password) {
-      return res.status(403).json({ error: "Bu hesap Google/GitHub ile oluşturulmuş. Lütfen \"Continue with Google\" veya \"Continue with GitHub\" ile giriş yapın." });
+      return res.status(403).json({ error: "This account was created with Google/GitHub. Please log in with \"Continue with Google\" or \"Continue with GitHub\"." });
     }
 
     // Verify the password
@@ -29,7 +29,7 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid email or password." });
     }
 
-    // E-posta doğrulaması zorunlu (sosyal dahil tüm hesaplar)
+    // Email verification required (including social accounts)
     if (!user.email_verified) {
       return res
         .status(403)

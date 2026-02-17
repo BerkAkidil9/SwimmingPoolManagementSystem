@@ -4,7 +4,7 @@ body {
   margin: 0;
   padding: 0;
   background: linear-gradient(to right, #e0f7fa, #80deea); /* Mavi degrade arka plan */
-  color: #37474f; /* Koyu gri yazı tonu */
+  color: #37474f; /* Dark gray text */
   line-height: 1.6;
 }
 
@@ -16,7 +16,7 @@ body {
 
 /* Hero Section */
 .hero-section {
-  background-color: #004080; /* Koyu mavi arka plan */
+  background-color: #004080; /* Dark blue background */
   color: white;
   padding: 60px 20px;
   display: flex;
@@ -56,23 +56,23 @@ body {
 .secondary-button {
   padding: 12px 30px;
   font-size: 16px;
-  border: 2px solid white; /* Beyaz kenarlık */
+  border: 2px solid white; /* White border */
   border-radius: 30px;
   text-decoration: none;
-  background-color: transparent; /* Şeffaf arka plan */
-  color: white; /* Beyaz yazı */
+  background-color: transparent; /* Transparent background */
+  color: white; /* White text */
   cursor: pointer;
   transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
 }
 
 .primary-button:hover {
   background-color: white; /* Hover durumunda beyaz arka plan */
-  color: #004080; /* Koyu mavi yazı */
+  color: #004080; /* Dark blue text */
 }
 
 .secondary-button:hover {
   background-color: white; /* Hover durumunda beyaz arka plan */
-  color: #004080; /* Koyu mavi yazı */
+  color: #004080; /* Dark blue text */
 }
 
 /* About Section Styling */

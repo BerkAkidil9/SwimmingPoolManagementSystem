@@ -16,7 +16,7 @@ const CoachDashboard = () => {
       })
       .catch(err => {
         console.error("Failed to fetch members:", err);
-        setError("Üyeler yüklenemedi.");
+        setError("Failed to load members.");
       });
   }, []);
 
@@ -34,7 +34,7 @@ const CoachDashboard = () => {
       setSuccessId(userId);
       setTimeout(() => setSuccessId(null), 2000);
     } catch (err) {
-      setError(err.response?.data?.error || "Kaydetme başarısız.");
+      setError(err.response?.data?.error || "Failed to save.");
     } finally {
       setSavingId(null);
     }
