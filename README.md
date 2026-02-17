@@ -9,7 +9,7 @@ A full-stack swimming pool management system with multi-role support and compreh
 
 ---
 
-## Table of Contents
+## Table of Contents 
 
 - [Features](#features)
 - [Prerequisites](#prerequisites)
