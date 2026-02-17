@@ -17,8 +17,10 @@ backend/uploads/*
 .idea/
 *.session.sql
 
-# Veritabanı dump'ları - gerçek kullanıcı verisi içerir
+# Veritabanı dump'ları ve migration dosyaları - gerçek kullanıcı verisi içerebilir
 backend/sql/schema_and_data.sql
+backend/sql/update_schema_health_report_reminders.sql
+backend/sql/add_health_report_request_limit.sql
 
 # === NODE ===
 node_modules/
@@ -46,5 +48,26 @@ Desktop.ini
 # Test/dump dosyaları (MySQL dump, hassas veri içerebilir)
 deneme.txt
 
-# Bozuk/geçici dosyalar
-backend/*
+# Gereksiz/geçici dosyalar
+NASIL_CALISTIRILIR.md
+GIT_HISTORY_CLEANUP.md
+MyDatabase.session.sql
+frontend/README.md
+frontend/src/components/DoctorDashboard/backup
+
+# Kişisel yardımcı scriptler ve migration dosyaları (hassas veri içerebilir)
+backend/reset_mysql_password.ps1
+backend/mysql_reset_init.sql
+backend/mysql84_kullan.ps1
+backend/update_health_status.sql
+backend/schema_update.sql
+backend/create_status_history.sql
+backend/migrations/staff_role.sql
+backend/migrations/qr_verification_tracking.sql
+backend/migrations/doctor_role.sql
+backend/migrations/coach_role.sql
+
+# Test artifacts
+tests/e2e/playwright-report/
+tests/e2e/test-results/
+tests/backend/

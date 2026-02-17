@@ -5,8 +5,8 @@ import axios from 'axios';
 import './StripeCheckout.css';
 import { FaCreditCard } from 'react-icons/fa';
 
-// Initialize Stripe with your publishable key
-const stripePromise = loadStripe('pk_test_51QsuZlBM71F34f4Se9yVZWKYLaKxjuEIb1FMCEKU1Fd7qNqlqntsJ9fEgLNFaxs16MJn30wunStVWcZc8U6FJL8m00gMluf5Bc');
+// Initialize Stripe with publishable key from environment
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || '');
 
 // Card element styling
 const cardElementOptions = {
