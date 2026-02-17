@@ -5,15 +5,13 @@
 [![MySQL](https://img.shields.io/badge/MySQL-8+-4479A1?style=flat&logo=mysql&logoColor=white)](https://www.mysql.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A full-stack swimming pool management system with multi-role support, health verification, reservations, QR check-in, Stripe payments, and OAuth authentication.
+A full-stack swimming pool management system with multi-role support and comprehensive features including health verification, reservations, QR check-in, Stripe payments, OAuth authentication, feedback, email verification, and more.
 
 ---
 
 ## Table of Contents
 
 - [Features](#features)
-- [Architecture](#architecture)
-- [Project Structure](#project-structure)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Environment Variables](#environment-variables)
@@ -27,20 +25,27 @@ A full-stack swimming pool management system with multi-role support, health ver
 ## Features
 
 ### Public
-- **Landing page** – Hero section, about us, package overview, pool locations (Leaflet map)
+- **Landing page** – About us, package overview, pool locations (Leaflet map)
 - **Multi-step registration** – Personal info, health info, emergency contact, terms acceptance
 - **Social login** – Google, GitHub, Facebook OAuth
 - **Email verification** – Token-based verification flow
 - **Password reset** – Forgot password via email link
 - **Two package types** – Education (12 sessions, 7 AM–6 PM) and Free Swimming (18 sessions, 7 AM–12 AM)
 
+### Shared Navbar (logged-in users)
+- Role-based dashboard link (Admin Panel, Doctor Dashboard, Coach Dashboard, Staff Verification, Member Dashboard)
+- Admin/Doctor/Coach: extra Member Dashboard link
+- Billing
+- Edit Profile (profile and health info management)
+- Logout
+
+*Landing Page and Staff Verification use their own layouts.*
+
 ### Member Dashboard
 - View and purchase packages
 - Create and cancel session reservations
 - QR code for check-in
-- Billing, payment methods (Stripe), transaction history
-- Profile and health info management
-- Health report upload
+- Transaction history
 - Feedback submission
 
 ### Admin Dashboard
@@ -54,6 +59,7 @@ A full-stack swimming pool management system with multi-role support, health ver
 - Health review queue
 - Approve, reject, or request health reports
 - Upload health reports on behalf of users
+- Health report upload (via doctor email link – members receive link and upload at `/upload-health-report/:userId`)
 - Send health report reminders
 - View pending reminders
 
@@ -67,88 +73,11 @@ A full-stack swimming pool management system with multi-role support, health ver
 
 ---
 
-## Architecture
-
-```mermaid
-flowchart TB
-    subgraph Frontend [React Frontend]
-        LP[LandingPage]
-        Reg[Registration]
-        Auth[Login and OAuth]
-        MemberDash[Member Dashboard]
-        AdminDash[Admin Dashboard]
-        DoctorDash[Doctor Dashboard]
-        StaffPortal[Staff Verification]
-        CoachDash[Coach Dashboard]
-    end
-    
-    subgraph Backend [Express API]
-        AuthR[/auth]
-        AdminR[/api/admin]
-        MemberR[/api/member]
-        DoctorR[/api/doctor]
-        StaffR[/api/staff]
-        CoachR[/api/coach]
-        PaymentR[/api/payment]
-    end
-    
-    subgraph Ext [External Services]
-        MySQL[(MySQL)]
-        Stripe[Stripe]
-        OAuth[Google, GitHub, Facebook]
-        Email[Nodemailer]
-    end
-    
-    LP --> AuthR
-    Reg --> AuthR
-    Auth --> AuthR
-    MemberDash --> MemberR
-    AdminDash --> AdminR
-    DoctorDash --> DoctorR
-    StaffPortal --> StaffR
-    CoachDash --> CoachR
-    
-    AuthR --> MySQL
-    AdminR --> MySQL
-    MemberR --> MySQL
-    DoctorR --> MySQL
-    StaffR --> MySQL
-    CoachR --> MySQL
-    PaymentR --> Stripe
-    AuthR --> OAuth
-    AuthR --> Email
-```
-
----
-
-## Project Structure
-
-```
-bitirme-projesi/
-├── backend/                 # Express API
-│   ├── config/              # Database, Passport
-│   ├── middleware/         # Auth (isAdmin, isDoctor, etc.)
-│   ├── routes/              # API routes (admin, member, doctor, staff, coach, payment, etc.)
-│   ├── scripts/             # Test DB setup
-│   ├── sql/                 # schema_only.sql – database schema
-│   ├── uploads/             # User uploads (gitignored)
-│   └── index.js             # Entry point
-├── frontend/                # React app
-│   ├── public/
-│   └── src/
-│       ├── components/
-│       ├── pages/
-│       └── App.js
-└── tests/
-    └── e2e/                 # Playwright E2E tests
-```
-
----
-
 ## Prerequisites
 
 - **Node.js** 18 or higher
 - **MySQL** 8 or higher
+- **React** 18 (frontend – Create React App ile gelir)
 - **npm** or **yarn**
 - (Optional) Stripe account, Google/GitHub/Facebook OAuth apps for full functionality
 
@@ -179,8 +108,9 @@ Or in MySQL Workbench: select the database, then run `backend/sql/schema_only.sq
 cd backend
 npm install
 cp .env.example .env
-# Edit .env with your database credentials and API keys
 ```
+
+`cp .env.example .env` creates `.env` from the template; edit `.env` with your database credentials and API keys.
 
 ### 4. Frontend setup
 
@@ -205,8 +135,6 @@ Copy from `backend/.env.example` and fill in:
 | `DB_USER` | MySQL user |
 | `DB_PASSWORD` | MySQL password |
 | `DB_NAME` | Database name (default: BitirmeProjesi) |
-| `SESSION_SECRET` | Session encryption key (**required in production**) |
-| `JWT_SECRET` | JWT signing secret |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth (optional) |
 | `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | GitHub OAuth (optional) |
 | `FACEBOOK_CLIENT_ID` / `FACEBOOK_CLIENT_SECRET` | Facebook OAuth (optional) |
@@ -288,7 +216,6 @@ See [tests/README.md](tests/README.md) for detailed test structure and coverage.
 ## Security Notes
 
 - **Never commit** `.env` files or real credentials. Use `.env.example` as a template.
-- **Production:** Set strong `SESSION_SECRET` and `JWT_SECRET`; do not rely on fallback values.
 - **Email:** Configure `EMAIL_USER` and `EMAIL_PASSWORD` for verification and password reset emails.
 - User uploads (`backend/uploads/`) are excluded from version control.
 
