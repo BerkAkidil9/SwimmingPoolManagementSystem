@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../config/database");
 
-// Import Stripe with your secret key
+// Import Stripe with secret key from environment
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // Middleware to check if user is authenticated
