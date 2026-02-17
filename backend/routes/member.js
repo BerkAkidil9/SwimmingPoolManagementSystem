@@ -996,7 +996,7 @@ router.post("/update-profile", isAuthenticated, async (req, res) => {
     res.json({ message: "Profile updated successfully" });
   } catch (error) {
     console.error("Error updating profile:", error);
-    // Kullanıcıya anlamlı hata mesajı göster
+    // Show meaningful error message to user
     if (error.code === "ER_DUP_ENTRY") {
       if (error.message && error.message.includes("email")) {
         return res.status(400).json({ error: "This email is already in use by another account." });

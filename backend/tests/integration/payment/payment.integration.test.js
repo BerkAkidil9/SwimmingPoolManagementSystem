@@ -1,5 +1,5 @@
 /**
- * Payment integration test - SwimmingPoolManagementSystem_test DB kullanır.
+ * Payment integration test - Uses SwimmingPoolManagementSystem_test DB.
  */
 const request = require('supertest');
 const express = require('express');

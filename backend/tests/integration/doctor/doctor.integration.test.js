@@ -1,5 +1,5 @@
 /**
- * Doctor integration test - SwimmingPoolManagementSystem_test DB kullanır.
+ * Doctor integration test - Uses SwimmingPoolManagementSystem_test DB.
  */
 const request = require('supertest');
 const bcrypt = require('bcryptjs');

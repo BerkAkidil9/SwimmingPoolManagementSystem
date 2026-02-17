@@ -1,8 +1,8 @@
-# Test Dokümantasyonu
+# Test Documentation
 
-Projenin modül bazlı test yapısı - tam kapsam.
+Module-based test structure with full coverage.
 
-## Klasör Yapısı
+## Folder Structure
 
 - **backend/tests/** - Backend unit + integration
   - unit/auth, unit/admin (pools, verifications, sessions, feedback), unit/member, unit/doctor, unit/staff, unit/coach
@@ -29,21 +29,21 @@ Projenin modül bazlı test yapısı - tam kapsam.
   - doctor/ (healthReviewFlow)
   - staff/ (qrVerification)
 
-## Test Çalıştırma
+## Running Tests
 
 ```bash
-# Backend unit testleri (gerçek DB'yi etkilemez)
+# Backend unit tests (does not affect real DB)
 cd backend && npm test
 
-# Backend integration testleri (SwimmingPoolManagementSystem_test - gerçek DB'yi etkilemez)
+# Backend integration tests (SwimmingPoolManagementSystem_test - does not affect real DB)
 cd backend
-npm run db:test:setup   # İlk kez: SwimmingPoolManagementSystem_test oluşturur
-npm run test:integration  # 29 test
+npm run db:test:setup   # First time: creates SwimmingPoolManagementSystem_test
+npm run test:integration  # 29 tests
 
 # Frontend
 cd frontend && npm test
 
 # E2E
 cd tests/e2e && npm install && npm test
-# Backend + frontend çalışıyor olmalı
+# Backend + frontend must be running
 ```

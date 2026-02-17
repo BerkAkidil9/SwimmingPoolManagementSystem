@@ -27,16 +27,16 @@ router.post("/pools", isAdmin, async (req, res) => {
   const { name, capacity, rules, location } = req.body;
   
   if (!name || !String(name).trim()) {
-    return res.status(400).json({ error: "Havuz adı zorunludur." });
+    return res.status(400).json({ error: "Pool name is required." });
   }
   if (!capacity || isNaN(capacity) || Number(capacity) <= 0) {
-    return res.status(400).json({ error: "Geçerli bir kapasite zorunludur." });
+    return res.status(400).json({ error: "Valid capacity is required." });
   }
   if (!rules || !String(rules).trim()) {
-    return res.status(400).json({ error: "Havuz kuralları zorunludur." });
+    return res.status(400).json({ error: "Pool rules are required." });
   }
   if (!location || !String(location).trim()) {
-    return res.status(400).json({ error: "Konum zorunludur." });
+    return res.status(400).json({ error: "Location is required." });
   }
   
   try {
@@ -71,16 +71,16 @@ router.put("/pools/:poolId", isAdmin, async (req, res) => {
   const { name, capacity, rules, location } = req.body;
   
   if (!name || !String(name).trim()) {
-    return res.status(400).json({ error: "Havuz adı zorunludur." });
+    return res.status(400).json({ error: "Pool name is required." });
   }
   if (!capacity || isNaN(capacity) || Number(capacity) <= 0) {
-    return res.status(400).json({ error: "Geçerli bir kapasite zorunludur." });
+    return res.status(400).json({ error: "Valid capacity is required." });
   }
   if (!rules || !String(rules).trim()) {
-    return res.status(400).json({ error: "Havuz kuralları zorunludur." });
+    return res.status(400).json({ error: "Pool rules are required." });
   }
   if (!location || !String(location).trim()) {
-    return res.status(400).json({ error: "Konum zorunludur." });
+    return res.status(400).json({ error: "Location is required." });
   }
   
   try {

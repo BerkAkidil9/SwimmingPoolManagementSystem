@@ -31,16 +31,16 @@
     box-shadow: 0 2px 12px rgba(0,0,0,0.08);
 }
 
-/* Textarea'lar için sabit boyut */
+/* Fixed size for textareas */
 .health-info-step textarea {
-  resize: none;  /* Boyut değiştirmeyi devre dışı bırakır */
-  height: 100px;  /* Biraz daha yüksek */
-  width: 100%;   /* Tam genişlik */
+  resize: none;  /* Disable resizing */
+  height: 100px;  /* Slightly taller */
+  width: 100%;   /* Full width */
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 0.9rem;
   line-height: 1.5;
-  overflow-y: auto; /* Dikey scroll çubuğu gerekirse gösterir */
-  box-sizing: border-box; /* Padding'i yüksekliğe dahil eder */
+  overflow-y: auto; /* Show vertical scrollbar if needed */
+  box-sizing: border-box; /* Include padding in height */
 } 

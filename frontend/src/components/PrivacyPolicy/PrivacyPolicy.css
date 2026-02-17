@@ -54,7 +54,7 @@
 }
 
 .privacy-policy .policy-content section h2 {
-    color: #f44336 !important; /* Kırmızı tonu */
+    color: #f44336 !important; /* Red tone */
     font-size: 1.5rem;
     margin-bottom: 1.5rem;
     border-bottom: 2px solid rgba(255, 255, 255, 0.3);
@@ -94,7 +94,7 @@
     top: -2px;
 }
 
-/* Her section için farklı gradient tonları */
+/* Different gradient tones for each section */
 .policy-content section:nth-child(2n) {
     background: linear-gradient(135deg, #0D47A1, #1565C0);
 }

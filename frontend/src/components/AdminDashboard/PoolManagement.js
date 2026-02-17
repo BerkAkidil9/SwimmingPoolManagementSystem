@@ -61,19 +61,19 @@ const PoolManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!newPool.name?.trim()) {
-      alert('Lütfen havuz adını girin.');
+      alert('Please enter the pool name.');
       return;
     }
     if (!newPool.capacity || Number(newPool.capacity) <= 0) {
-      alert('Lütfen geçerli bir kapasite girin.');
+      alert('Please enter a valid capacity.');
       return;
     }
     if (!newPool.rules?.trim()) {
-      alert('Lütfen havuz kurallarını girin.');
+      alert('Please enter the pool rules.');
       return;
     }
     if (!newPool.location?.trim()) {
-      alert('Lütfen haritadan konum seçin.');
+      alert('Please select a location on the map.');
       return;
     }
     try {
@@ -88,7 +88,7 @@ const PoolManagement = () => {
       fetchPools();
       alert(isEditing ? 'Pool updated successfully!' : 'Pool added successfully!');
     } catch (err) {
-      const msg = err.response?.data?.error || (isEditing ? 'Havuz güncellenemedi.' : 'Havuz eklenemedi.');
+      const msg = err.response?.data?.error || (isEditing ? 'Failed to update pool.' : 'Failed to add pool.');
       alert(msg);
     }
   };

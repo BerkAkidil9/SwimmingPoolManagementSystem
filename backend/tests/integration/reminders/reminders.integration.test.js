@@ -1,5 +1,5 @@
 /**
- * Reminders integration test - SwimmingPoolManagementSystem_test DB kullanır.
+ * Reminders integration test - Uses SwimmingPoolManagementSystem_test DB.
  */
 const request = require('supertest');
 const bcrypt = require('bcryptjs');

@@ -293,7 +293,7 @@ const MultiStepForm = ({ isSocialRegistration: isFromSocial }) => {
         }
     };
 
-    // Başarılı kayıt durumunda gösterilecek component
+    // Component to show on successful registration
     const RegistrationSuccess = ({ onLoginClick }) => {
         return (
             <div className="registration-success">

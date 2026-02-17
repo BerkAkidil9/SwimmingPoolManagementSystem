@@ -73,7 +73,7 @@ const LoginPage = () => {
   useEffect(() => {
     const err = searchParams.get("error");
     if (err === "verify_email") {
-      setError("Lütfen e-posta adresinizi doğrulayın. Gelen linke tıklayıp ardından tekrar giriş yapın.");
+      setError("Please verify your email address. Click the link we sent you and then try logging in again.");
     }
   }, [searchParams]);
 
