@@ -1,5 +1,5 @@
 /**
- * Staff integration test - BitirmeProjesi_test DB kullanır.
+ * Staff integration test - SwimmingPoolManagementSystem_test DB kullanır.
  */
 const request = require('supertest');
 const bcrypt = require('bcryptjs');

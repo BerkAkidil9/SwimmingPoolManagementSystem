@@ -1,5 +1,5 @@
 /**
- * Payment integration test - BitirmeProjesi_test DB kullanır.
+ * Payment integration test - SwimmingPoolManagementSystem_test DB kullanır.
  */
 const request = require('supertest');
 const express = require('express');
