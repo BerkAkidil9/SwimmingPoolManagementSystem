@@ -1,5 +1,5 @@
 /**
- * Login integration test - uses real BitirmeProjesi_test database.
+ * Login integration test - uses real SwimmingPoolManagementSystem_test database.
  * Run: npm run db:test:setup  (then) npm run test:integration
  */
 const request = require('supertest');

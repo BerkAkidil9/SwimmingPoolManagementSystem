@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Test veritabanını oluşturur (BitirmeProjesi_test).
+ * Test veritabanını oluşturur (SwimmingPoolManagementSystem_test).
  * .env dosyasındaki DB_HOST, DB_USER, DB_PASSWORD kullanılır.
  * Kullanım: node scripts/init-test-db.js
  */
@@ -27,7 +27,7 @@ async function initTestDb() {
     const sql = fs.readFileSync(schemaPath, 'utf8');
 
     await connection.query(sql);
-    console.log('BitirmeProjesi_test veritabanı başarıyla oluşturuldu.');
+    console.log('SwimmingPoolManagementSystem_test veritabanı başarıyla oluşturuldu.');
   } catch (err) {
     console.error('Hata:', err.message);
     process.exit(1);

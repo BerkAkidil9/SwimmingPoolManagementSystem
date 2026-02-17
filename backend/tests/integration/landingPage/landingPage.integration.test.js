@@ -1,5 +1,5 @@
 /**
- * LandingPage integration test - uses real BitirmeProjesi_test database.
+ * LandingPage integration test - uses real SwimmingPoolManagementSystem_test database.
  */
 const request = require('supertest');
 const express = require('express');

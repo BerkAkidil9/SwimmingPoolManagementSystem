@@ -1,5 +1,5 @@
 /**
- * Register integration test - BitirmeProjesi_test DB kullanır.
+ * Register integration test - SwimmingPoolManagementSystem_test DB kullanır.
  */
 const request = require('supertest');
 const express = require('express');

@@ -1,4 +1,4 @@
-# Swim Center
+# Swim Center (Swimming Pool Management System)
 
 [![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=flat&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-18-61DAFB?style=flat&logo=react&logoColor=black)](https://reactjs.org/)
@@ -88,8 +88,8 @@ A full-stack swimming pool management system with multi-role support and compreh
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/bitirme-projesi.git
-cd bitirme-projesi
+git clone https://github.com/BerkAkidil9/SwimmingPoolManagementSystem.git
+cd SwimmingPoolManagementSystem
 ```
 
 ### 2. Database setup
@@ -100,7 +100,7 @@ Create the database and tables using the schema file:
 mysql -u root -p < backend/sql/schema_only.sql
 ```
 
-Or in MySQL Workbench: select the database, then run `backend/sql/schema_only.sql`.
+Or in MySQL Workbench: select the database `SwimmingPoolManagementSystem`, then run `backend/sql/schema_only.sql`.
 
 ### 3. Backend setup
 
@@ -134,7 +134,7 @@ Copy from `backend/.env.example` and fill in:
 | `DB_HOST` | MySQL host (default: localhost) |
 | `DB_USER` | MySQL user |
 | `DB_PASSWORD` | MySQL password |
-| `DB_NAME` | Database name (default: BitirmeProjesi) |
+| `DB_NAME` | Database name (default: SwimmingPoolManagementSystem) |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth (optional) |
 | `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | GitHub OAuth (optional) |
 | `FACEBOOK_CLIENT_ID` / `FACEBOOK_CLIENT_SECRET` | Facebook OAuth (optional) |
@@ -184,7 +184,7 @@ npm test
 
 ### Backend integration tests
 
-Requires a separate test database `BitirmeProjesi_test`:
+Requires a separate test database `SwimmingPoolManagementSystem_test`:
 
 ```bash
 cd backend

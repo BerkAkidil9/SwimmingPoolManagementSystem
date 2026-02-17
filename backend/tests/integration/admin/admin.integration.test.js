@@ -1,5 +1,5 @@
 /**
- * Admin integration test - BitirmeProjesi_test DB kullanır.
+ * Admin integration test - SwimmingPoolManagementSystem_test DB kullanır.
  */
 const request = require('supertest');
 const bcrypt = require('bcryptjs');

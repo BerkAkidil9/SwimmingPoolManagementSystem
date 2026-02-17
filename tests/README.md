@@ -8,7 +8,7 @@ Projenin modül bazlı test yapısı - tam kapsam.
   - unit/auth, unit/admin (pools, verifications, sessions, feedback), unit/member, unit/doctor, unit/staff, unit/coach
   - unit/middleware (auth: isAdmin, isDoctor), unit/payment, unit/reminders, unit/landingPage, unit/utils
   - integration/auth (login, register), integration/member, integration/admin, integration/doctor, integration/staff
-  - integration/payment, integration/reminders, integration/landingPage (BitirmeProjesi_test DB)
+  - integration/payment, integration/reminders, integration/landingPage (SwimmingPoolManagementSystem_test DB)
 - **backend/middleware/auth.js** - isAdmin, isDoctor
 - **frontend/src/__tests__/** - Frontend unit
   - auth/ (Login, ForgotPassword, ResetPassword, SocialLogin)
@@ -35,9 +35,9 @@ Projenin modül bazlı test yapısı - tam kapsam.
 # Backend unit testleri (gerçek DB'yi etkilemez)
 cd backend && npm test
 
-# Backend integration testleri (BitirmeProjesi_test - gerçek DB'yi etkilemez)
+# Backend integration testleri (SwimmingPoolManagementSystem_test - gerçek DB'yi etkilemez)
 cd backend
-npm run db:test:setup   # İlk kez: BitirmeProjesi_test oluşturur
+npm run db:test:setup   # İlk kez: SwimmingPoolManagementSystem_test oluşturur
 npm run test:integration  # 29 test
 
 # Frontend
