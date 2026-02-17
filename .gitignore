@@ -57,6 +57,8 @@ frontend/README.md
 frontend/src/components/DoctorDashboard/backup
 
 # Personal helper scripts and migration files (may contain sensitive data)
+backend/scripts/create-user4.js
+backend/scripts/reset-user4-for-email-test.js
 backend/reset_mysql_password.ps1
 backend/mysql_reset_init.sql
 backend/mysql84_kullan.ps1
