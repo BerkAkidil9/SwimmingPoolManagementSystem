@@ -33,6 +33,7 @@ yarn-error.log*
 
 # === BUILD / DERIVED ===
 frontend/build/
+.wrangler/
 coverage/
 dist/
 
