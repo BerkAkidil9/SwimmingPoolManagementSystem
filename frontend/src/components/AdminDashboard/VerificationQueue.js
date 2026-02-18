@@ -185,10 +185,24 @@ const VerificationQueue = () => {
             <div className="documents-container">
               <div className="document-frame">
                 <h4>ID Card</h4>
-                <iframe
-                  src={selectedUser.id_card_path?.startsWith('https://') ? selectedUser.id_card_path : `${API_BASE_URL}/uploads/${selectedUser.id_card_path}`}
-                  title="ID Card"
-                />
+                {selectedUser.id_card_path ? (
+                  <>
+                    <iframe
+                      src={selectedUser.id_card_path?.startsWith('https://') ? selectedUser.id_card_path : `${API_BASE_URL}/uploads/${selectedUser.id_card_path}`}
+                      title="ID Card"
+                    />
+                    <a
+                      href={selectedUser.id_card_path?.startsWith('https://') ? selectedUser.id_card_path : `${API_BASE_URL}/uploads/${selectedUser.id_card_path}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="view-doc-link"
+                    >
+                      PDF'i yeni sekmede aç
+                    </a>
+                  </>
+                ) : (
+                  <p className="no-document">Döküman yüklenmemiş</p>
+                )}
               </div>
               <div className="document-frame">
                 <h4>Profile Photo</h4>

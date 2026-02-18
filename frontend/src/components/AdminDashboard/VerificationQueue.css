@@ -289,6 +289,24 @@
   object-fit: contain;
 }
 
+.document-frame .view-doc-link {
+  display: inline-block;
+  margin-top: 8px;
+  color: #1976d2;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.document-frame .view-doc-link:hover {
+  text-decoration: underline;
+}
+
+.document-frame .no-document {
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+}
+
 .view-documents-btn {
   background-color: #4CAF50;
   color: white;
