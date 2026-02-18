@@ -58,66 +58,45 @@ router.post("/verify-qr-code", async (req, res) => {
       return res.status(400).json({ error: "Missing required QR code information" });
     }
     
-    // Start a transaction for data consistency
-    await db.promise().beginTransaction();
-    
-    try {
-      // Check if the QR code has already been verified
-      console.log("QR Verification API - Checking for existing verifications for code:", checkInCode);
-      
-      const [existingVerifications] = await db.promise().query(
+    const result = await db.transaction(async (trx) => {
+      const [existingVerifications] = await trx.query(
         "SELECT * FROM qr_code_verifications WHERE check_in_code = ?",
         [checkInCode]
       );
-      console.log("QR Verification API - Existing verifications found:", existingVerifications.length);
       
       if (existingVerifications.length > 0) {
-        await db.promise().rollback();
-        return res.status(400).json({
-          status: 'invalid',
-          error: "This QR code has already been used",
-          details: {
-            verifiedAt: existingVerifications[0].verified_at
-          }
-        });
+        const err = new Error("This QR code has already been used");
+        err.statusCode = 400;
+        err.verifiedAt = existingVerifications[0].verified_at;
+        throw err;
       }
       
-      // Verify the reservation exists and matches the QR code
-      console.log("QR Verification API - Checking reservation details for ID:", reservationId);
-      
-      const [reservations] = await db.promise().query(
+      const [reservations] = await trx.query(
         `SELECT r.*, s.session_date, s.start_time, s.end_time, s.type, p.name as pool_name,
          u.name as user_name, u.surname as user_surname
          FROM reservations r
          JOIN sessions s ON r.session_id = s.id
-         JOIN Pools p ON s.pool_id = p.id
+         JOIN "Pools" p ON s.pool_id = p.id
          JOIN users u ON r.user_id = u.id
          WHERE r.id = ? AND r.status = 'completed'`,
         [reservationId]
       );
-      console.log("QR Verification API - Reservation found:", reservations.length > 0);
       
       if (reservations.length === 0) {
-        await db.promise().rollback();
-        return res.status(404).json({
-          status: 'invalid',
-          error: "Reservation not found or not checked in"
-        });
+        const err = new Error("Reservation not found or not checked in");
+        err.statusCode = 404;
+        throw err;
       }
       
       const reservation = reservations[0];
       
-      // Check if the check-in code follows the expected format
       const isValidCheckInCode = checkInCode.startsWith(`${reservationId}-`);
       if (!isValidCheckInCode) {
-        await db.promise().rollback();
-        return res.status(400).json({
-          status: 'invalid',
-          error: "Invalid check-in code format"
-        });
+        const err = new Error("Invalid check-in code format");
+        err.statusCode = 400;
+        throw err;
       }
       
-      // Additional verification logic to check if the session is still valid
       const sessionDate = new Date(reservation.session_date);
       const sessionEnd = new Date(sessionDate);
       const [hours, minutes] = reservation.end_time.split(':').map(Number);
@@ -126,26 +105,19 @@ router.post("/verify-qr-code", async (req, res) => {
       const now = new Date();
       
       if (now > sessionEnd) {
-        await db.promise().rollback();
-        return res.status(400).json({
-          status: 'invalid',
-          error: "Session has already ended"
-        });
+        const err = new Error("Session has already ended");
+        err.statusCode = 400;
+        throw err;
       }
       
-      // All verification passed, record the verification to prevent reuse
       const staffId = req.session.user.id;
       
-      await db.promise().query(
+      await trx.query(
         "INSERT INTO qr_code_verifications (reservation_id, check_in_code, verified_by) VALUES (?, ?, ?)",
         [reservationId, checkInCode, staffId]
       );
       
-      // Commit the transaction
-      await db.promise().commit();
-      
-      // Return success response with member and session details
-      return res.json({
+      return {
         status: 'valid',
         message: "QR code verified successfully",
         memberDetails: {
@@ -160,16 +132,17 @@ router.post("/verify-qr-code", async (req, res) => {
           poolName: reservation.pool_name,
           date: sessionDate.toISOString().split('T')[0]
         }
-      });
-      
-    } catch (error) {
-      console.error("QR Verification API - Transaction error:", error);
-      await db.promise().rollback();
-      throw error; // Pass to outer catch block
-    }
+      };
+    });
+
+    return res.json(result);
   } catch (err) {
+    if (err.statusCode) {
+      const body = { status: 'invalid', error: err.message };
+      if (err.verifiedAt) body.details = { verifiedAt: err.verifiedAt };
+      return res.status(err.statusCode).json(body);
+    }
     console.error("QR verification error:", err.message);
-    console.error("Full error stack:", err.stack);
     res.status(500).json({ error: `Server error during verification: ${err.message}` });
   }
 });

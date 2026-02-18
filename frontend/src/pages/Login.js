@@ -78,7 +78,8 @@ const LoginPage = () => {
   }, [searchParams]);
 
   const handleSocialLogin = (provider) => {
-    window.location.href = `http://localhost:3001/auth/${provider}`;
+    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+    window.location.href = `${apiUrl}/auth/${provider}`;
   };
 
   const handleSubmit = async (e) => {

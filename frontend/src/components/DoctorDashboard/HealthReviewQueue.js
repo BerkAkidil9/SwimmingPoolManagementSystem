@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Row, Col, Badge, Button, Form, Modal, Spinner, ListGroup, Alert, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { FaNotesMedical, FaHeartbeat, FaWeight, FaRulerVertical, FaUserMd, FaAllergies, FaSearch, FaMedkit, FaFileMedical, FaEye, FaFileDownload } from 'react-icons/fa';
 import axios from 'axios';
+import { API_BASE_URL } from '../../config';
 import './HealthReviewQueue.css';
 
 const HealthReviewQueue = () => {
@@ -862,7 +863,7 @@ const HealthReviewQueue = () => {
                             variant="outline-secondary"
                             size="sm"
                             className="health-report-btn"
-                            onClick={() => window.open(`http://localhost:3001/uploads/health_reports/${report.report_path.split('/').pop()}`, '_blank')}
+                            onClick={() => window.open(report.report_path.startsWith('https://') ? report.report_path : `${API_BASE_URL}/uploads/health_reports/${report.report_path.split('/').pop()}`, '_blank')}
                           >
                             <FaEye className="me-1" /> View
                           </Button>
@@ -870,7 +871,7 @@ const HealthReviewQueue = () => {
                             variant="outline-secondary"
                             size="sm"
                             className="health-report-btn"
-                            onClick={() => window.open(`http://localhost:3001/uploads/health_reports/${report.report_path.split('/').pop()}?download=true`, '_blank')}
+                            onClick={() => window.open(report.report_path.startsWith('https://') ? `${report.report_path}?download=true` : `${API_BASE_URL}/uploads/health_reports/${report.report_path.split('/').pop()}?download=true`, '_blank')}
                           >
                             <FaFileDownload className="me-1" /> Download
                           </Button>

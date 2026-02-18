@@ -62,7 +62,7 @@ router.post("/create-payment-intent", isAuthenticated, async (req, res) => {
 
     // Check for active packages only (both remaining sessions > 0 AND not expired)
     const [existingPackage] = await db.promise().query(
-      "SELECT * FROM packages WHERE user_id = ? AND remaining_sessions > 0 AND expiry_date >= CURDATE()",
+      "SELECT * FROM packages WHERE user_id = ? AND remaining_sessions > 0 AND expiry_date >= CURRENT_DATE",
       [req.session.user.id]
     );
 

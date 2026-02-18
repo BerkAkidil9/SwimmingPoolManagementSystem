@@ -99,7 +99,8 @@ const MultiStepForm = ({ isSocialRegistration: isFromSocial }) => {
         const fetchSocialData = async () => {
             if (isFromSocial) {
                 try {
-                    const response = await fetch('http://localhost:3001/auth/social-registration-data', {
+                    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+                    const response = await fetch(`${apiUrl}/auth/social-registration-data`, {
                         credentials: 'include'
                     });
                     const socialData = await response.json();
@@ -207,7 +208,8 @@ const MultiStepForm = ({ isSocialRegistration: isFromSocial }) => {
                     formDataToSend.append('isSocialRegistration', true);
                 }
 
-                const response = await fetch('http://localhost:3001/auth/register', {
+                const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+                const response = await fetch(`${apiUrl}/auth/register`, {
                     method: 'POST',
                     body: formDataToSend,
                     credentials: 'include'

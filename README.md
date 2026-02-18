@@ -2,7 +2,7 @@
 
 [![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=flat&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-18-61DAFB?style=flat&logo=react&logoColor=black)](https://reactjs.org/)
-[![MySQL](https://img.shields.io/badge/MySQL-8+-4479A1?style=flat&logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14+-336791?style=flat&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A full-stack swimming pool management system with multi-role support and comprehensive features including health verification, reservations, QR check-in, Stripe payments, OAuth authentication, feedback, email verification, and more.
@@ -76,7 +76,7 @@ A full-stack swimming pool management system with multi-role support and compreh
 ## Prerequisites
 
 - **Node.js** 18 or higher
-- **MySQL** 8 or higher
+- **PostgreSQL** 14 or higher
 - **React** 18 (frontend – Create React App ile gelir)
 - **npm** or **yarn**
 - (Optional) Stripe account, Google/GitHub/Facebook OAuth apps for full functionality
@@ -94,13 +94,14 @@ cd SwimmingPoolManagementSystem
 
 ### 2. Database setup
 
-Create the database and tables using the schema file:
+Create a PostgreSQL database (e.g. `swimcenter`) and run the schema:
 
 ```bash
-mysql -u root -p < backend/sql/schema_only.sql
+cd backend
+createdb swimcenter   # or create via pgAdmin / psql
+psql -d swimcenter -f sql/schema_postgres.sql
+# Or: npm run db:init   (uses DATABASE_URL or DB_* from .env)
 ```
-
-Or in MySQL Workbench: select the database `SwimmingPoolManagementSystem`, then run `backend/sql/schema_only.sql`.
 
 ### 3. Backend setup
 
@@ -131,10 +132,8 @@ Copy from `backend/.env.example` and fill in:
 
 | Variable | Description |
 |----------|-------------|
-| `DB_HOST` | MySQL host (default: localhost) |
-| `DB_USER` | MySQL user |
-| `DB_PASSWORD` | MySQL password |
-| `DB_NAME` | Database name (default: SwimmingPoolManagementSystem) |
+| `DATABASE_URL` | PostgreSQL connection string (preferred) |
+| `DB_HOST` / `DB_USER` / `DB_PASSWORD` / `DB_NAME` | Alternative to DATABASE_URL |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth (optional) |
 | `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | GitHub OAuth (optional) |
 | `FACEBOOK_CLIENT_ID` / `FACEBOOK_CLIENT_SECRET` | Facebook OAuth (optional) |
@@ -184,11 +183,12 @@ npm test
 
 ### Backend integration tests
 
-Requires a separate test database `SwimmingPoolManagementSystem_test`:
+Requires a test database (e.g. `swimcenter_test`):
 
 ```bash
 cd backend
-npm run db:test:setup   # First time: creates test DB
+# Set DATABASE_URL to point to test DB, then:
+npm run db:test:setup   # First time: creates schema
 npm run test:integration
 ```
 
@@ -210,6 +210,48 @@ npm test
 ```
 
 See [tests/README.md](tests/README.md) for detailed test structure and coverage.
+
+---
+
+## Deployment (Render Blueprint + PostgreSQL + Cloudflare R2)
+
+This project uses a `render.yaml` Blueprint for one-click deploy on Render with PostgreSQL and Cloudflare R2.
+
+### 1. Deploy via Blueprint
+
+1. Render Dashboard → **New** → **Blueprint**
+2. Connect this GitHub repo
+3. Render creates: backend Web Service, frontend Static Site, PostgreSQL database
+4. After first deploy, run schema once: `npm run db:init` (Dashboard → Shell, or use Render PostgreSQL psql)
+5. Fill in `sync: false` env vars in the Dashboard (R2, OAuth, Email, Stripe)
+
+### 2. Cloudflare R2 (File Storage)
+
+1. Cloudflare Dashboard → R2 → Create bucket `swimcenter-uploads`
+2. R2 → Manage R2 API Tokens → Create token (Object Read & Write)
+3. Bucket → Settings → Public access → Enable (R2.dev subdomain)
+4. Note public URL (e.g. `https://pub-xxx.r2.dev`)
+5. Use: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, `R2_PUBLIC_URL`
+
+### 3. Manual Render setup (if not using Blueprint)
+
+- **Backend:** Web Service, Root: `backend`, Build: `npm install`, Start: `node index.js`
+- **Frontend:** Static Site, Root: `frontend`, Build: `npm install && npm run build`, Publish: `frontend/build`
+- Add env vars from `backend/.env.example`; use `DATABASE_URL` from Render PostgreSQL
+
+### 4. Render – Frontend (Static Site)
+
+1. New → Static Site
+2. Connect same repo, Root Directory: `frontend`
+3. Build: `npm install && npm run build`, Publish: `build`
+4. Add `REACT_APP_API_URL` = your backend URL
+
+### 5. OAuth Provider Callbacks
+
+Add these redirect URIs in Google/GitHub/Facebook developer consoles:
+- `https://YOUR-BACKEND.onrender.com/auth/google/callback`
+- `https://YOUR-BACKEND.onrender.com/auth/github/callback`
+- `https://YOUR-BACKEND.onrender.com/auth/facebook/callback`
 
 ---
 

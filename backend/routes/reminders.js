@@ -86,7 +86,7 @@ router.post("/send-health-report-reminders", isDoctorOrAdmin, async (req, res) =
       FROM users u
       WHERE u.health_status = 'needs_report'
       AND u.health_report_requested_at IS NOT NULL
-      AND DATEDIFF(CURRENT_TIMESTAMP, u.health_report_requested_at) >= 5
+      AND (CURRENT_TIMESTAMP::date - u.health_report_requested_at::date) >= 5
       AND NOT EXISTS (
         SELECT 1 FROM health_reports hr
         WHERE hr.user_id = u.id
@@ -163,7 +163,7 @@ router.post("/send-specific-reminders", isDoctorOrAdmin, async (req, res) => {
     const [users] = await db.promise().query(`
       SELECT u.id, u.name, u.surname, u.email, u.health_status_reason, u.health_report_requested_at
       FROM users u
-      WHERE u.id IN (?) 
+      WHERE u.id = ANY($1)
       AND u.health_status = 'needs_report'
       AND u.health_report_requested_at IS NOT NULL
       AND NOT EXISTS (

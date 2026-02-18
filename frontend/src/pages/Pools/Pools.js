@@ -7,7 +7,7 @@ const Pools = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/pools') // Backend URL'sini kontrol edin
+    fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/api/pools`)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch pools");

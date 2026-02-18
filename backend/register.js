@@ -48,39 +48,33 @@ const sendVerificationEmail = async (email, token) => {
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const db = require("./config/database");
 const router = express.Router();
+const { uploadToR2 } = require("./utils/r2Storage");
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    let uploadDir = "uploads/";
+const useR2 = process.env.USE_R2 === 'true';
 
-    // Determine the appropriate subdirectory based on file type
-    if (file.fieldname === "idCard") {
-      uploadDir += "id_cards";
-    } else if (file.fieldname === "profilePhoto") {
-      uploadDir += "profile_photos";
-    }
-
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    console.log(`Saving ${file.fieldname} to:`, uploadDir);
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const filename =
-      file.fieldname === "idCard"
-        ? `id-card-${uniqueSuffix}${path.extname(file.originalname)}`
-        : `profile-${uniqueSuffix}${path.extname(file.originalname)}`;
-    console.log("Generated filename:", filename);
-    cb(null, filename);
-  },
-});
+// Configure multer - memoryStorage for R2 compatibility (works for both local and R2)
+const storage = useR2
+  ? multer.memoryStorage()
+  : multer.diskStorage({
+      destination: function (req, file, cb) {
+        let uploadDir = "uploads/";
+        if (file.fieldname === "idCard") uploadDir += "id_cards";
+        else if (file.fieldname === "profilePhoto") uploadDir += "profile_photos";
+        if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+        cb(null, uploadDir);
+      },
+      filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+        const filename = file.fieldname === "idCard"
+          ? `id-card-${uniqueSuffix}${path.extname(file.originalname)}`
+          : `profile-${uniqueSuffix}${path.extname(file.originalname)}`;
+        cb(null, filename);
+      },
+    });
 
 // Configure multer with file type validation
 const upload = multer({
-  storage: storage,
+  storage,
   fileFilter: (req, file, cb) => {
     if (file.fieldname === "idCard") {
       if (file.mimetype === "application/pdf") {
@@ -151,7 +145,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "http://localhost:3001/auth/google/callback",
+      callbackURL: `${process.env.BACKEND_URL || 'http://localhost:3001'}/auth/google/callback`,
       prompt: "select_account",
     },
     async function (accessToken, refreshToken, profile, done) {
@@ -206,7 +200,7 @@ passport.use(
 passport.use(new GitHubStrategy({
     clientID: process.env.GITHUB_CLIENT_ID,
     clientSecret: process.env.GITHUB_CLIENT_SECRET,
-    callbackURL: "http://localhost:3001/auth/github/callback",
+    callbackURL: `${process.env.BACKEND_URL || 'http://localhost:3001'}/auth/github/callback`,
     scope: ['user:email'],
     allowSignup: true
   },
@@ -260,7 +254,7 @@ passport.use(new GitHubStrategy({
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_CLIENT_ID,
     clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-    callbackURL: "http://localhost:3001/auth/facebook/callback",
+    callbackURL: `${process.env.BACKEND_URL || 'http://localhost:3001'}/auth/facebook/callback`,
     profileFields: ['id', 'emails', 'name', 'picture.type(large)']
   },
   async function(accessToken, refreshToken, profile, done) {
@@ -367,13 +361,11 @@ router.post(
       );
 
       if (!isValid) {
-        // Clean up uploaded files if validation fails
-        if (req.files) {
+        // Clean up uploaded files if validation fails (disk storage only - memoryStorage has no file.path)
+        if (req.files && !useR2) {
           Object.values(req.files).forEach((fileArray) => {
             fileArray.forEach((file) => {
-              fs.unlink(file.path, (err) => {
-                if (err) console.error("Error deleting file:", err);
-              });
+              if (file.path) fs.unlink(file.path, (err) => { if (err) console.error("Error deleting file:", err); });
             });
           });
         }
@@ -423,30 +415,40 @@ router.post(
       } = req.body;
 
       // Get file paths if files were uploaded
-      const idCardPath = req.files?.idCard 
-        ? `id_cards/${path.basename(req.files.idCard[0].path)}`
-        : null;
-
-      // Handle profile photo path
+      let idCardPath = null;
       let profilePhotoPath = null;
+
+      if (req.files?.idCard?.[0]) {
+        const file = req.files.idCard[0];
+        if (useR2 && file.buffer) {
+          const ext = path.extname(file.originalname) || '.pdf';
+          const key = `id_cards/id-card-${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+          idCardPath = await uploadToR2(file.buffer, key, file.mimetype);
+        } else {
+          idCardPath = `id_cards/${path.basename(file.path)}`;
+        }
+      }
+
       if (req.files?.profilePhoto?.[0]) {
-        // If user uploaded a new photo
-        profilePhotoPath = `profile_photos/${path.basename(req.files.profilePhoto[0].path)}`;
+        const file = req.files.profilePhoto[0];
+        if (useR2 && file.buffer) {
+          const ext = path.extname(file.originalname) || '.jpg';
+          const key = `profile_photos/profile-${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+          profilePhotoPath = await uploadToR2(file.buffer, key, file.mimetype);
+        } else {
+          profilePhotoPath = `profile_photos/${path.basename(file.path)}`;
+        }
       } else if (socialUser?.profile_picture) {
-        // If using social photo, download and save it
         try {
           const response = await fetch(socialUser.profile_picture);
-          const buffer = await response.buffer();
+          const buffer = Buffer.from(await response.arrayBuffer());
           const fileName = `social_${Date.now()}.jpg`;
-          
-          // Save to profile_photos directory
-          await fs.promises.writeFile(
-            path.join(__dirname, 'uploads', 'profile_photos', fileName),
-            buffer
-          );
-          
-          // Store the relative path
-          profilePhotoPath = `profile_photos/${fileName}`;
+          if (useR2) {
+            profilePhotoPath = await uploadToR2(buffer, `profile_photos/${fileName}`, 'image/jpeg');
+          } else {
+            await fs.promises.writeFile(path.join(__dirname, 'uploads', 'profile_photos', fileName), buffer);
+            profilePhotoPath = `profile_photos/${fileName}`;
+          }
         } catch (error) {
           console.error('Error saving social profile photo:', error);
         }
@@ -568,17 +570,13 @@ router.post(
       });
     } catch (error) {
       console.error("Registration error:", error);
-      // Clean up uploaded files if registration fails
-      if (req.files) {
+      if (req.files && !useR2) {
         Object.values(req.files).forEach((fileArray) => {
           fileArray.forEach((file) => {
-            fs.unlink(file.path, (err) => {
-              if (err) console.error("Error deleting file:", err);
-            });
+            if (file.path) fs.unlink(file.path, (err) => { if (err) console.error("Error deleting file:", err); });
           });
         });
       }
-
       if (error.code === "ER_DUP_ENTRY") {
         if (error.sqlMessage.includes("email")) {
           return res.status(400).json({ error: "Email already registered" });
@@ -880,73 +878,57 @@ router.post("/upload-id-card", upload.single("idCard"), async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ error: "No file uploaded" });
     }
+    if (!req.user) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
 
-    // Store only filename and subfolder
-    const relativePath = req.file.path.replace('uploads/', '');
+    let filePath;
+    if (useR2 && req.file.buffer) {
+      const ext = path.extname(req.file.originalname) || '.pdf';
+      const key = `id_cards/id-card-${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+      filePath = await uploadToR2(req.file.buffer, key, req.file.mimetype);
+    } else {
+      filePath = req.file.path.replace(/^.*[\\\/]uploads[\\\/]/, '');
+    }
 
-    await db
-      .promise()
-      .query("UPDATE users SET id_card_path = ? WHERE id = ?", [
-        relativePath,
-        req.user.id,
-      ]);
+    await db.promise().query("UPDATE users SET id_card_path = ? WHERE id = ?", [filePath, req.user.id]);
 
-    res.json({
-      message: "ID Card uploaded successfully",
-      filePath: relativePath,
-    });
+    res.json({ message: "ID Card uploaded successfully", filePath });
   } catch (error) {
     console.error("ID Card upload error:", error);
-    if (req.file) {
-      fs.unlink(req.file.path, (err) => {
-        if (err) console.error("Error deleting file:", err);
-      });
-    }
+    if (req.file?.path) fs.unlink(req.file.path, (err) => { if (err) console.error("Error deleting file:", err); });
     res.status(500).json({ error: "Error uploading ID Card" });
   }
 });
 
-router.post(
-  "/upload-profile-photo",
-  upload.single("profilePhoto"),
-  async (req, res) => {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ error: "No file uploaded" });
-      }
-
-      if (!req.user) {
-        fs.unlink(req.file.path, (err) => {
-          if (err) console.error("Error deleting file:", err);
-        });
-        return res.status(401).json({ error: "User not authenticated" });
-      }
-
-      // Store only filename and subfolder
-      const relativePath = req.file.path.replace('uploads/', '');
-
-      await db
-        .promise()
-        .query("UPDATE users SET profile_photo_path = ? WHERE id = ?", [
-          relativePath,
-          req.user.id,
-        ]);
-
-      res.json({
-        message: "Profile photo uploaded successfully",
-        filePath: relativePath,
-      });
-    } catch (error) {
-      console.error("Profile photo upload error:", error);
-      if (req.file) {
-        fs.unlink(req.file.path, (err) => {
-          if (err) console.error("Error deleting file:", err);
-        });
-      }
-      res.status(500).json({ error: "Error uploading profile photo" });
+router.post("/upload-profile-photo", upload.single("profilePhoto"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
     }
+    if (!req.user) {
+      if (req.file?.path) fs.unlink(req.file.path, (err) => { if (err) console.error("Error deleting file:", err); });
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+
+    let filePath;
+    if (useR2 && req.file.buffer) {
+      const ext = path.extname(req.file.originalname) || '.jpg';
+      const key = `profile_photos/profile-${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+      filePath = await uploadToR2(req.file.buffer, key, req.file.mimetype);
+    } else {
+      filePath = req.file.path.replace(/^.*[\\\/]uploads[\\\/]/, '');
+    }
+
+    await db.promise().query("UPDATE users SET profile_photo_path = ? WHERE id = ?", [filePath, req.user.id]);
+
+    res.json({ message: "Profile photo uploaded successfully", filePath });
+  } catch (error) {
+    console.error("Profile photo upload error:", error);
+    if (req.file?.path) fs.unlink(req.file.path, (err) => { if (err) console.error("Error deleting file:", err); });
+    res.status(500).json({ error: "Error uploading profile photo" });
   }
-);
+});
 
 // Check authentication status - update this route
 router.get("/check-auth", (req, res) => {
@@ -1215,13 +1197,10 @@ router.post('/reset-password', async (req, res) => {
 router.use((err, req, res, next) => {
   console.error("Route error:", err);
 
-  // Clean up any uploaded files if there's an error
-  if (req.files) {
+  if (req.files && !useR2) {
     Object.values(req.files).forEach((fileArray) => {
       fileArray.forEach((file) => {
-        fs.unlink(file.path, (err) => {
-          if (err) console.error("Error deleting file:", err);
-        });
+        if (file.path) fs.unlink(file.path, (err) => { if (err) console.error("Error deleting file:", err); });
       });
     });
   }

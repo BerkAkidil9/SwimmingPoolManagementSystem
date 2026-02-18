@@ -7,10 +7,10 @@ router.get("/pools", async (req, res) => {
     const [pools] = await db.promise().query(`
       SELECT p.*,
         (SELECT COUNT(*) FROM sessions s 
-         WHERE s.pool_id = p.id AND s.type = 'education' AND s.session_date >= CURDATE()) as education_sessions,
+         WHERE s.pool_id = p.id AND s.type = 'education' AND s.session_date >= CURRENT_DATE) as education_sessions,
         (SELECT COUNT(*) FROM sessions s 
-         WHERE s.pool_id = p.id AND s.type = 'free_swimming' AND s.session_date >= CURDATE()) as free_swimming_sessions
-      FROM Pools p
+         WHERE s.pool_id = p.id AND s.type = 'free_swimming' AND s.session_date >= CURRENT_DATE) as free_swimming_sessions
+      FROM "Pools" p
     `);
     res.json(pools);
   } catch (err) {

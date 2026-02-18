@@ -22,7 +22,7 @@ const coachRoutes = require("./routes/coach");
 
 
 const app = express();
-const port = 3001;
+const port = process.env.PORT || 3001;
 
 // Upload directories setup
 const idCardsDir = path.join(__dirname, "uploads", "id_cards");
@@ -35,20 +35,23 @@ const healthReportsDir = path.join(__dirname, "uploads", "health_reports");
   }
 });
 
-// Middleware setup - Allow multiple origins for dev (3000, 3002, etc.)
+// Middleware setup - Allow multiple origins for dev and production
 const allowedOrigins = [
-  process.env.FRONTEND_URL || 'http://localhost:3000',
+  process.env.FRONTEND_URL,
   'http://localhost:3000',
   'http://localhost:3001',
   'http://localhost:3002',
   'http://127.0.0.1:3000',
-  'http://127.0.0.1:3002'
-];
+  'http://127.0.0.1:3002',
+  'https://swimcenter.onrender.com'
+].filter(Boolean);
 app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
+      } else if (process.env.NODE_ENV === 'production') {
+        callback(null, false);
       } else {
         callback(null, true); // Allow all origins for development
       }
@@ -103,7 +106,7 @@ app.use(
     resave: true,
     saveUninitialized: false,
     cookie: {
-      secure: false,
+      secure: process.env.NODE_ENV === 'production',
       maxAge: 24 * 60 * 60 * 1000,
       httpOnly: true,
     },
@@ -149,7 +152,7 @@ db.connect((err) => {
     console.error("Database connection error:", err);
     return;
   }
-  console.log("Connected to MySQL database");
+  console.log("Connected to PostgreSQL database");
 
   // Create a direct health report reminder function that bypasses the API for the scheduled task
   const sendHealthReportReminders = async () => {
@@ -162,8 +165,8 @@ db.connect((err) => {
         FROM users u
         WHERE u.health_status = 'needs_report'
         AND u.health_report_requested_at IS NOT NULL
-        AND DATEDIFF(CURRENT_TIMESTAMP, u.health_report_requested_at) >= 5
-        AND (u.health_report_reminder_sent_at IS NULL OR DATEDIFF(CURRENT_TIMESTAMP, u.health_report_reminder_sent_at) >= 7)
+        AND (CURRENT_TIMESTAMP::date - u.health_report_requested_at::date) >= 5
+        AND (u.health_report_reminder_sent_at IS NULL OR (CURRENT_TIMESTAMP::date - u.health_report_reminder_sent_at::date) >= 7)
         AND NOT EXISTS (
           SELECT 1 FROM health_reports hr
           WHERE hr.user_id = u.id
