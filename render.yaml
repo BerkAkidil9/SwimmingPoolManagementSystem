@@ -1,10 +1,6 @@
 # Render Blueprint - Swim Center
 # Deploy: Dashboard -> New -> Blueprint -> Connect this repo
-
-databases:
-  - name: swimcenter-db
-    databaseName: swimcenter
-    plan: free
+# Database: Use external free PostgreSQL (Neon, Supabase, ElephantSQL) and set DATABASE_URL manually
 
 services:
   # Backend (Node.js API)
@@ -22,9 +18,7 @@ services:
       - key: SESSION_SECRET
         generateValue: true
       - key: DATABASE_URL
-        fromDatabase:
-          name: swimcenter-db
-          property: connectionString
+        sync: false
       - key: FRONTEND_URL
         value: https://swimcenter.onrender.com
       - key: BACKEND_URL
@@ -66,7 +60,7 @@ services:
     runtime: static
     rootDir: frontend
     buildCommand: npm install && npm run build
-    staticPublishPath: frontend/build
+    staticPublishPath: build
     routes:
       - type: rewrite
         source: /*
