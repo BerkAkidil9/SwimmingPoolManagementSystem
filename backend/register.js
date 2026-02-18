@@ -8,30 +8,19 @@ const FacebookStrategy = require('passport-facebook').Strategy;
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-const nodemailer = require("nodemailer");
 const crypto = require("crypto");
-
-// Add after imports and before routes
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
+const { sendEmail } = require("./utils/sendEmail");
 
 const generateVerificationToken = () => {
   return crypto.randomBytes(32).toString("hex");
 };
 
 const sendVerificationEmail = async (email, token) => {
-  // Link goes to BACKEND - token in query to avoid path truncation by email clients
   const backendUrl = process.env.BACKEND_URL || process.env.API_URL || 'http://localhost:3001';
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
   const verificationLink = `${backendUrl}/auth/verify-email?token=${encodeURIComponent(token)}&redirect=${encodeURIComponent(frontendUrl)}`;
 
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
+  await sendEmail({
     to: email,
     subject: "Verify Your Email Address",
     html: `
@@ -40,9 +29,7 @@ const sendVerificationEmail = async (email, token) => {
         <a href="${verificationLink}">${verificationLink}</a>
         <p>This link will expire in 24 hours.</p>
       `,
-  };
-
-  await transporter.sendMail(mailOptions);
+  });
 };
 
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
@@ -1120,9 +1107,7 @@ router.post('/reset-password-request', async (req, res) => {
     // Create reset URL
     const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password/${resetToken}`;
     
-    // Send email
-    const mailOptions = {
-      from: process.env.EMAIL_USER || 'noreply@yourdomain.com',
+    await sendEmail({
       to: user.email,
       subject: 'Password Reset Request',
       html: `
@@ -1131,9 +1116,7 @@ router.post('/reset-password-request', async (req, res) => {
         <p>This link is valid for 1 hour.</p>
         <p>If you didn't request this, please ignore this email.</p>
       `
-    };
-    
-    await transporter.sendMail(mailOptions);
+    });
     
     res.status(200).json({ message: 'Password reset email sent successfully' });
   } catch (error) {

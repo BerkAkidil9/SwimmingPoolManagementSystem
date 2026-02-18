@@ -39,6 +39,7 @@
     "passport-github2": "^0.1.12",
     "passport-google-oauth20": "^2.0.0",
     "pg": "^8.18.0",
+    "resend": "^6.9.2",
     "stripe": "^17.7.0"
   },
   "devDependencies": {
