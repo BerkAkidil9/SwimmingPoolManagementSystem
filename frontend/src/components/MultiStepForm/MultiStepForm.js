@@ -216,15 +216,22 @@ const MultiStepForm = ({ isSocialRegistration: isFromSocial }) => {
                 });
 
                 if (!response.ok) {
-                    throw new Error('Registration failed');
+                    const data = await response.json().catch(() => ({}));
+                    let msg = data.error || data.message;
+                    if (!msg && data.errors && typeof data.errors === 'object') {
+                        const first = Object.values(data.errors)[0];
+                        msg = Array.isArray(first) ? first[0] : first;
+                    }
+                    throw new Error(msg || `Registration failed (${response.status})`);
                 }
 
                 // Registration successful - verification email will be sent from backend
                 setRegistrationComplete(true);
             } catch (error) {
+                const msg = error.message || 'Registration failed. Please try again.';
                 setErrors(prev => ({
                     ...prev,
-                    submit: 'Registration failed. Please try again.'
+                    submit: msg
                 }));
             } finally {
                 setIsSubmitting(false);
