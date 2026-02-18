@@ -95,6 +95,18 @@ router.put("/pools/:poolId", isAdmin, async (req, res) => {
   }
 });
 
+// r2.dev erişilemiyorsa Worker üzerinden servis et
+function toWorkerUrlIfR2(path, workerUrl) {
+  if (!path || !workerUrl || typeof path !== "string") return path;
+  if (!path.startsWith("http")) return path;
+  try {
+    const u = new URL(path);
+    const key = u.pathname.replace(/^\//, "");
+    if (key) return `${workerUrl.replace(/\/$/, "")}/${key}`;
+  } catch (_) {}
+  return path;
+}
+
 // Get user verifications
 router.get("/verifications", isAdmin, async (req, res) => {
   try {
@@ -115,8 +127,15 @@ router.get("/verifications", isAdmin, async (req, res) => {
       FROM users 
       WHERE verification_status = 'pending' AND (rejection_count IS NULL OR rejection_count < 3)
     `);
+
+    const workerUrl = process.env.R2_WORKER_URL;
+    const result = users.map((u) => ({
+      ...u,
+      id_card_path: toWorkerUrlIfR2(u.id_card_path, workerUrl),
+      profile_photo_path: toWorkerUrlIfR2(u.profile_photo_path, workerUrl),
+    }));
     
-    res.json(users);
+    res.json(result);
   } catch (error) {
     console.error("Error fetching verifications:", error);
     res.status(500).json({ error: "Error fetching verifications" });
