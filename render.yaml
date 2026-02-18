@@ -27,6 +27,11 @@ services:
         value: https://swimcenter-api.onrender.com
       - key: USE_R2
         value: "true"
+      # Worker proxy (Render TLS fix) - cloudflare-worker/README.md
+      - key: R2_WORKER_URL
+        sync: false
+      - key: R2_WORKER_SECRET
+        sync: false
       - key: R2_ACCOUNT_ID
         sync: false
       - key: R2_ACCESS_KEY_ID
