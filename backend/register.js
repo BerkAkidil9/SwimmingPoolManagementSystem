@@ -345,13 +345,13 @@ router.post(
     { name: "profilePhoto", maxCount: 1 },
   ]),
   async (req, res) => {
+    const debug = (step, msg) => console.log(`[REGISTER DEBUG ${step}]`, msg);
     try {
-      console.log("Starting registration process...");
-      console.log("Request body:", req.body);
-      console.log("Files received:", req.files);
+      debug(1, "START");
+      debug(2, "body keys: " + Object.keys(req.body || {}).join(", "));
+      debug(3, "files: " + (req.files ? JSON.stringify(Object.keys(req.files)) : "none"));
 
       const socialUser = req.user?.isTemp ? req.user : null;
-      console.log("Social User Data:", socialUser);
 
       // Validate the request data
       const { isValid, errors } = validateRegistration(
@@ -361,6 +361,7 @@ router.post(
       );
 
       if (!isValid) {
+        debug(4, "VALIDATION FAILED: " + JSON.stringify(errors));
         // Clean up uploaded files if validation fails (disk storage only - memoryStorage has no file.path)
         if (req.files && !useR2) {
           Object.values(req.files).forEach((fileArray) => {
@@ -415,30 +416,37 @@ router.post(
       } = req.body;
 
       // Get file paths if files were uploaded
+      debug(5, "FILE UPLOAD START useR2=" + useR2);
       let idCardPath = null;
       let profilePhotoPath = null;
 
       if (req.files?.idCard?.[0]) {
         const file = req.files.idCard[0];
         if (useR2 && file.buffer) {
+          debug(6, "Uploading idCard to R2...");
           const ext = path.extname(file.originalname) || '.pdf';
           const key = `id_cards/id-card-${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
           idCardPath = await uploadToR2(file.buffer, key, file.mimetype);
+          debug(7, "idCard R2 done: " + idCardPath);
         } else {
           idCardPath = `id_cards/${path.basename(file.path)}`;
+          debug(7, "idCard disk: " + idCardPath);
         }
       }
 
       if (req.files?.profilePhoto?.[0]) {
         const file = req.files.profilePhoto[0];
         if (useR2 && file.buffer) {
+          debug(8, "Uploading profilePhoto to R2...");
           const ext = path.extname(file.originalname) || '.jpg';
           const key = `profile_photos/profile-${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
           profilePhotoPath = await uploadToR2(file.buffer, key, file.mimetype);
+          debug(9, "profilePhoto R2 done: " + profilePhotoPath);
         } else {
           profilePhotoPath = `profile_photos/${path.basename(file.path)}`;
         }
       } else if (socialUser?.profile_picture) {
+        debug(8, "Fetching social profile pic...");
         try {
           const response = await fetch(socialUser.profile_picture);
           const buffer = Buffer.from(await response.arrayBuffer());
@@ -454,9 +462,7 @@ router.post(
         }
       }
 
-      console.log("Profile photo path:", profilePhotoPath);
-
-      // Hash password only if it's provided (not social registration)
+      debug(10, "Files OK. Hashing password...");
       const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
 
       // Generate verification token (for all registrations - including social)
@@ -464,9 +470,7 @@ router.post(
       const tokenExpires = new Date();
       tokenExpires.setHours(tokenExpires.getHours() + 24);
 
-      console.log("Generated token:", verificationToken);
-      console.log("Token expires:", tokenExpires);
-
+      debug(11, "Inserting user into DB...");
       // Insert user data with verification fields (PostgreSQL: RETURNING id for insertId)
       const [insertRows] = await db.promise().query(
         `INSERT INTO users (
@@ -500,23 +504,21 @@ router.post(
       );
 
       const userId = insertRows[0].id;
-      const [checkUser] = await db
-        .promise()
-        .query(
-          "SELECT verification_token, verification_token_expires FROM users WHERE id = ?",
-          [userId]
+      debug(12, "User created id=" + userId);
+
+      // Verification email - don't fail registration if email fails
+      debug(13, "Sending verification email...");
+      try {
+        await sendVerificationEmail(
+          socialUser?.email || email,
+          verificationToken
         );
-      console.log("Stored token info:", checkUser[0]);
-      console.log("User created with ID:", userId);
+        debug(14, "Email sent OK");
+      } catch (mailErr) {
+        console.error("[REGISTER DEBUG] Email failed (user still created):", mailErr.message);
+      }
 
-      // Verification email for all registrations (including social)
-      await sendVerificationEmail(
-        socialUser?.email || email,
-        verificationToken
-      );
-
-      // Insert health information
-      console.log("Inserting health information...");
+      debug(15, "Inserting health_info...");
       await db.promise().query(
         `INSERT INTO health_info (
                 user_id, blood_type, allergies, chronic_conditions, medications, 
@@ -558,7 +560,7 @@ router.post(
         ]
       );
 
-      console.log("Health information inserted successfully");
+      debug(16, "DONE - success");
 
       // Email verification required for all registrations
       res.status(201).json({
@@ -568,7 +570,9 @@ router.post(
         requiresVerification: true,
       });
     } catch (error) {
-      console.error("Registration error:", error);
+      console.error("[REGISTER DEBUG] ERROR:", error.message);
+      console.error("[REGISTER DEBUG] Stack:", error.stack);
+      console.error("[REGISTER DEBUG] Code:", error.code);
       if (req.files && !useR2) {
         Object.values(req.files).forEach((fileArray) => {
           fileArray.forEach((file) => {
@@ -585,7 +589,19 @@ router.post(
           return res.status(400).json({ error: "Phone number already registered" });
         }
       }
-      res.status(500).json({ error: "Error during registration" });
+      // More specific errors for debugging
+      const msg = (error.message || "").toLowerCase();
+      if (msg.includes("r2") || msg.includes("not configured")) {
+        return res.status(500).json({ error: "File upload service not configured. Contact support." });
+      }
+      if (msg.includes("column") || msg.includes("syntax") || error.code) {
+        return res.status(500).json({ error: "Database error. Check server logs." });
+      }
+      // Local/dev: show actual error for debugging
+      const errMsg = process.env.NODE_ENV === "production"
+        ? "Error during registration"
+        : `Registration failed: ${error.message}`;
+      res.status(500).json({ error: errMsg });
     }
   }
 );

@@ -151,6 +151,11 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: err.message || "Internal server error" });
 });
 
+// Production: DATABASE_URL must be set (Neon connection string)
+if (process.env.NODE_ENV === "production" && !process.env.DATABASE_URL) {
+  console.error("FATAL: DATABASE_URL is not set. Render Dashboard -> swimcenter-api -> Environment -> Add DATABASE_URL (Neon connection string).");
+}
+
 // Database connection and server start
 db.connect((err) => {
   if (err) {
