@@ -24,15 +24,15 @@ describe('Admin Integration', () => {
 
   beforeAll(async () => {
     const hash = await bcrypt.hash(adminPassword, 10);
-    const [r] = await db.promise().query(
-      "INSERT INTO users (email, password, name, surname, email_verified, verification_status, health_status, role) VALUES (?, ?, ?, ?, 1, ?, ?, 'admin')",
+    const [rows] = await db.promise().query(
+      "INSERT INTO users (email, password, name, surname, email_verified, verification_status, health_status, role) VALUES (?, ?, ?, ?, true, ?, ?, 'admin') RETURNING id",
       [adminEmail, hash, 'Admin', 'Test', 'approved', 'approved']
     );
-    adminId = r.insertId;
+    adminId = rows[0].id;
   });
 
   afterAll(async () => {
-    if (poolId) await db.promise().query('DELETE FROM Pools WHERE id = ?', [poolId]);
+    if (poolId) await db.promise().query('DELETE FROM "Pools" WHERE id = ?', [poolId]);
     await db.promise().query('DELETE FROM users WHERE id = ?', [adminId]);
   });
 

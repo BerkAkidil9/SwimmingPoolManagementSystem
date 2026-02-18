@@ -9,11 +9,32 @@ const { Pool } = require("pg");
 const fs = require("fs");
 const path = require("path");
 
-const connectionString =
-  process.env.DATABASE_URL ||
-  `postgresql://${process.env.DB_USER || "postgres"}:${process.env.DB_PASSWORD || ""}@${process.env.DB_HOST || "localhost"}:${process.env.DB_PORT || 5432}/${process.env.DB_NAME || "swimcenter"}`;
+const host = process.env.DB_HOST || "localhost";
+const port = process.env.DB_PORT || 5432;
+const user = process.env.DB_USER || "postgres";
+const password = process.env.DB_PASSWORD || "";
+const dbName = process.env.DB_NAME || "swimcenter";
+
+const baseUrl = `postgresql://${user}:${password}@${host}:${port}`;
+const connectionString = process.env.DATABASE_URL || `${baseUrl}/${dbName}`;
 
 async function initDb() {
+  if (!process.env.DATABASE_URL) {
+    const adminPool = new Pool({ connectionString: `${baseUrl}/postgres` });
+    try {
+      const r = await adminPool.query("SELECT 1 FROM pg_database WHERE datname = $1", [dbName]);
+      if (r.rows.length === 0) {
+        await adminPool.query(`CREATE DATABASE ${dbName}`);
+        console.log(`Database ${dbName} created.`);
+      }
+    } catch (e) {
+      console.error("Error creating DB:", e.message);
+      process.exit(1);
+    } finally {
+      await adminPool.end();
+    }
+  }
+
   const pool = new Pool({ connectionString });
   try {
     const schemaPath = path.join(__dirname, "../sql/schema_postgres.sql");

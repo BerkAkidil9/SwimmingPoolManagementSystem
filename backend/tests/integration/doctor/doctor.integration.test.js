@@ -23,11 +23,11 @@ describe('Doctor Integration', () => {
 
   beforeAll(async () => {
     const hash = await bcrypt.hash(doctorPassword, 10);
-    const [r] = await db.promise().query(
-      "INSERT INTO users (email, password, name, surname, email_verified, verification_status, health_status, role) VALUES (?, ?, ?, ?, 1, ?, ?, 'doctor')",
+    const [rows] = await db.promise().query(
+      "INSERT INTO users (email, password, name, surname, email_verified, verification_status, health_status, role) VALUES (?, ?, ?, ?, true, ?, ?, 'doctor') RETURNING id",
       [doctorEmail, hash, 'Doctor', 'Test', 'approved', 'approved']
     );
-    doctorId = r.insertId;
+    doctorId = rows[0].id;
   });
 
   afterAll(async () => {

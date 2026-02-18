@@ -28,11 +28,11 @@ describe('Login Integration', () => {
 
   beforeAll(async () => {
     const hashedPassword = await bcrypt.hash(testPassword, 10);
-    const [result] = await db.promise().query(
-      'INSERT INTO users (email, password, name, surname, email_verified, verification_status, health_status) VALUES (?, ?, ?, ?, 1, ?, ?)',
+    const [rows] = await db.promise().query(
+      'INSERT INTO users (email, password, name, surname, email_verified, verification_status, health_status) VALUES (?, ?, ?, ?, true, ?, ?) RETURNING id',
       [testEmail, hashedPassword, 'Integration', 'Test', 'approved', 'approved']
     );
-    userId = result.insertId;
+    userId = rows[0].id;
   });
 
   afterAll(async () => {

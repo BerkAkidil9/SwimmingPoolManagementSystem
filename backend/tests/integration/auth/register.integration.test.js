@@ -1,5 +1,5 @@
 /**
- * Register integration test - Uses SwimmingPoolManagementSystem_test DB.
+ * Register integration test - uses swimcenter_test DB.
  */
 const request = require('supertest');
 const express = require('express');
@@ -20,7 +20,7 @@ describe('Register Integration', () => {
 
   beforeAll(async () => {
     await db.promise().query(
-      'INSERT INTO users (email, name, surname, email_verified, verification_status, health_status) VALUES (?, ?, ?, 1, ?, ?)',
+      'INSERT INTO users (email, name, surname, email_verified, verification_status, health_status) VALUES (?, ?, ?, true, ?, ?)',
       [existingEmail, 'Existing', 'User', 'approved', 'approved']
     );
   });

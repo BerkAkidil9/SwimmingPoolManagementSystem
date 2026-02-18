@@ -1,6 +1,9 @@
 /**
  * Payment integration test - Uses SwimmingPoolManagementSystem_test DB.
  */
+// Stripe init requires STRIPE_SECRET_KEY; set placeholder so payment module loads
+process.env.STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder';
+
 const request = require('supertest');
 const express = require('express');
 const session = require('express-session');

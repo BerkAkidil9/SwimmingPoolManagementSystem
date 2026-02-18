@@ -12,13 +12,13 @@ const pool = new Pool({
   ssl: process.env.NODE_ENV === "production" && process.env.DATABASE_URL ? { rejectUnauthorized: false } : false,
 });
 
-// Convert MySQL-style ? placeholders to PostgreSQL $1, $2, ...
+// Convert ? placeholders to PostgreSQL $1, $2, ...
 function toPgParams(sql) {
   let i = 0;
   return sql.replace(/\?/g, () => `$${++i}`);
 }
 
-// Wrapper: query returns promise resolving to [rows] for mysql2 compatibility
+// Wrapper: query returns [rows]
 async function query(sql, params = []) {
   const pgSql = toPgParams(sql);
   const result = await pool.query(pgSql, params);
@@ -48,7 +48,7 @@ async function transaction(callback) {
   }
 }
 
-// mysql2-style API for drop-in compatibility
+// DB API
 const db = {
   query,
   connect: (cb) => {
