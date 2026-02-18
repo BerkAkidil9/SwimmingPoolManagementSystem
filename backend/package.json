@@ -9,7 +9,8 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "db:test:setup": "node scripts/init-test-db.js",
-    "db:init": "node scripts/init-db.js"
+    "db:init": "node scripts/init-db.js",
+    "migrate:mysql2pg": "node scripts/migrate-mysql-to-postgres.js"
   },
   "keywords": [],
   "author": "",
@@ -40,6 +41,7 @@
     "stripe": "^17.7.0"
   },
   "devDependencies": {
+    "mysql2": "^3.11.0",
     "jest": "^29.7.0",
     "supertest": "^7.0.0"
   }
