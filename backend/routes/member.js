@@ -4,29 +4,26 @@ const db = require("../config/database");
 const path = require("path");
 const multer = require("multer");
 const fs = require("fs");
+const { uploadToR2 } = require("../utils/r2Storage");
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    // Determine destination based on fieldname
-    const dest = file.fieldname === 'idCard' ? 'uploads/id_cards' : 'uploads/profile_photos';
-    cb(null, dest);
-  },
-  filename: (req, file, cb) => {
-    // Create unique filename with user id and timestamp
-    const userId = req.session.user.id;
-    const timestamp = Date.now();
-    const ext = path.extname(file.originalname);
-    cb(null, `${userId}-${timestamp}${ext}`);
-  }
-});
+const useR2 = process.env.USE_R2 === 'true';
 
-// Initialize multer with storage configuration
-const upload = multer({ 
-  storage: storage,
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
-  }
+const storage = useR2
+  ? multer.memoryStorage()
+  : multer.diskStorage({
+      destination: (req, file, cb) => {
+        const dest = file.fieldname === 'idCard' ? 'uploads/id_cards' : 'uploads/profile_photos';
+        cb(null, dest);
+      },
+      filename: (req, file, cb) => {
+        const userId = req.session?.user?.id || 'unknown';
+        cb(null, `${userId}-${Date.now()}${path.extname(file.originalname)}`);
+      }
+    });
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }
 });
 
 // Middleware to check if user is authenticated
@@ -64,7 +61,7 @@ router.get("/user/:userId", async (req, res) => {
 router.get("/package", isAuthenticated, async (req, res) => {
   try {
     const [packageInfo] = await db.promise().query(
-      "SELECT * FROM packages WHERE user_id = ? AND remaining_sessions > 0 AND expiry_date >= CURDATE() ORDER BY created_at DESC LIMIT 1",
+      "SELECT * FROM packages WHERE user_id = ? AND remaining_sessions > 0 AND expiry_date >= CURRENT_DATE ORDER BY created_at DESC LIMIT 1",
       [req.session.user.id]
     );
     res.json(packageInfo[0] || null);
@@ -81,7 +78,7 @@ router.post("/packages", isAuthenticated, async (req, res) => {
   try {
     // Check for active packages only (both remaining sessions > 0 AND not expired)
     const [existingPackage] = await db.promise().query(
-      "SELECT * FROM packages WHERE user_id = ? AND remaining_sessions > 0 AND expiry_date >= CURDATE()",
+      "SELECT * FROM packages WHERE user_id = ? AND remaining_sessions > 0 AND expiry_date >= CURRENT_DATE",
       [req.session.user.id]
     );
 
@@ -108,37 +105,30 @@ router.post("/packages", isAuthenticated, async (req, res) => {
   }
 });
 
+// Get current time in Turkey timezone - PostgreSQL
+const TURKEY_NOW = "(NOW() AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Istanbul')";
+
 // Get member's reservations
 router.get("/reservations", isAuthenticated, async (req, res) => {
   try {
-    // Begin transaction for safety
-    await db.promise().beginTransaction();
-    
-    // Get current time in Turkey's timezone
-    const [currentTime] = await db.promise().query(
-      "SELECT CONVERT_TZ(NOW(), '+00:00', '+03:00') as now"
-    );
-    const now = currentTime[0].now;
-    
-    // Find expired reservations for this user and mark them as "missed"
-    await db.promise().query(
+    // Mark expired reservations as "missed"
+    await db.query(
       `UPDATE reservations r
-       JOIN sessions s ON r.session_id = s.id
-       SET r.status = 'missed'
-       WHERE r.user_id = ?
+       SET status = 'missed'
+       FROM sessions s
+       WHERE r.session_id = s.id
+       AND r.user_id = $1
        AND (r.status IS NULL OR r.status = 'active')
-       AND CONCAT(s.session_date, ' ', s.end_time) < ?`,
-      [req.session.user.id, now]
+       AND (s.session_date + s.end_time)::timestamp < ${TURKEY_NOW}`,
+      [req.session.user.id]
     );
-    
-    await db.promise().commit();
 
     // Get active reservations (excluding missed, completed, and canceled)
     const [reservations] = await db.promise().query(
       `SELECT r.*, p.name as poolName, s.type, s.session_date, s.start_time, s.end_time 
        FROM reservations r 
        JOIN sessions s ON r.session_id = s.id 
-       JOIN Pools p ON s.pool_id = p.id 
+       JOIN "Pools" p ON s.pool_id = p.id 
        WHERE r.user_id = ? AND (r.status IS NULL OR (r.status != 'canceled' AND r.status != 'completed' AND r.status != 'missed'))
        ORDER BY s.session_date, s.start_time`,
       [req.session.user.id]
@@ -146,8 +136,6 @@ router.get("/reservations", isAuthenticated, async (req, res) => {
 
     res.json(reservations);
   } catch (error) {
-    // Rollback if there's an error
-    await db.promise().rollback();
     console.error("Error fetching reservations:", error);
     res.status(500).json({ error: "Error fetching reservations" });
   }
@@ -163,7 +151,7 @@ router.get("/pools/:poolId/sessions", isAuthenticated, async (req, res) => {
     
     // First, check if user has an active package
     const [userPackages] = await db.promise().query(
-      "SELECT * FROM packages WHERE user_id = ? AND remaining_sessions > 0 AND expiry_date >= CURDATE()",
+      "SELECT * FROM packages WHERE user_id = ? AND remaining_sessions > 0 AND expiry_date >= CURRENT_DATE",
       [req.session.user.id]
     );
 
@@ -176,7 +164,7 @@ router.get("/pools/:poolId/sessions", isAuthenticated, async (req, res) => {
     
     // Fix: Use correct case for table name - "Pools" instead of "pools"
     const [poolInfo] = await db.promise().query(
-      "SELECT name FROM Pools WHERE id = ?",
+      "SELECT name FROM \"Pools\" WHERE id = ?",
       [poolId]
     );
     
@@ -188,15 +176,11 @@ router.get("/pools/:poolId/sessions", isAuthenticated, async (req, res) => {
       `SELECT s.*, 
         (SELECT COUNT(*) FROM reservations r WHERE r.session_id = s.id AND (r.status IS NULL OR r.status != 'canceled')) as booked,
         (s.initial_capacity - (SELECT COUNT(*) FROM reservations r WHERE r.session_id = s.id AND (r.status IS NULL OR r.status != 'canceled'))) as available_spots,
-        (SELECT COUNT(*) FROM reservations r WHERE r.session_id = s.id AND r.user_id = ? AND (r.status IS NULL OR r.status != 'canceled')) as user_has_booked
+        (SELECT COUNT(*) FROM reservations r WHERE r.session_id = s.id AND r.user_id = $1 AND (r.status IS NULL OR r.status != 'canceled')) as user_has_booked
        FROM sessions s 
-       WHERE s.pool_id = ? 
-       AND s.type = ?
-       AND (
-         -- Create a datetime in Turkish time and compare with current time
-         STR_TO_DATE(CONCAT(DATE(s.session_date), ' ', s.start_time), '%Y-%m-%d %H:%i:%s') > 
-         CONVERT_TZ(NOW(), '+00:00', '+03:00')
-       )
+       WHERE s.pool_id = $2 
+       AND s.type = $3
+       AND (s.session_date + s.start_time)::timestamp > (NOW() AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Istanbul')
        ORDER BY s.session_date, s.start_time`,
       [userId, poolId, userPackageType]
     );
@@ -278,7 +262,7 @@ router.get("/sessions", isAuthenticated, async (req, res) => {
         (SELECT COUNT(*) FROM reservations r WHERE r.session_id = s.id) as booked,
         s.initial_capacity as total_capacity
        FROM sessions s 
-       JOIN Pools p ON s.pool_id = p.id`
+       JOIN "Pools" p ON s.pool_id = p.id`
     );
 
     // Format the sessions data
@@ -305,37 +289,36 @@ router.post("/reservations", isAuthenticated, async (req, res) => {
   }
 
   try {
-    await db.promise().beginTransaction();
+    const bookingResult = await db.transaction(async (trx) => {
 
     // Check user's health status first
-    const [userInfo] = await db.promise().query(
+    const [userInfo] = await trx.query(
       "SELECT health_status FROM users WHERE id = ?",
       [req.session.user.id]
     );
 
     if (!userInfo.length) {
-      await db.promise().rollback();
-      return res.status(404).json({ error: "User not found" });
+      const err = new Error("User not found");
+      err.statusCode = 404;
+      throw err;
     }
 
-    // Verify health status is approved
     if (userInfo[0].health_status !== 'approved') {
-      await db.promise().rollback();
-      return res.status(403).json({ 
-        error: "Your health status must be approved before you can make a swimming reservation",
-        healthStatus: userInfo[0].health_status
-      });
+      const err = new Error("Your health status must be approved before you can make a swimming reservation");
+      err.statusCode = 403;
+      err.healthStatus = userInfo[0].health_status;
+      throw err;
     }
 
-    // Fix the SQL query to avoid reserved keyword conflict
-    const [sessionInfo] = await db.promise().query(
-      "SELECT *, CONVERT_TZ(NOW(), '+00:00', '+03:00') as current_time_value FROM sessions WHERE id = ?",
+    const [sessionInfo] = await trx.query(
+      "SELECT * FROM sessions WHERE id = ?",
       [sessionId]
     );
 
     if (!sessionInfo.length) {
-      await db.promise().rollback();
-      return res.status(404).json({ error: "Session not found" });
+      const err = new Error("Session not found");
+      err.statusCode = 404;
+      throw err;
     }
 
     const session = sessionInfo[0];
@@ -370,31 +353,25 @@ router.post("/reservations", isAuthenticated, async (req, res) => {
 
     // Check if session is in the past
     if (hoursUntilSession <= 0) {
-      await db.promise().rollback();
-      return res.status(400).json({ 
-        error: `Cannot book sessions that have already started or are in the past (${hoursUntilSession.toFixed(2)} hours ago)`,
-        details: {
-          sessionDateTime: sessionDateTime.toISOString(),
-          currentTime: now.toISOString(),
-          hoursUntil: hoursUntilSession
-        }
-      });
+      const err = new Error(`Cannot book sessions that have already started or are in the past`);
+      err.statusCode = 400;
+      err.details = { sessionDateTime, now, hoursUntilSession };
+      throw err;
     }
 
-    // Check if user has an active package - UPDATED to match our other endpoints
-    const [packages] = await db.promise().query(
-      "SELECT * FROM packages WHERE user_id = ? AND remaining_sessions > 0 AND expiry_date >= CURDATE() ORDER BY created_at DESC LIMIT 1",
+    // Check if user has an active package
+    const [packages] = await trx.query(
+      "SELECT * FROM packages WHERE user_id = ? AND remaining_sessions > 0 AND expiry_date >= CURRENT_DATE ORDER BY created_at DESC LIMIT 1",
       [req.session.user.id]
     );
 
     if (!packages.length) {
-      await db.promise().rollback();
-      return res.status(400).json({ error: "No active package found" });
+      const err = new Error("No active package found");
+      err.statusCode = 400;
+      throw err;
     }
 
     const activePackage = packages[0];
-
-    // Check package type against session type
     const userPackageType = activePackage.type;
     const sessionType = session.type;
 
@@ -402,33 +379,38 @@ router.post("/reservations", isAuthenticated, async (req, res) => {
       (userPackageType === 'education' && sessionType === 'free_swimming') ||
       (userPackageType === 'free_swimming' && sessionType === 'education')
     ) {
-      await db.promise().rollback();
-      return res.status(400).json({ 
-        error: `Your ${userPackageType} package cannot be used for ${sessionType} sessions` 
-      });
+      const err = new Error(`Your ${userPackageType} package cannot be used for ${sessionType} sessions`);
+      err.statusCode = 400;
+      throw err;
     }
 
-    // Rest of your existing checks...
-    if (session.booked >= session.initial_capacity) {
-      await db.promise().rollback();
-      return res.status(400).json({ error: "Session is full" });
+    // Session needs booked count - fetch if not present
+    let bookedCount = session.booked;
+    if (bookedCount === undefined) {
+      const [countRes] = await trx.query(
+        "SELECT COUNT(*) as cnt FROM reservations r WHERE r.session_id = ? AND (r.status IS NULL OR r.status != 'canceled')",
+        [sessionId]
+      );
+      bookedCount = parseInt(countRes[0]?.cnt || 0, 10);
+    }
+    if (bookedCount >= session.initial_capacity) {
+      const err = new Error("Session is full");
+      err.statusCode = 400;
+      throw err;
     }
 
-    // Check for existing active reservation
-    const [existingReservation] = await db.promise().query(
+    const [existingReservation] = await trx.query(
       "SELECT * FROM reservations WHERE user_id = ? AND session_id = ? AND (status IS NULL OR status != 'canceled')",
       [req.session.user.id, sessionId]
     );
 
     if (existingReservation.length > 0) {
-      await db.promise().rollback();
-      return res.status(400).json({ error: "You already have a reservation for this session" });
+      const err = new Error("You already have a reservation for this session");
+      err.statusCode = 400;
+      throw err;
     }
 
-    // Check for overlapping reservations - EXCLUDE canceled reservations
-    console.log('Checking for overlapping reservations...');
-
-    const [overlappingReservations] = await db.promise().query(
+    const [overlappingReservations] = await trx.query(
       `SELECT r.id as reservation_id, r.session_id, s1.session_date as existing_date, 
        s1.start_time as existing_start, s1.end_time as existing_end,
        s2.session_date as new_date, s2.start_time as new_start, s2.end_time as new_end
@@ -444,35 +426,34 @@ router.post("/reservations", isAuthenticated, async (req, res) => {
       [sessionId, req.session.user.id]
     );
 
-    console.log('Overlapping reservations found:', overlappingReservations.length);
     if (overlappingReservations.length > 0) {
-      console.log('Overlapping details:', JSON.stringify(overlappingReservations));
-      await db.promise().rollback();
-      return res.status(400).json({ 
-        error: "You already have a reservation at this time" 
-      });
+      const err = new Error("You already have a reservation at this time");
+      err.statusCode = 400;
+      throw err;
     }
 
-    // Create reservation
-    await db.promise().query(
+    await trx.query(
       "INSERT INTO reservations (user_id, session_id) VALUES (?, ?)",
       [req.session.user.id, sessionId]
     );
 
-    // Update ONLY the active package - FIX: Only update the active package found above
-    await db.promise().query(
+    await trx.query(
       "UPDATE packages SET remaining_sessions = remaining_sessions - 1 WHERE id = ?",
       [activePackage.id]
     );
 
-    await db.promise().commit();
-
-    res.json({ 
-      success: true,
-      message: `Successfully booked ${sessionType} session`
+    return { success: true, message: `Successfully booked ${sessionType} session` };
     });
+
+    const bookingResult = await db.transaction(async (trx) => { ... });
+    res.json(bookingResult);
   } catch (error) {
-    await db.promise().rollback();
+    if (error.statusCode) {
+      const body = { error: error.message };
+      if (error.details) body.details = error.details;
+      if (error.healthStatus) body.healthStatus = error.healthStatus;
+      return res.status(error.statusCode).json(body);
+    }
     console.error("Error booking session:", error);
     res.status(500).json({ error: "Error booking session" });
   }
@@ -522,31 +503,26 @@ router.delete("/reservations/:id", isAuthenticated, async (req, res) => {
       });
     }
 
-    // Mark reservation as canceled instead of deleting it
-    await db.promise().beginTransaction();
-
-    await db.promise().query(
-      "UPDATE reservations SET status = 'canceled' WHERE id = ? AND user_id = ?",
-      [id, req.session.user.id]
-    );
-
-    // Find the active package and refund the session to it
-    const [activePackage] = await db.promise().query(
-      "SELECT * FROM packages WHERE user_id = ? AND expiry_date >= CURDATE() ORDER BY created_at DESC LIMIT 1",
-      [req.session.user.id]
-    );
-
-    if (activePackage.length) {
-      await db.promise().query(
-        "UPDATE packages SET remaining_sessions = remaining_sessions + 1 WHERE id = ?",
-        [activePackage[0].id]
+    await db.transaction(async (trx) => {
+      await trx.query(
+        "UPDATE reservations SET status = 'canceled' WHERE id = ? AND user_id = ?",
+        [id, req.session.user.id]
       );
-    }
 
-    await db.promise().commit();
+      const [activePackage] = await trx.query(
+        "SELECT * FROM packages WHERE user_id = ? AND expiry_date >= CURRENT_DATE ORDER BY created_at DESC LIMIT 1",
+        [req.session.user.id]
+      );
+
+      if (activePackage.length) {
+        await trx.query(
+          "UPDATE packages SET remaining_sessions = remaining_sessions + 1 WHERE id = ?",
+          [activePackage[0].id]
+        );
+      }
+    });
     res.json({ success: true });
   } catch (error) {
-    await db.promise().rollback();
     console.error("Error canceling reservation:", error);
     res.status(500).json({ error: "Error canceling reservation" });
   }
@@ -631,7 +607,7 @@ router.get("/history", isAuthenticated, async (req, res) => {
        p.name as poolName, s.type, s.session_date, s.start_time, s.end_time 
        FROM reservations r 
        JOIN sessions s ON r.session_id = s.id 
-       JOIN Pools p ON s.pool_id = p.id 
+       JOIN "Pools" p ON s.pool_id = p.id 
        WHERE r.user_id = ?
        ORDER BY r.created_at DESC`,
       [req.session.user.id]
@@ -673,10 +649,7 @@ router.get("/pools/:poolId/sessions/count", isAuthenticated, async (req, res) =>
        FROM sessions s 
        WHERE s.pool_id = ? 
        ${typeFilter}
-       AND (
-         STR_TO_DATE(CONCAT(DATE(s.session_date), ' ', s.start_time), '%Y-%m-%d %H:%i:%s') > 
-         CONVERT_TZ(NOW(), '+00:00', '+03:00')
-       )`,
+       AND (s.session_date + s.start_time)::timestamp > (NOW() AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Istanbul')`,
       [poolId]
     );
     
@@ -745,15 +718,25 @@ router.post("/resubmit-verification", isAuthenticated, upload.fields([
     // Get personal information from the request body
     const { name, surname, dateOfBirth, phone, gender } = req.body;
 
-    // Get file paths if files were uploaded
-    const idCardPath = req.files?.idCard 
-      ? `id_cards/${path.basename(req.files.idCard[0].path)}`
-      : null;
-
-    // Handle profile photo path
+    let idCardPath = null;
     let profilePhotoPath = null;
-    if (req.files?.profilePhoto) {
-      profilePhotoPath = `profile_photos/${path.basename(req.files.profilePhoto[0].path)}`;
+    if (req.files?.idCard?.[0]) {
+      const file = req.files.idCard[0];
+      if (useR2 && file.buffer) {
+        const ext = path.extname(file.originalname) || '.pdf';
+        idCardPath = await uploadToR2(file.buffer, `id_cards/${req.session.user.id}-${Date.now()}${ext}`, file.mimetype);
+      } else {
+        idCardPath = `id_cards/${path.basename(file.path)}`;
+      }
+    }
+    if (req.files?.profilePhoto?.[0]) {
+      const file = req.files.profilePhoto[0];
+      if (useR2 && file.buffer) {
+        const ext = path.extname(file.originalname) || '.jpg';
+        profilePhotoPath = await uploadToR2(file.buffer, `profile_photos/${req.session.user.id}-${Date.now()}${ext}`, file.mimetype);
+      } else {
+        profilePhotoPath = `profile_photos/${path.basename(file.path)}`;
+      }
     }
 
     // Update verification status, personal information, and document paths
@@ -852,12 +835,12 @@ router.post("/check-in", isAuthenticated, async (req, res) => {
     // Verify that the reservation belongs to the user and is still active
     const [reservationResult] = await db.promise().query(
       `SELECT r.*, s.session_date, s.start_time, s.end_time, s.type, s.pool_id, p.name as pool_name,
-       DATE_FORMAT(s.session_date, '%Y-%m-%d') as formatted_date,
-       TIME_FORMAT(s.start_time, '%H:%i') as formatted_start,
-       TIME_FORMAT(s.end_time, '%H:%i') as formatted_end
+       to_char(s.session_date, 'YYYY-MM-DD') as formatted_date,
+       to_char(s.start_time, 'HH24:MI') as formatted_start,
+       to_char(s.end_time, 'HH24:MI') as formatted_end
        FROM reservations r
        JOIN sessions s ON r.session_id = s.id
-       JOIN Pools p ON s.pool_id = p.id
+       JOIN "Pools" p ON s.pool_id = p.id
        WHERE r.id = ? AND r.user_id = ? AND r.status != 'canceled'`,
       [reservationId, userId]
     );
@@ -895,7 +878,7 @@ router.post("/check-in", isAuthenticated, async (req, res) => {
 
     // Get user's package information
     const [packageResult] = await db.promise().query(
-      "SELECT * FROM packages WHERE user_id = ? AND remaining_sessions > 0 AND expiry_date >= CURDATE() ORDER BY created_at DESC LIMIT 1",
+      "SELECT * FROM packages WHERE user_id = ? AND remaining_sessions > 0 AND expiry_date >= CURRENT_DATE ORDER BY created_at DESC LIMIT 1",
       [userId]
     );
 
@@ -1131,34 +1114,20 @@ router.get("/health-info", isAuthenticated, async (req, res) => {
 // Upload ID card
 router.post("/upload-id-card", isAuthenticated, upload.single("idCard"), async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: "No file uploaded" });
-    }
-
+    if (!req.file) return res.status(400).json({ error: "No file uploaded" });
     const userId = req.session.user.id;
-    
-    // Store the full path relative to uploads directory
-    const relativePath = req.file.path.replace(/^.*[\\\/]uploads[\\\/]/, '');
-    console.log("ID Card file uploaded to:", req.file.path);
-    console.log("Storing relativePath in database:", relativePath);
-
-    // Update user record with ID card path
-    await db.promise().query(
-      "UPDATE users SET id_card_path = ? WHERE id = ?",
-      [relativePath, userId]
-    );
-
-    res.json({
-      message: "ID card uploaded successfully",
-      filePath: relativePath
-    });
+    let filePath;
+    if (useR2 && req.file.buffer) {
+      const ext = path.extname(req.file.originalname) || '.pdf';
+      filePath = await uploadToR2(req.file.buffer, `id_cards/${userId}-${Date.now()}${ext}`, req.file.mimetype);
+    } else {
+      filePath = req.file.path.replace(/^.*[\\\/]uploads[\\\/]/, '');
+    }
+    await db.promise().query("UPDATE users SET id_card_path = ? WHERE id = ?", [filePath, userId]);
+    res.json({ message: "ID card uploaded successfully", filePath });
   } catch (error) {
     console.error("Error uploading ID card:", error);
-    if (req.file) {
-      fs.unlink(req.file.path, (err) => {
-        if (err) console.error("Error deleting file:", err);
-      });
-    }
+    if (req.file?.path) fs.unlink(req.file.path, (err) => { if (err) console.error("Error deleting file:", err); });
     res.status(500).json({ error: "Error uploading ID card" });
   }
 });
@@ -1166,39 +1135,21 @@ router.post("/upload-id-card", isAuthenticated, upload.single("idCard"), async (
 // Upload profile photo for authenticated users
 router.post("/upload-profile-photo", isAuthenticated, upload.single("profilePhoto"), async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: "No file uploaded" });
-    }
-
+    if (!req.file) return res.status(400).json({ error: "No file uploaded" });
     const userId = req.session.user.id;
-    
-    // Store the full path relative to uploads directory
-    const relativePath = req.file.path.replace(/^.*[\\\/]uploads[\\\/]/, '');
-    console.log("Profile photo file uploaded to:", req.file.path);
-    console.log("Storing relativePath in database:", relativePath);
-
-    // Update user record with profile photo path
-    await db.promise().query(
-      "UPDATE users SET profile_photo_path = ? WHERE id = ?",
-      [relativePath, userId]
-    );
-
-    // Update session data
-    if (req.session.user) {
-      req.session.user.profile_photo_path = relativePath;
+    let filePath;
+    if (useR2 && req.file.buffer) {
+      const ext = path.extname(req.file.originalname) || '.jpg';
+      filePath = await uploadToR2(req.file.buffer, `profile_photos/${userId}-${Date.now()}${ext}`, req.file.mimetype);
+    } else {
+      filePath = req.file.path.replace(/^.*[\\\/]uploads[\\\/]/, '');
     }
-
-    res.json({
-      message: "Profile photo uploaded successfully",
-      filePath: relativePath
-    });
+    await db.promise().query("UPDATE users SET profile_photo_path = ? WHERE id = ?", [filePath, userId]);
+    if (req.session.user) req.session.user.profile_photo_path = filePath;
+    res.json({ message: "Profile photo uploaded successfully", filePath });
   } catch (error) {
     console.error("Error uploading profile photo:", error);
-    if (req.file) {
-      fs.unlink(req.file.path, (err) => {
-        if (err) console.error("Error deleting file:", err);
-      });
-    }
+    if (req.file?.path) fs.unlink(req.file.path, (err) => { if (err) console.error("Error deleting file:", err); });
     res.status(500).json({ error: "Error uploading profile photo" });
   }
 });

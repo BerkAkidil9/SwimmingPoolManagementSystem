@@ -5,8 +5,10 @@ const nodemailer = require("nodemailer");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const { uploadToR2 } = require("../utils/r2Storage");
 
-// Middleware to check if user is doctor
+const useR2 = process.env.USE_R2 === 'true';
+
 const isDoctor = (req, res, next) => {
   if (!req.session.user || req.session.user.role !== 'doctor') {
     return res.status(403).json({ error: "Unauthorized access" });
@@ -14,35 +16,28 @@ const isDoctor = (req, res, next) => {
   next();
 };
 
-// Configure multer for health report uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const dir = path.join(__dirname, "../uploads/health_reports");
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    cb(null, dir);
-  },
-  filename: (req, file, cb) => {
-    const userId = req.params.userId || 'unknown';
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, `user-${userId}-health-report-${uniqueSuffix}${path.extname(file.originalname)}`);
-  }
-});
+const storage = useR2
+  ? multer.memoryStorage()
+  : multer.diskStorage({
+      destination: (req, file, cb) => {
+        const dir = path.join(__dirname, "../uploads/health_reports");
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+        cb(null, dir);
+      },
+      filename: (req, file, cb) => {
+        const userId = req.params.userId || 'unknown';
+        cb(null, `user-${userId}-health-report-${Date.now()}-${Math.round(Math.random() * 1E9)}${path.extname(file.originalname)}`);
+      }
+    });
 
 const upload = multer({
   storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    // Allow only pdf, jpg, jpeg, png files
     const filetypes = /pdf|jpg|jpeg|png/;
-    const mimetype = filetypes.test(file.mimetype);
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    
-    if (mimetype && extname) {
+    if (filetypes.test(file.mimetype) && filetypes.test(path.extname(file.originalname).toLowerCase())) {
       return cb(null, true);
     }
-    
     cb(new Error("Only pdf, jpg, jpeg, and png files are allowed"));
   }
 });
@@ -196,82 +191,43 @@ router.put("/health-status/:userId", isDoctor, async (req, res) => {
   }
 });
 
-// DOCTOR PROTECTED - Upload health report endpoint (only for doctors to use)
+async function getReportPath(req, userId) {
+  if (useR2 && req.file.buffer) {
+    const ext = path.extname(req.file.originalname) || '.pdf';
+    const key = `health_reports/user-${userId}-health-report-${Date.now()}-${Math.round(Math.random() * 1E9)}${ext}`;
+    return await uploadToR2(req.file.buffer, key, req.file.mimetype);
+  }
+  return `health_reports/${req.file.filename}`;
+}
+
 router.post("/upload-health-report-doctor/:userId", isDoctor, upload.single('report'), async (req, res) => {
   try {
     const { userId } = req.params;
-    
-    if (!req.file) {
-      return res.status(400).json({ error: "No file uploaded" });
-    }
-    
-    // Save the report path in the database
-    const reportPath = `uploads/health_reports/${req.file.filename}`;
-    await db.promise().query(
-      "INSERT INTO health_reports (user_id, report_path) VALUES (?, ?)",
-      [userId, reportPath]
-    );
-    
-    // Update user health status to pending
-    await db.promise().query(
-      "UPDATE users SET health_status = 'pending' WHERE id = ?",
-      [userId]
-    );
-    
-    res.json({ 
-      success: true, 
-      message: "Health report uploaded successfully" 
-    });
+    if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+    const reportPath = await getReportPath(req, userId);
+    await db.promise().query("INSERT INTO health_reports (user_id, report_path) VALUES (?, ?)", [userId, reportPath]);
+    await db.promise().query("UPDATE users SET health_status = 'pending' WHERE id = ?", [userId]);
+    res.json({ success: true, message: "Health report uploaded successfully" });
   } catch (error) {
     console.error("Error uploading health report:", error);
     res.status(500).json({ error: "Error uploading health report" });
   }
 });
 
-// PUBLIC - Upload health report endpoint (for patients to use from email links)
 router.post("/upload-health-report/:userId", upload.single('report'), async (req, res) => {
   try {
     const { userId } = req.params;
-    
-    // Validate that user exists and has status 'needs_report'
-    const [userRows] = await db.promise().query(
-      "SELECT id, health_status FROM users WHERE id = ?",
-      [userId]
-    );
-    
-    if (userRows.length === 0) {
-      return res.status(404).json({ error: "User not found" });
-    }
-    
+    const [userRows] = await db.promise().query("SELECT id, health_status FROM users WHERE id = ?", [userId]);
+    if (userRows.length === 0) return res.status(404).json({ error: "User not found" });
     const user = userRows[0];
-    
     if (user.health_status !== 'needs_report') {
-      return res.status(403).json({ 
-        error: "You are not currently required to upload a health report or have already uploaded one"
-      });
+      return res.status(403).json({ error: "You are not currently required to upload a health report or have already uploaded one" });
     }
-    
-    if (!req.file) {
-      return res.status(400).json({ error: "No file uploaded" });
-    }
-    
-    // Save the report path in the database
-    const reportPath = `uploads/health_reports/${req.file.filename}`;
-    await db.promise().query(
-      "INSERT INTO health_reports (user_id, report_path) VALUES (?, ?)",
-      [userId, reportPath]
-    );
-    
-    // Update user health status to pending
-    await db.promise().query(
-      "UPDATE users SET health_status = 'pending' WHERE id = ?",
-      [userId]
-    );
-    
-    res.json({ 
-      success: true, 
-      message: "Health report uploaded successfully" 
-    });
+    if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+    const reportPath = await getReportPath(req, userId);
+    await db.promise().query("INSERT INTO health_reports (user_id, report_path) VALUES (?, ?)", [userId, reportPath]);
+    await db.promise().query("UPDATE users SET health_status = 'pending' WHERE id = ?", [userId]);
+    res.json({ success: true, message: "Health report uploaded successfully" });
   } catch (error) {
     console.error("Error uploading health report:", error);
     res.status(500).json({ error: "Error uploading health report" });
@@ -564,8 +520,8 @@ router.get("/pending-health-report-reminders", isDoctor, async (req, res) => {
         u.email, 
         u.health_status_reason, 
         u.health_report_requested_at,
-        DATE_FORMAT(CONVERT_TZ(u.health_report_requested_at, '+00:00', '+03:00'), '%Y-%m-%d %H:%i:%s') AS health_report_requested_at_formatted,
-        DATEDIFF(DATE_ADD(u.health_report_requested_at, INTERVAL 5 DAY), CURRENT_TIMESTAMP) AS days_until_reminder
+        to_char(u.health_report_requested_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Istanbul', 'YYYY-MM-DD HH24:MI:SS') AS health_report_requested_at_formatted,
+        ((u.health_report_requested_at + INTERVAL '5 days')::date - CURRENT_DATE) AS days_until_reminder
       FROM users u
       WHERE u.health_status = 'needs_report'
       AND u.health_report_requested_at IS NOT NULL
@@ -585,7 +541,7 @@ router.get("/pending-health-report-reminders", isDoctor, async (req, res) => {
         u.surname, 
         u.email, 
         u.health_report_reminder_sent_at,
-        DATE_FORMAT(CONVERT_TZ(u.health_report_reminder_sent_at, '+00:00', '+03:00'), '%Y-%m-%d %H:%i:%s') AS health_report_reminder_sent_at_formatted,
+        to_char(u.health_report_reminder_sent_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Istanbul', 'YYYY-MM-DD HH24:MI:SS') AS health_report_reminder_sent_at_formatted,
         EXISTS (
           SELECT 1 FROM health_reports hr 
           WHERE hr.user_id = u.id 
@@ -621,7 +577,7 @@ router.get("/health-reports/:userId", isDoctor, async (req, res) => {
         hr.created_at,
         hr.status,
         hr.rejected_reason,
-        DATE_FORMAT(CONVERT_TZ(hr.created_at, '+00:00', '+03:00'), '%Y-%m-%d %H:%i:%s') AS created_at_formatted
+        to_char(hr.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Istanbul', 'YYYY-MM-DD HH24:MI:SS') AS created_at_formatted
       FROM health_reports hr
       WHERE hr.user_id = ?
       ORDER BY hr.created_at DESC

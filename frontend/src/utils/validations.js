@@ -6,9 +6,11 @@ const patterns = {
 };
 
 // Add server validation check functions and export them
+const getApiBaseUrl = () => process.env.REACT_APP_API_URL || 'http://localhost:3001';
+
 export const checkEmailUnique = async (email) => {
   try {
-    const response = await fetch('http://localhost:3001/auth/check-email', {
+    const response = await fetch(`${getApiBaseUrl()}/auth/check-email`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email })
@@ -23,7 +25,7 @@ export const checkEmailUnique = async (email) => {
 
 export const checkPhoneUnique = async (phone) => {
   try {
-    const response = await fetch('http://localhost:3001/auth/check-phone', {
+    const response = await fetch(`${getApiBaseUrl()}/auth/check-phone`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone })

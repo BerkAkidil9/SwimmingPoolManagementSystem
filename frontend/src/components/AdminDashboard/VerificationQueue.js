@@ -186,14 +186,14 @@ const VerificationQueue = () => {
               <div className="document-frame">
                 <h4>ID Card</h4>
                 <iframe
-                  src={`${API_BASE_URL}/uploads/${selectedUser.id_card_path}`}
+                  src={selectedUser.id_card_path?.startsWith('https://') ? selectedUser.id_card_path : `${API_BASE_URL}/uploads/${selectedUser.id_card_path}`}
                   title="ID Card"
                 />
               </div>
               <div className="document-frame">
                 <h4>Profile Photo</h4>
                 <img
-                  src={`${API_BASE_URL}/uploads/${selectedUser.profile_photo_path}`}
+                  src={selectedUser.profile_photo_path?.startsWith('https://') ? selectedUser.profile_photo_path : `${API_BASE_URL}/uploads/${selectedUser.profile_photo_path}`}
                   alt="Profile"
                 />
               </div>

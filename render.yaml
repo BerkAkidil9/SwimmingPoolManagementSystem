@@ -1,0 +1,78 @@
+# Render Blueprint - Swim Center
+# Deploy: Dashboard -> New -> Blueprint -> Connect this repo
+
+databases:
+  - name: swimcenter-db
+    databaseName: swimcenter
+    plan: free
+
+services:
+  # Backend (Node.js API)
+  - type: web
+    name: swimcenter-api
+    runtime: node
+    region: frankfurt
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: swimcenter-db
+          property: connectionString
+      - key: FRONTEND_URL
+        value: https://swimcenter.onrender.com
+      - key: BACKEND_URL
+        value: https://swimcenter-api.onrender.com
+      - key: USE_R2
+        value: "true"
+      - key: R2_ACCOUNT_ID
+        sync: false
+      - key: R2_ACCESS_KEY_ID
+        sync: false
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false
+      - key: R2_BUCKET_NAME
+        value: swimcenter-uploads
+      - key: R2_PUBLIC_URL
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GITHUB_CLIENT_ID
+        sync: false
+      - key: GITHUB_CLIENT_SECRET
+        sync: false
+      - key: FACEBOOK_CLIENT_ID
+        sync: false
+      - key: FACEBOOK_CLIENT_SECRET
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+
+  # Frontend (React Static Site)
+  - type: web
+    name: swimcenter
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: frontend/build
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://swimcenter-api.onrender.com
+      - key: REACT_APP_STRIPE_PUBLISHABLE_KEY
+        sync: false

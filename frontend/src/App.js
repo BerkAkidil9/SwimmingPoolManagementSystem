@@ -29,7 +29,7 @@ import HomePage from './pages/HomePage/HomePage';
 
 
 // Set default base URL for axios
-axios.defaults.baseURL = 'http://localhost:3001';
+axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 axios.defaults.withCredentials = true;
 
 function App() {

@@ -6,6 +6,8 @@ import googleLogo from './logo/google logo.png';
 import githubLogo from './logo/github logo.png';
 import facebookLogo from './logo/facebook logo.png';
 
+const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+
 function SocialLogin() {
   return (
     <div className="social-login">
@@ -13,7 +15,7 @@ function SocialLogin() {
       <div className="social-login-buttons">
         {/* Google Button */}
         <a
-          href="http://localhost:3001/auth/google"
+          href={`${apiBaseUrl}/auth/google`}
           aria-label="Register with Google"
           className="social-button-link"
         >
@@ -24,7 +26,7 @@ function SocialLogin() {
 
         {/* GitHub Button */}
         <a
-          href="http://localhost:3001/auth/github"
+          href={`${apiBaseUrl}/auth/github`}
           aria-label="Register with GitHub"
           className="social-button-link"
         >
@@ -35,7 +37,7 @@ function SocialLogin() {
 
         {/* Facebook Button */}
         <a
-          href="http://localhost:3001/auth/facebook"
+          href={`${apiBaseUrl}/auth/facebook`}
           aria-label="Register with Facebook"
           className="social-button-link"
         >

@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 /**
- * Creates the test database schema for PostgreSQL.
- * Uses DATABASE_URL or DB_* from .env.
- * Usage: node scripts/init-test-db.js
- * For tests: DATABASE_URL=postgresql://... node scripts/init-test-db.js
+ * Initializes the PostgreSQL database with schema.
+ * Usage: DATABASE_URL=postgresql://... node scripts/init-db.js
+ * Or with .env: node scripts/init-db.js
  */
 require("dotenv").config();
 const { Pool } = require("pg");
@@ -12,15 +11,15 @@ const path = require("path");
 
 const connectionString =
   process.env.DATABASE_URL ||
-  `postgresql://${process.env.DB_USER || "postgres"}:${process.env.DB_PASSWORD || ""}@${process.env.DB_HOST || "localhost"}:${process.env.DB_PORT || 5432}/${process.env.DB_NAME || "swimcenter"}_test`;
+  `postgresql://${process.env.DB_USER || "postgres"}:${process.env.DB_PASSWORD || ""}@${process.env.DB_HOST || "localhost"}:${process.env.DB_PORT || 5432}/${process.env.DB_NAME || "swimcenter"}`;
 
-async function initTestDb() {
+async function initDb() {
   const pool = new Pool({ connectionString });
   try {
     const schemaPath = path.join(__dirname, "../sql/schema_postgres.sql");
     const sql = fs.readFileSync(schemaPath, "utf8");
     await pool.query(sql);
-    console.log("Test database schema created successfully.");
+    console.log("Database schema created successfully.");
   } catch (err) {
     console.error("Error:", err.message);
     process.exit(1);
@@ -29,4 +28,4 @@ async function initTestDb() {
   }
 }
 
-initTestDb();
+initDb();

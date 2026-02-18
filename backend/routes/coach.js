@@ -33,17 +33,19 @@ router.put("/members/:userId/swimming-status", isCoach, async (req, res) => {
   const { userId } = req.params;
   const { swimming_ability } = req.body;
 
-  if (!["yes", "no"].includes(swimming_ability)) {
+  const val = String(swimming_ability || "").toLowerCase();
+  if (!["yes", "no"].includes(val)) {
     return res.status(400).json({ error: "Invalid swimming ability value" });
   }
+  const dbVal = val === "yes" ? "Yes" : "No";
 
   try {
-    const [result] = await db.promise().query(
-      `UPDATE users SET swimming_ability = ? WHERE id = ?`,
-      [swimming_ability, userId]
+    const [rows] = await db.promise().query(
+      `UPDATE users SET swimming_ability = ? WHERE id = ? RETURNING id`,
+      [dbVal, userId]
     );
 
-    if (result.affectedRows === 0) {
+    if (!rows.length) {
       return res.status(404).json({ error: "User not found" });
     }
 

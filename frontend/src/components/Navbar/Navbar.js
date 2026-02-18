@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FaUser, FaSignOutAlt, FaTachometerAlt, FaCreditCard, FaUserEdit, FaUserCircle, FaSwimmer } from 'react-icons/fa';
+import { API_BASE_URL } from '../../config';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -104,9 +105,12 @@ const Navbar = () => {
   const getProfileImageUrl = () => {
     if (!user) return null;
 
-    // Check for profile photo path from manual upload
+    // Check for profile photo path from manual upload (or R2 full URL)
     if (user.profile_photo_path) {
-      return `/uploads/${user.profile_photo_path}`;
+      if (user.profile_photo_path.startsWith('https://')) {
+        return user.profile_photo_path;
+      }
+      return `${API_BASE_URL}/uploads/${user.profile_photo_path}`;
     }
     
     // Check for social provider profile picture

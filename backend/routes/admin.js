@@ -14,7 +14,7 @@ const isAdmin = (req, res, next) => {
 // Get all pools
 router.get("/pools", isAdmin, async (req, res) => {
   try {
-    const [pools] = await db.promise().query("SELECT * FROM Pools");
+    const [pools] = await db.promise().query("SELECT * FROM \"Pools\"");
     res.json(pools);
   } catch (error) {
     console.error("Error fetching pools:", error);
@@ -40,12 +40,12 @@ router.post("/pools", isAdmin, async (req, res) => {
   }
   
   try {
-    const [result] = await db.promise().query(
-      "INSERT INTO Pools (name, capacity, rules, location) VALUES (?, ?, ?, ?)",
+    const [rows] = await db.promise().query(
+      "INSERT INTO \"Pools\" (name, capacity, rules, location) VALUES (?, ?, ?, ?) RETURNING id",
       [name, capacity, rules, location]
     );
     
-    res.json({ success: true, poolId: result.insertId });
+    res.json({ success: true, poolId: rows[0]?.id });
   } catch (error) {
     console.error("Error adding pool:", error);
     res.status(500).json({ error: "Error adding pool" });
@@ -57,7 +57,7 @@ router.delete("/pools/:poolId", isAdmin, async (req, res) => {
   const { poolId } = req.params;
   
   try {
-    await db.promise().query("DELETE FROM Pools WHERE id = ?", [poolId]);
+    await db.promise().query("DELETE FROM \"Pools\" WHERE id = ?", [poolId]);
     res.json({ success: true });
   } catch (error) {
     console.error("Error deleting pool:", error);
@@ -85,7 +85,7 @@ router.put("/pools/:poolId", isAdmin, async (req, res) => {
   
   try {
     await db.promise().query(
-      "UPDATE Pools SET name = ?, capacity = ?, rules = ?, location = ? WHERE id = ?",
+      "UPDATE \"Pools\" SET name = ?, capacity = ?, rules = ?, location = ? WHERE id = ?",
       [name, capacity, rules, location, poolId]
     );
     res.json({ success: true });
@@ -108,8 +108,8 @@ router.get("/verifications", isAdmin, async (req, res) => {
         provider,
         date_of_birth,
         gender,
-        SUBSTRING_INDEX(id_card_path, 'uploads/', -1) as id_card_path,
-        SUBSTRING_INDEX(profile_photo_path, 'uploads/', -1) as profile_photo_path,
+        regexp_replace(id_card_path, '^.*uploads/', '') as id_card_path,
+        regexp_replace(profile_photo_path, '^.*uploads/', '') as profile_photo_path,
         verification_status,
         rejection_count
       FROM users 
@@ -350,7 +350,7 @@ router.post("/sessions", isAdmin, async (req, res) => {
     
     // Get the pool to check its capacity
     const [poolResults] = await db.promise().query(
-      "SELECT capacity FROM Pools WHERE id = ?",
+      "SELECT capacity FROM \"Pools\" WHERE id = ?",
       [poolId]
     );
     
@@ -397,12 +397,12 @@ router.post("/sessions", isAdmin, async (req, res) => {
       });
     }
     
-    const [result] = await db.promise().query(
-      "INSERT INTO sessions (pool_id, session_date, start_time, end_time, initial_capacity, type) VALUES (?, ?, ?, ?, ?, ?)",
+    const [rows] = await db.promise().query(
+      "INSERT INTO sessions (pool_id, session_date, start_time, end_time, initial_capacity, type) VALUES (?, ?, ?, ?, ?, ?) RETURNING id",
       [poolId, sessionDate, startTime, endTime, capacity, type]
     );
     
-    res.json({ success: true, sessionId: result.insertId });
+    res.json({ success: true, sessionId: rows[0]?.id });
   } catch (error) {
     console.error("Error creating session:", error);
     res.status(500).json({ error: "Error creating session" });
@@ -415,7 +415,7 @@ router.get("/sessions", isAdmin, async (req, res) => {
     const [sessions] = await db.promise().query(`
       SELECT s.*, p.name as pool_name 
       FROM sessions s 
-      JOIN Pools p ON s.pool_id = p.id
+      JOIN "Pools" p ON s.pool_id = p.id
     `);
     
     // Format dates in API responses to be consistent
@@ -485,7 +485,7 @@ router.put("/sessions/:sessionId", isAdmin, async (req, res) => {
     
     // Get the pool to check its capacity
     const [poolResults] = await db.promise().query(
-      "SELECT capacity FROM Pools WHERE id = ?",
+      "SELECT capacity FROM \"Pools\" WHERE id = ?",
       [poolId]
     );
     
