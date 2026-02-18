@@ -821,7 +821,7 @@ router.get("/profile", isAuthenticated, async (req, res) => {
   }
 });
 
-// Member check-in endpoint (no transaction - mysql2 createConnection transaction API can cause errors)
+// Member check-in endpoint
 router.post("/check-in", isAuthenticated, async (req, res) => {
   const { reservationId } = req.body;
   const userId = req.session.user.id;

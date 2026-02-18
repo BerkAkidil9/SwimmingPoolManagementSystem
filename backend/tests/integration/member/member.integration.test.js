@@ -23,11 +23,11 @@ describe('Member Integration', () => {
 
   beforeAll(async () => {
     const hash = await bcrypt.hash(testPassword, 10);
-    const [r] = await db.promise().query(
-      'INSERT INTO users (email, password, name, surname, email_verified, verification_status, health_status) VALUES (?, ?, ?, ?, 1, ?, ?)',
+    const [rows] = await db.promise().query(
+      'INSERT INTO users (email, password, name, surname, email_verified, verification_status, health_status) VALUES (?, ?, ?, ?, true, ?, ?) RETURNING id',
       [testEmail, hash, 'Member', 'Test', 'approved', 'approved']
     );
-    userId = r.insertId;
+    userId = rows[0].id;
   });
 
   afterAll(async () => {
