@@ -108,8 +108,8 @@ router.get("/verifications", isAdmin, async (req, res) => {
         provider,
         date_of_birth,
         gender,
-        regexp_replace(id_card_path, '^.*uploads/', '') as id_card_path,
-        regexp_replace(profile_photo_path, '^.*uploads/', '') as profile_photo_path,
+        CASE WHEN id_card_path LIKE 'http%' THEN id_card_path ELSE COALESCE(regexp_replace(id_card_path, '^.*uploads/', ''), id_card_path) END as id_card_path,
+        CASE WHEN profile_photo_path LIKE 'http%' THEN profile_photo_path ELSE COALESCE(regexp_replace(profile_photo_path, '^.*uploads/', ''), profile_photo_path) END as profile_photo_path,
         verification_status,
         rejection_count
       FROM users 
