@@ -467,15 +467,15 @@ router.post(
       console.log("Generated token:", verificationToken);
       console.log("Token expires:", tokenExpires);
 
-      // Insert user data with verification fields
-      const [userResult] = await db.promise().query(
+      // Insert user data with verification fields (PostgreSQL: RETURNING id for insertId)
+      const [insertRows] = await db.promise().query(
         `INSERT INTO users (
                 provider, provider_id, profile_picture,
                 name, surname, date_of_birth, gender, swimming_ability, phone, email, 
                 password, terms_accepted, privacy_accepted, marketing_accepted,
                 id_card_path, profile_photo_path, verification_token,
                 verification_token_expires, email_verified
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
         [
           socialUser?.provider || null,
           socialUser?.provider_id || null,
@@ -499,16 +499,15 @@ router.post(
         ]
       );
 
+      const userId = insertRows[0].id;
       const [checkUser] = await db
         .promise()
         .query(
           "SELECT verification_token, verification_token_expires FROM users WHERE id = ?",
-          [userResult.insertId]
+          [userId]
         );
       console.log("Stored token info:", checkUser[0]);
-
-      console.log("User created with ID:", userResult.insertId);
-      const userId = userResult.insertId;
+      console.log("User created with ID:", userId);
 
       // Verification email for all registrations (including social)
       await sendVerificationEmail(
@@ -577,14 +576,13 @@ router.post(
           });
         });
       }
-      if (error.code === "ER_DUP_ENTRY") {
-        if (error.sqlMessage.includes("email")) {
+      if (error.code === "ER_DUP_ENTRY" || error.code === "23505") {
+        const msg = (error.sqlMessage || error.message || "").toLowerCase();
+        if (msg.includes("email") || msg.includes("users_email")) {
           return res.status(400).json({ error: "Email already registered" });
         }
-        if (error.sqlMessage.includes("phone")) {
-          return res
-            .status(400)
-            .json({ error: "Phone number already registered" });
+        if (msg.includes("phone") || msg.includes("users_phone")) {
+          return res.status(400).json({ error: "Phone number already registered" });
         }
       }
       res.status(500).json({ error: "Error during registration" });
