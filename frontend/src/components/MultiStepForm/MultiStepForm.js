@@ -222,6 +222,7 @@ const MultiStepForm = ({ isSocialRegistration: isFromSocial }) => {
                         const first = Object.values(data.errors)[0];
                         msg = Array.isArray(first) ? first[0] : first;
                     }
+                    if (data.debug) msg += " (" + data.debug + ")";
                     throw new Error(msg || `Registration failed (${response.status})`);
                 }
 

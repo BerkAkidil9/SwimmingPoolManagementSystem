@@ -1,4 +1,6 @@
+const https = require('https');
 const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+const { NodeHttpHandler } = require('@smithy/node-http-handler');
 
 const R2_ACCOUNT_ID = process.env.R2_ACCOUNT_ID;
 const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID;
@@ -10,6 +12,12 @@ let s3Client = null;
 
 function getS3Client() {
   if (!s3Client && R2_ACCOUNT_ID && R2_ACCESS_KEY_ID && R2_SECRET_ACCESS_KEY) {
+    // TLS 1.2+ zorla - Render/Cloudflare R2 SSL handshake hatası için
+    const httpsAgent = new https.Agent({
+      minVersion: 'TLSv1.2',
+      maxVersion: 'TLSv1.3',
+      rejectUnauthorized: true,
+    });
     s3Client = new S3Client({
       region: 'auto',
       endpoint: `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
@@ -17,6 +25,11 @@ function getS3Client() {
         accessKeyId: R2_ACCESS_KEY_ID,
         secretAccessKey: R2_SECRET_ACCESS_KEY,
       },
+      requestHandler: new NodeHttpHandler({
+        httpsAgent,
+        connectionTimeout: 10000,
+        requestTimeout: 30000,
+      }),
     });
   }
   return s3Client;

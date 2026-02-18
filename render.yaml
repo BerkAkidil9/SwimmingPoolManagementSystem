@@ -13,6 +13,8 @@ services:
     buildCommand: npm install
     startCommand: node index.js
     envVars:
+      - key: NODE_VERSION
+        value: "20"
       - key: NODE_ENV
         value: production
       - key: SESSION_SECRET
