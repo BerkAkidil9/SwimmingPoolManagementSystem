@@ -487,19 +487,20 @@ router.post(
           socialUser?.name || name || null,
           surname || null,
           date_of_birth || null,
-          gender || null,
-          swimming_ability || null,
+          // PostgreSQL enum: Male/Female/Other, Yes/No (case-sensitive)
+          gender ? String(gender).charAt(0).toUpperCase() + String(gender).slice(1).toLowerCase() : null,
+          swimming_ability ? String(swimming_ability).charAt(0).toUpperCase() + String(swimming_ability).slice(1).toLowerCase() : null,
           phone || null,
           socialUser?.email || email,
           hashedPassword,
-          terms_accepted === true || terms_accepted === "true" ? 1 : 0,
-          privacy_accepted === true || privacy_accepted === "true" ? 1 : 0,
-          marketing_accepted === true || marketing_accepted === "true" ? 1 : 0,
+          terms_accepted === true || terms_accepted === "true",
+          privacy_accepted === true || privacy_accepted === "true",
+          marketing_accepted === true || marketing_accepted === "true",
           idCardPath,
           profilePhotoPath,
           verificationToken,
           tokenExpires,
-          false, // email_verified - verification required for all accounts
+          false, // email_verified
         ]
       );
 
@@ -530,7 +531,7 @@ router.post(
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           userId,
-          blood_type,
+          blood_type, // A+, A-, etc. - schema enum
           allergies,
           chronic_conditions,
           medications,
@@ -540,22 +541,13 @@ router.post(
           emergency_contact_phone,
           emergency_contact_relationship,
           emergency_contact_relationship_other,
-          has_heart_problems === true || has_heart_problems === "true" ? 1 : 0,
-          chest_pain_activity === true || chest_pain_activity === "true"
-            ? 1
-            : 0,
-          balance_dizziness === true || balance_dizziness === "true" ? 1 : 0,
-          other_chronic_disease === true || other_chronic_disease === "true"
-            ? 1
-            : 0,
-          prescribed_medication === true || prescribed_medication === "true"
-            ? 1
-            : 0,
-          bone_joint_issues === true || bone_joint_issues === "true" ? 1 : 0,
-          doctor_supervised_activity === true ||
-          doctor_supervised_activity === "true"
-            ? 1
-            : 0,
+          has_heart_problems === true || has_heart_problems === "true",
+          chest_pain_activity === true || chest_pain_activity === "true",
+          balance_dizziness === true || balance_dizziness === "true",
+          other_chronic_disease === true || other_chronic_disease === "true",
+          prescribed_medication === true || prescribed_medication === "true",
+          bone_joint_issues === true || bone_joint_issues === "true",
+          doctor_supervised_activity === true || doctor_supervised_activity === "true",
           health_additional_info,
         ]
       );
@@ -595,13 +587,16 @@ router.post(
         return res.status(500).json({ error: "File upload service not configured. Contact support." });
       }
       if (msg.includes("column") || msg.includes("syntax") || error.code) {
-        return res.status(500).json({ error: "Database error. Check server logs." });
+        return res.status(500).json({
+          error: "Database error.",
+          debug: error.message,
+        });
       }
-      // Local/dev: show actual error for debugging
-      const errMsg = process.env.NODE_ENV === "production"
-        ? "Error during registration"
-        : `Registration failed: ${error.message}`;
-      res.status(500).json({ error: errMsg });
+      // Show actual error for debugging (remove in production when fixed)
+      res.status(500).json({
+        error: "Error during registration",
+        debug: error.message,
+      });
     }
   }
 );
