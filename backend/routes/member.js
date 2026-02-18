@@ -445,7 +445,6 @@ router.post("/reservations", isAuthenticated, async (req, res) => {
     return { success: true, message: `Successfully booked ${sessionType} session` };
     });
 
-    const bookingResult = await db.transaction(async (trx) => { ... });
     res.json(bookingResult);
   } catch (error) {
     if (error.statusCode) {
