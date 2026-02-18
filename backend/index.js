@@ -24,6 +24,9 @@ const coachRoutes = require("./routes/coach");
 const app = express();
 const port = process.env.PORT || 3001;
 
+// Trust proxy (Render puts app behind reverse proxy - needed for correct secure cookies)
+app.set('trust proxy', 1);
+
 // Upload directories setup
 const idCardsDir = path.join(__dirname, "uploads", "id_cards");
 const profilePhotosDir = path.join(__dirname, "uploads", "profile_photos");
@@ -109,6 +112,8 @@ app.use(
       secure: process.env.NODE_ENV === 'production',
       maxAge: 24 * 60 * 60 * 1000,
       httpOnly: true,
+      // Cross-origin: frontend (swimcenter) and backend (swimcenter-api) are different origins
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     },
   })
 );
