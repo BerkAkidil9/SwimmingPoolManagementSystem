@@ -18,6 +18,7 @@
   "description": "",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.992.0",
+    "aws4fetch": "^1.0.20",
     "axios": "^1.8.4",
     "backend": "file:",
     "bcryptjs": "^2.4.3",
