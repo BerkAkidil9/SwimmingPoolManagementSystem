@@ -314,7 +314,7 @@ router.post('/check-email', async (req, res) => {
             'SELECT COUNT(*) as count FROM users WHERE email = ?',
             [email]
         );
-        res.json({ isUnique: rows[0].count === 0 });
+        res.json({ isUnique: Number(rows[0].count) === 0 });
     } catch (error) {
         console.error('Email check error:', error);
         res.status(500).json({ error: 'Server error' });
@@ -329,7 +329,7 @@ router.post('/check-phone', async (req, res) => {
             'SELECT COUNT(*) as count FROM users WHERE phone = ?',
             [phone]
         );
-        res.json({ isUnique: rows[0].count === 0 });
+        res.json({ isUnique: Number(rows[0].count) === 0 });
     } catch (error) {
         console.error('Phone check error:', error);
         res.status(500).json({ error: 'Server error' });
