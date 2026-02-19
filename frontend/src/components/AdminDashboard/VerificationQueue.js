@@ -188,11 +188,11 @@ const VerificationQueue = () => {
                 {selectedUser.id_card_path ? (
                   <>
                     <iframe
-                      src={`${API_BASE_URL}/api/admin/document/${selectedUser.id}/id-card`}
+                      src={selectedUser.id_card_path?.startsWith('http') ? selectedUser.id_card_path : `${API_BASE_URL}/uploads/${selectedUser.id_card_path}`}
                       title="ID Card"
                     />
                     <a
-                      href={`${API_BASE_URL}/api/admin/document/${selectedUser.id}/id-card`}
+                      href={selectedUser.id_card_path?.startsWith('http') ? selectedUser.id_card_path : `${API_BASE_URL}/uploads/${selectedUser.id_card_path}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="view-doc-link"
@@ -208,7 +208,7 @@ const VerificationQueue = () => {
                 <h4>Profile Photo</h4>
                 {selectedUser.profile_photo_path ? (
                   <img
-                    src={`${API_BASE_URL}/api/admin/document/${selectedUser.id}/profile-photo`}
+                    src={selectedUser.profile_photo_path?.startsWith('http') ? selectedUser.profile_photo_path : `${API_BASE_URL}/uploads/${selectedUser.profile_photo_path}`}
                     alt="Profile"
                   />
                 ) : (

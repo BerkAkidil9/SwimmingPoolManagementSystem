@@ -958,7 +958,7 @@ const MemberDashboard = () => {
                                   <FaIdCard className="doc-icon" />
                                   <span>ID Card</span>
                                   <a 
-                                    href={`${API_BASE_URL}/api/member/document/id-card`}
+                                    href={userProfile.id_card_path?.startsWith('http') ? userProfile.id_card_path : `${API_BASE_URL}/uploads/${userProfile.id_card_path}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                   >
@@ -971,7 +971,7 @@ const MemberDashboard = () => {
                                   <FaImage className="doc-icon" />
                                   <span>Profile Photo</span>
                                   <a 
-                                    href={`${API_BASE_URL}/api/member/document/profile-photo`}
+                                    href={userProfile.profile_photo_path?.startsWith('http') ? userProfile.profile_photo_path : `${API_BASE_URL}/uploads/${userProfile.profile_photo_path}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                   >
