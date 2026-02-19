@@ -210,7 +210,7 @@ router.post("/payment-success", isAuthenticated, async (req, res) => {
               );
               
               // Set as default if this is the first card
-              const isDefault = cardCount[0].count === 0 ? 1 : 0;
+              const isDefault = cardCount[0].count === 0 ? true : false;
               
               console.log("Inserting new payment method:", {
                 userId: req.session.user.id,
@@ -288,11 +288,11 @@ router.put("/payment-methods/:id/default", isAuthenticated, async (req, res) => 
 
     await db.transaction(async (trx) => {
       await trx.query(
-        "UPDATE payment_methods SET is_default = 0 WHERE user_id = ?",
+        "UPDATE payment_methods SET is_default = false WHERE user_id = ?",
         [req.session.user.id]
       );
       await trx.query(
-        "UPDATE payment_methods SET is_default = 1 WHERE id = ?",
+        "UPDATE payment_methods SET is_default = true WHERE id = ?",
         [paymentMethodId]
       );
     });
@@ -334,7 +334,7 @@ router.delete("/payment-methods/:id", isAuthenticated, async (req, res) => {
       
       if (remainingPaymentMethods.length > 0) {
         await db.promise().query(
-          "UPDATE payment_methods SET is_default = 1 WHERE id = ?",
+          "UPDATE payment_methods SET is_default = true WHERE id = ?",
           [remainingPaymentMethods[0].id]
         );
       }
