@@ -958,7 +958,7 @@ const MemberDashboard = () => {
                                   <FaIdCard className="doc-icon" />
                                   <span>ID Card</span>
                                   <a 
-                                    href={userProfile.id_card_path?.startsWith('https://') ? userProfile.id_card_path : `${API_BASE_URL}/uploads/${userProfile.id_card_path}`}
+                                    href={`${API_BASE_URL}/api/member/document/id-card`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                   >
@@ -968,14 +968,10 @@ const MemberDashboard = () => {
                               )}
                               {userProfile.profile_photo_path && (
                                 <div className="doc-preview-item">
-                                  <img 
-                                    src={userProfile.profile_photo_path?.startsWith('https://') ? userProfile.profile_photo_path : `${API_BASE_URL}/uploads/${userProfile.profile_photo_path}`}
-                                    alt="Profile"
-                                    className="profile-preview-thumb"
-                                  />
+                                  <FaImage className="doc-icon" />
                                   <span>Profile Photo</span>
                                   <a 
-                                    href={userProfile.profile_photo_path?.startsWith('https://') ? userProfile.profile_photo_path : `${API_BASE_URL}/uploads/${userProfile.profile_photo_path}`}
+                                    href={`${API_BASE_URL}/api/member/document/profile-photo`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                   >
