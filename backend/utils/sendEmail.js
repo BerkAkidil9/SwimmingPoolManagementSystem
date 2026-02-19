@@ -3,11 +3,7 @@
  * Öncelik: Gmail API (HTTPS) > Resend API > Nodemailer SMTP (sadece lokal)
  */
 const nodemailer = require("nodemailer");
-const gmailTransportModule = require("gmail-nodemailer-transport");
-const GmailTransport =
-  typeof gmailTransportModule === "function"
-    ? gmailTransportModule
-    : gmailTransportModule.GmailTransport || gmailTransportModule.default;
+const { google } = require("googleapis");
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const GMAIL_USER = process.env.GMAIL_USER;
@@ -16,29 +12,59 @@ const EMAIL_FROM =
   process.env.EMAIL_FROM || (GMAIL_USER ? `Swim Center <${GMAIL_USER}>` : "Swim Center <onboarding@resend.dev>");
 
 let resendClient = null;
-let gmailTransporter = null;
+let gmailClient = null;
 let nodemailerTransporter = null;
 
-function getGmailTransporter() {
+function getGmailClient() {
   if (
-    !gmailTransporter &&
+    !gmailClient &&
     GMAIL_USER &&
     GMAIL_REFRESH_TOKEN &&
     process.env.GOOGLE_CLIENT_ID &&
     process.env.GOOGLE_CLIENT_SECRET
   ) {
-    gmailTransporter = nodemailer.createTransport(
-      new GmailTransport({
-        userId: GMAIL_USER,
-        auth: {
-          clientId: process.env.GOOGLE_CLIENT_ID,
-          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-          refreshToken: GMAIL_REFRESH_TOKEN,
-        },
-      })
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      "http://localhost:3333/oauth2callback"
     );
+    oauth2Client.setCredentials({ refresh_token: GMAIL_REFRESH_TOKEN });
+    gmailClient = google.gmail({ version: "v1", auth: oauth2Client });
   }
-  return gmailTransporter;
+  return gmailClient;
+}
+
+function buildRfc2822Message({ from, to, subject, html }) {
+  const toAddr = Array.isArray(to) ? to.join(", ") : to;
+  const lines = [
+    `From: ${from}`,
+    `To: ${toAddr}`,
+    `Subject: ${subject}`,
+    "MIME-Version: 1.0",
+    "Content-Type: text/html; charset=UTF-8",
+    "",
+    html,
+  ];
+  return lines.join("\r\n");
+}
+
+function toBase64Url(str) {
+  return Buffer.from(str, "utf8").toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+async function sendViaGmailApi({ to, subject, html, from }) {
+  const fromAddr = from || EMAIL_FROM;
+  const gmail = getGmailClient();
+  if (!gmail) return null;
+
+  const message = buildRfc2822Message({ from: fromAddr, to, subject, html });
+  const raw = toBase64Url(message);
+
+  await gmail.users.messages.send({
+    userId: GMAIL_USER,
+    requestBody: { raw },
+  });
+  return { ok: true };
 }
 
 function getResend() {
@@ -67,11 +93,15 @@ function getNodemailer() {
  */
 async function sendEmail({ to, subject, html, from }) {
   const fromAddr = from || EMAIL_FROM;
-  const gmail = getGmailTransporter();
+  const hasGmail =
+    GMAIL_USER &&
+    GMAIL_REFRESH_TOKEN &&
+    process.env.GOOGLE_CLIENT_ID &&
+    process.env.GOOGLE_CLIENT_SECRET;
   const resend = getResend();
 
   let provider = "none";
-  if (gmail) {
+  if (hasGmail) {
     provider = "Gmail API";
   } else if (resend) {
     provider = "Resend";
@@ -80,14 +110,14 @@ async function sendEmail({ to, subject, html, from }) {
   }
   console.log("[sendEmail] Provider:", provider);
 
-  if (gmail) {
-    await gmail.sendMail({
-      from: fromAddr,
-      to,
-      subject,
-      html,
-    });
-    return { ok: true };
+  if (hasGmail) {
+    try {
+      const result = await sendViaGmailApi({ to, subject, html, from: fromAddr });
+      if (result) return result;
+    } catch (err) {
+      console.error("[sendEmail] Gmail API error:", err.message, err.response?.data || err);
+      throw err;
+    }
   }
 
   if (resend) {
