@@ -4,8 +4,18 @@ const db = require("../config/database");
 const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
-const axios = require("axios");
 const { uploadToR2 } = require("../utils/r2Storage");
+
+function toWorkerUrlIfR2(urlPath, workerUrl) {
+  if (!urlPath || !workerUrl || typeof urlPath !== "string") return urlPath;
+  if (!urlPath.startsWith("http")) return urlPath;
+  try {
+    const u = new URL(urlPath);
+    const key = u.pathname.replace(/^\//, "");
+    if (key) return `${workerUrl.replace(/\/$/, "")}/${key}`;
+  } catch (_) {}
+  return urlPath;
+}
 
 const useR2 = process.env.USE_R2 === 'true';
 
@@ -812,8 +822,15 @@ router.get("/profile", isAuthenticated, async (req, res) => {
     console.log("Profile photo path:", rows[0].profile_photo_path);
     console.log("ID card path:", rows[0].id_card_path);
     console.log("User role:", rows[0].role);
-    
-    res.json(rows[0]);
+
+    const workerUrl = process.env.R2_WORKER_URL;
+    const profile = {
+      ...rows[0],
+      id_card_path: toWorkerUrlIfR2(rows[0].id_card_path, workerUrl) || rows[0].id_card_path,
+      profile_photo_path: toWorkerUrlIfR2(rows[0].profile_photo_path, workerUrl) || rows[0].profile_photo_path
+    };
+
+    res.json(profile);
   } catch (error) {
     console.error("Error fetching user profile:", error);
     res.status(500).json({ error: "Error fetching user profile" });
@@ -1106,67 +1123,6 @@ router.get("/health-info", isAuthenticated, async (req, res) => {
   } catch (error) {
     console.error("Error fetching health info:", error);
     res.status(500).json({ error: "Error fetching health information" });
-  }
-});
-
-// Proxy document view (avoids ERR_CONNECTION_RESET with R2/external URLs)
-router.get("/document/:type", isAuthenticated, async (req, res) => {
-  try {
-    const { type } = req.params;
-    const validTypes = { "id-card": "id_card_path", "profile-photo": "profile_photo_path" };
-    const dbColumn = validTypes[type];
-    if (!dbColumn) return res.status(400).json({ error: "Invalid document type" });
-
-    const [rows] = await db.promise().query(
-      `SELECT ${dbColumn} FROM users WHERE id = ?`,
-      [req.session.user.id]
-    );
-    if (!rows.length || !rows[0][dbColumn]) {
-      return res.status(404).json({ error: "Document not found" });
-    }
-    const docPath = rows[0][dbColumn];
-
-    if (docPath.startsWith("http://") || docPath.startsWith("https://")) {
-      const workerUrl = process.env.R2_WORKER_URL?.replace(/\/$/, "");
-      let fetchUrl = docPath;
-      if (workerUrl) {
-        try {
-          const u = new URL(docPath);
-          const key = u.pathname.replace(/^\//, "");
-          if (key) fetchUrl = `${workerUrl}/${key}`;
-        } catch (_) {}
-      }
-      const resp = await axios.get(fetchUrl, {
-        responseType: "stream",
-        timeout: 15000,
-        validateStatus: () => true
-      });
-      if (resp.status !== 200) {
-        return res.status(502).json({ error: "Could not fetch document" });
-      }
-      const ext = path.extname(new URL(docPath).pathname).toLowerCase();
-      if (ext === ".pdf") res.setHeader("Content-Type", "application/pdf");
-      else if ([".jpg", ".jpeg"].includes(ext)) res.setHeader("Content-Type", "image/jpeg");
-      else if (ext === ".png") res.setHeader("Content-Type", "image/png");
-      resp.data.pipe(res);
-    } else {
-      const fullPath = path.resolve(path.join(__dirname, "..", "uploads", docPath));
-      const uploadsDir = path.resolve(path.join(__dirname, "..", "uploads"));
-      if (!fullPath.startsWith(uploadsDir + path.sep) && fullPath !== uploadsDir) {
-        return res.status(403).send("Forbidden");
-      }
-      if (!fs.existsSync(fullPath)) {
-        return res.status(404).json({ error: "File not found" });
-      }
-      const ext = path.extname(fullPath).toLowerCase();
-      if (ext === ".pdf") res.setHeader("Content-Type", "application/pdf");
-      else if ([".jpg", ".jpeg"].includes(ext)) res.setHeader("Content-Type", "image/jpeg");
-      else if (ext === ".png") res.setHeader("Content-Type", "image/png");
-      res.sendFile(fullPath);
-    }
-  } catch (err) {
-    console.error("Document proxy error:", err);
-    res.status(500).json({ error: "Could not load document" });
   }
 });
 
