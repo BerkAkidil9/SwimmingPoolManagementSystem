@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../config/database");
-const nodemailer = require("nodemailer");
+const { sendEmail } = require("../utils/sendEmail");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -40,15 +40,6 @@ const upload = multer({
     }
     cb(new Error("Only pdf, jpg, jpeg, and png files are allowed"));
   }
-});
-
-// Configure nodemailer
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
 });
 
 // Get patients needing health status review
@@ -355,9 +346,8 @@ router.get("/users-with-reports", isDoctor, async (req, res) => {
 const sendHealthReportRequestEmail = async (email, firstName, lastName, reason, userId) => {
   try {
     const uploadUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/upload-health-report/${userId}`;
-    
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
+
+    await sendEmail({
       to: email,
       subject: "Additional Health Report Required",
       html: `
@@ -386,9 +376,7 @@ const sendHealthReportRequestEmail = async (email, firstName, lastName, reason, 
           </p>
         </div>
       `
-    };
-    
-    await transporter.sendMail(mailOptions);
+    });
     console.log(`Health report request email sent to ${email}`);
   } catch (error) {
     console.error('Error sending health report request email:', error);
@@ -398,8 +386,7 @@ const sendHealthReportRequestEmail = async (email, firstName, lastName, reason, 
 
 const sendHealthRejectionEmail = async (email, firstName, lastName, reason) => {
   try {
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
+    await sendEmail({
       to: email,
       subject: "Health Assessment Status Update",
       html: `
@@ -426,9 +413,7 @@ const sendHealthRejectionEmail = async (email, firstName, lastName, reason) => {
           </p>
         </div>
       `
-    };
-    
-    await transporter.sendMail(mailOptions);
+    });
     console.log(`Health rejection email sent to ${email}`);
   } catch (error) {
     console.error('Error sending health rejection email:', error);
@@ -439,8 +424,7 @@ const sendHealthRejectionEmail = async (email, firstName, lastName, reason) => {
 // Helper function to send health report approved email
 const sendHealthReportApprovedEmail = async (email, firstName, lastName) => {
   try {
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
+    await sendEmail({
       to: email,
       subject: "Health Status Approved",
       html: `
@@ -460,9 +444,7 @@ const sendHealthReportApprovedEmail = async (email, firstName, lastName) => {
           </p>
         </div>
       `
-    };
-    
-    await transporter.sendMail(mailOptions);
+    });
   } catch (error) {
     console.error("Error sending health report approved email:", error);
     throw error;
@@ -472,8 +454,7 @@ const sendHealthReportApprovedEmail = async (email, firstName, lastName) => {
 // Helper function to send health report rejected email
 const sendHealthReportRejectedEmail = async (email, firstName, lastName, reason) => {
   try {
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
+    await sendEmail({
       to: email,
       subject: "Health Report Rejected",
       html: `
@@ -498,9 +479,7 @@ const sendHealthReportRejectedEmail = async (email, firstName, lastName, reason)
           </p>
         </div>
       `
-    };
-    
-    await transporter.sendMail(mailOptions);
+    });
   } catch (error) {
     console.error("Error sending health report rejected email:", error);
     throw error;

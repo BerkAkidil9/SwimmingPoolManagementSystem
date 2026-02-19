@@ -3,7 +3,7 @@ const router = express.Router();
 const passport = require('passport');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
-const nodemailer = require('nodemailer');
+const { sendEmail } = require('../utils/sendEmail');
 const pool = require('../config/database');
 
 // Google authentication route
@@ -33,15 +33,6 @@ router.get('/google/callback',
         }
     }
 );
-
-// Configure nodemailer
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USERNAME || 'your-email@gmail.com',
-        pass: process.env.EMAIL_PASSWORD || 'your-app-password'
-    }
-});
 
 // Request password reset route
 router.post('/reset-password-request', async (req, res) => {
@@ -76,9 +67,8 @@ router.post('/reset-password-request', async (req, res) => {
         // Create reset URL
         const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password/${resetToken}`;
         
-        // Send email with reset link
-        const mailOptions = {
-            from: process.env.EMAIL_USERNAME || 'your-email@gmail.com',
+        // Send email with reset link (uses Resend on Render)
+        await sendEmail({
             to: email,
             subject: 'Your Password Reset Link',
             html: `
@@ -90,9 +80,7 @@ router.post('/reset-password-request', async (req, res) => {
                 <p>If you did not request a password reset, please ignore this email and your password will remain unchanged.</p>
                 <p>Thank you!</p>
             `
-        };
-        
-        await transporter.sendMail(mailOptions);
+        });
         
         res.json({ message: 'Password reset link sent to your email' });
     } catch (error) {

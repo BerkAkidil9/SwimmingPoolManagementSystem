@@ -68,14 +68,15 @@ app.use(
 app.use(bodyParser.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// Custom file serving middleware
+// Custom file serving middleware (path traversal protection)
 app.use("/uploads", (req, res, next) => {
-  console.log("Requested file path:", req.path);
-  // Remove any leading slashes from the path
   const filePath = req.path.replace(/^\/+/, '');
-  const fullPath = path.join(__dirname, 'uploads', filePath);
-  console.log("Full file path:", fullPath);
-  
+  const uploadsDir = path.resolve(__dirname, 'uploads');
+  const fullPath = path.resolve(path.join(__dirname, 'uploads', filePath));
+  // Block path traversal - fullPath must stay inside uploads
+  if (!fullPath.startsWith(uploadsDir + path.sep) && fullPath !== uploadsDir) {
+    return res.status(403).send('Forbidden');
+  }
   if (fs.existsSync(fullPath)) {
     console.log("File found, serving:", fullPath);
     
@@ -189,27 +190,17 @@ db.connect((err) => {
         return;
       }
       
-      // Send reminder emails
+      // Send reminder emails (uses Resend on Render, nodemailer locally)
       let sentCount = 0;
-      const nodemailer = require('nodemailer');
+      const { sendEmail } = require('./utils/sendEmail');
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-      
-      // Create nodemailer transporter
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASSWORD
-        }
-      });
-      
+
       for (const user of users) {
         try {
           // Generate the upload URL
           const uploadUrl = `${frontendUrl}/health-report-upload?userId=${user.id}`;
-          
-          const mailOptions = {
-            from: process.env.EMAIL_USER,
+
+          await sendEmail({
             to: user.email,
             subject: "Reminder: Health Report Upload Pending",
             html: `
@@ -238,9 +229,7 @@ db.connect((err) => {
                 </p>
               </div>
             `
-          };
-          
-          await transporter.sendMail(mailOptions);
+          });
           
           // Update the reminder sent timestamp
           await db.promise().query(

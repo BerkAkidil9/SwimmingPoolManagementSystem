@@ -145,18 +145,16 @@ router.post("/payment-success", isAuthenticated, async (req, res) => {
     // Calculate price based on package type
     const price = packageType === 'education' ? 100.00 : 150.00;
 
-    // Create a transaction to ensure data consistency
-    await db.promise().beginTransaction();
-
-    try {
+    // Create a transaction to ensure data consistency (PostgreSQL: db.transaction)
+    await db.transaction(async (trx) => {
       // Insert the package
-      await db.promise().query(
+      await trx.query(
         "INSERT INTO packages (user_id, type, price, remaining_sessions, expiry_date) VALUES (?, ?, ?, ?, ?)",
         [req.session.user.id, packageType, price, sessions, expiryDate]
       );
 
-      // Create a payment record (new table needed)
-      await db.promise().query(
+      // Create a payment record
+      await trx.query(
         "INSERT INTO payments (user_id, package_type, amount, payment_intent_id, status) VALUES (?, ?, ?, ?, ?)",
         [req.session.user.id, packageType, price, paymentIntentId, "completed"]
       );
@@ -191,7 +189,7 @@ router.post("/payment-success", isAuthenticated, async (req, res) => {
           
           if (paymentMethod && paymentMethod.card) {
             // Check if this card already exists for the user (by last4 and exp_date)
-            const [existingCard] = await db.promise().query(
+            const [existingCard] = await trx.query(
               "SELECT * FROM payment_methods WHERE user_id = ? AND last4 = ? AND exp_month = ? AND exp_year = ?",
               [
                 req.session.user.id, 
@@ -206,7 +204,7 @@ router.post("/payment-success", isAuthenticated, async (req, res) => {
             // Only save if it's a new card
             if (existingCard.length === 0) {
               // Get count of existing payment methods for this user
-              const [cardCount] = await db.promise().query(
+              const [cardCount] = await trx.query(
                 "SELECT COUNT(*) AS count FROM payment_methods WHERE user_id = ?",
                 [req.session.user.id]
               );
@@ -222,7 +220,7 @@ router.post("/payment-success", isAuthenticated, async (req, res) => {
               });
               
               // Save the card details
-              const [insertResult] = await db.promise().query(
+              await trx.query(
                 "INSERT INTO payment_methods (user_id, payment_method_id, card_brand, last4, exp_month, exp_year, is_default) VALUES (?, ?, ?, ?, ?, ?, ?)",
                 [
                   req.session.user.id,
@@ -235,7 +233,7 @@ router.post("/payment-success", isAuthenticated, async (req, res) => {
                 ]
               );
               
-              console.log("Payment method saved to DB:", insertResult);
+              console.log("Payment method saved to DB");
             } else {
               console.log("Card already exists, not saving duplicate");
             }
@@ -248,15 +246,10 @@ router.post("/payment-success", isAuthenticated, async (req, res) => {
           // we couldn't save the payment method
         }
       }
+    });
 
-      await db.promise().commit();
-      console.log("Transaction committed successfully");
-      res.json({ success: true });
-    } catch (error) {
-      await db.promise().rollback();
-      console.error("Transaction error, rolled back:", error);
-      throw error;
-    }
+    console.log("Transaction committed successfully");
+    res.json({ success: true });
   } catch (error) {
     console.error("Error processing payment:", error);
     res.status(500).json({ error: "Failed to process payment", details: error.message });
@@ -292,29 +285,19 @@ router.put("/payment-methods/:id/default", isAuthenticated, async (req, res) => 
     if (paymentMethod.length === 0) {
       return res.status(404).json({ error: "Payment method not found" });
     }
-    
-    // Begin transaction
-    await db.promise().beginTransaction();
-    
-    try {
-      // Remove default status from all payment methods
-      await db.promise().query(
+
+    await db.transaction(async (trx) => {
+      await trx.query(
         "UPDATE payment_methods SET is_default = 0 WHERE user_id = ?",
         [req.session.user.id]
       );
-      
-      // Set the selected payment method as default
-      await db.promise().query(
+      await trx.query(
         "UPDATE payment_methods SET is_default = 1 WHERE id = ?",
         [paymentMethodId]
       );
-      
-      await db.promise().commit();
-      res.json({ success: true });
-    } catch (error) {
-      await db.promise().rollback();
-      throw error;
-    }
+    });
+
+    res.json({ success: true });
   } catch (error) {
     console.error("Error setting default payment method:", error);
     res.status(500).json({ error: "Failed to set default payment method" });
@@ -364,10 +347,10 @@ router.delete("/payment-methods/:id", isAuthenticated, async (req, res) => {
   }
 });
 
-// Get Stripe publishable key
+// Get Stripe publishable key (from env for test/live flexibility)
 router.get("/config", (req, res) => {
   res.json({ 
-    publishableKey: "pk_test_51QsuZlBM71F34f4Se9yVZWKYLaKxjuEIb1FMCEKU1Fd7qNqlqntsJ9fEgLNFaxs16MJn30wunStVWcZc8U6FJL8m00gMluf5Bc" 
+    publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || "pk_test_51QsuZlBM71F34f4Se9yVZWKYLaKxjuEIb1FMCEKU1Fd7qNqlqntsJ9fEgLNFaxs16MJn30wunStVWcZc8U6FJL8m00gMluf5Bc" 
   });
 });
 

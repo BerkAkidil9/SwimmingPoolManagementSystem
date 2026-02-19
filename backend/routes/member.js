@@ -265,12 +265,10 @@ router.get("/sessions", isAuthenticated, async (req, res) => {
        JOIN "Pools" p ON s.pool_id = p.id`
     );
 
-    // Format the sessions data
+    // Format the sessions data (session_date, start_time, end_time from DB)
     const formattedSessions = sessions.map(session => ({
       ...session,
-      capacity: session.total_capacity - session.booked,
-      start_time: getNextOccurrence(session.day_of_week, session.start_time),
-      end_time: getNextOccurrence(session.day_of_week, session.end_time)
+      capacity: session.total_capacity - session.booked
     }));
 
     res.json(formattedSessions);

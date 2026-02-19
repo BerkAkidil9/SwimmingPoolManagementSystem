@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../config/database");
-const nodemailer = require("nodemailer");
+const { sendEmail } = require("../utils/sendEmail");
 
 // Middleware to check if user is admin
 const isAdmin = (req, res, next) => {
@@ -207,21 +207,10 @@ router.put("/verifications/:userId", isAdmin, async (req, res) => {
   }
 });
 
-// Helper function to send rejection email
+// Helper function to send rejection email (uses Resend on Render)
 const sendRejectionEmail = async (email, firstName, lastName, reason) => {
   try {
-    // Create nodemailer transporter
-    const transporter = nodemailer.createTransport({
-      service: "gmail", // or your email service
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    });
-    
-    // Email content
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
+    await sendEmail({
       to: email,
       subject: "Swimming Pool Application Status Update",
       html: `
@@ -246,10 +235,7 @@ const sendRejectionEmail = async (email, firstName, lastName, reason) => {
           </p>
         </div>
       `
-    };
-    
-    // Send email
-    await transporter.sendMail(mailOptions);
+    });
     console.log(`Rejection email sent to ${email}`);
   } catch (error) {
     console.error("Error sending rejection email:", error);
@@ -258,21 +244,10 @@ const sendRejectionEmail = async (email, firstName, lastName, reason) => {
   }
 };
 
-// Helper function to send third rejection email
+// Helper function to send third rejection email (uses Resend on Render)
 const sendThirdRejectionEmail = async (email, firstName, lastName, reason) => {
   try {
-    // Create nodemailer transporter
-    const transporter = nodemailer.createTransport({
-      service: "gmail", // or your email service
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    });
-    
-    // Email content for third rejection
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
+    await sendEmail({
       to: email,
       subject: "Swimming Pool Application - Final Verification Status",
       html: `
@@ -299,10 +274,7 @@ const sendThirdRejectionEmail = async (email, firstName, lastName, reason) => {
           </p>
         </div>
       `
-    };
-    
-    // Send email
-    await transporter.sendMail(mailOptions);
+    });
     console.log(`Final rejection email sent to ${email}`);
   } catch (error) {
     console.error("Error sending third rejection email:", error);
