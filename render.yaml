@@ -54,6 +54,10 @@ services:
         sync: false
       - key: FACEBOOK_CLIENT_SECRET
         sync: false
+      - key: GMAIL_USER
+        sync: false
+      - key: GMAIL_REFRESH_TOKEN
+        sync: false
       - key: RESEND_API_KEY
         sync: false
       - key: EMAIL_FROM
