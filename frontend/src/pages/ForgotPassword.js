@@ -29,8 +29,8 @@ const ForgotPassword = () => {
   return (
     <div className="forgot-password-container">
       <div className="forgot-password-form">
-        <h1>Reset Your Password</h1>
-        
+        {!success && <h1>Reset Your Password</h1>}
+
         {error && (
           <div className="error-message">
             <FaExclamationTriangle /> {error}
@@ -42,7 +42,7 @@ const ForgotPassword = () => {
             <FaCheckCircle className="success-icon" />
             <h2>Check Your Email</h2>
             <p>If an account exists with this email, you will receive a password reset link shortly.</p>
-            <button className="return-button" onClick={() => navigate('/login')}>
+            <button className="return-button return-button-primary" onClick={() => navigate('/login')}>
               Return to Login
             </button>
           </div>
