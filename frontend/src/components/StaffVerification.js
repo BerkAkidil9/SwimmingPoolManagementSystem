@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import QrReader from 'react-qr-scanner';
+import Navbar from './Navbar/Navbar';
 import './StaffVerification.css';
 
 const StaffVerification = () => {
@@ -13,8 +13,6 @@ const StaffVerification = () => {
 
   const [scannerEnabled, setScannerEnabled] = useState(true);
   const [scannerFacingMode, setScannerFacingMode] = useState('environment'); // rear camera by default
-  
-  const navigate = useNavigate();
 
   // Get user information from session storage
   useEffect(() => {
@@ -25,18 +23,6 @@ const StaffVerification = () => {
       console.log('Staff verification portal - User info:', user);
     }
   }, []);
-
-  const handleLogout = () => {
-    // Clear session data
-    sessionStorage.removeItem('user');
-    
-    // Reset component state
-    setParsedData(null);
-    setVerificationResult(null);
-    
-    // Redirect to login page
-    navigate('/login');
-  };
 
   const handleQrInput = (e) => {
     setQrData(e.target.value);
@@ -187,16 +173,12 @@ const StaffVerification = () => {
 
 
   return (
-    <div className="staff-verification-container">
-      <div className="staff-header">
-        <h2>Pool Staff Verification Portal</h2>
-        <div className="header-actions">
-          <button onClick={handleLogout} className="logout-btn">Logout</button>
-        </div>
-      </div>
-
-      
-      <div className="verification-area">
+    <div className="staff-verification-wrapper">
+      <Navbar />
+      <div className="staff-verification-container">
+        <h2 className="staff-page-title">Pool Staff Verification Portal</h2>
+        
+        <div className="verification-area">
         <div className="qr-input-section">
           <h3>Scan Member QR Code</h3>
           
@@ -297,6 +279,7 @@ const StaffVerification = () => {
           )}
         </div>
       )}
+      </div>
     </div>
   );
 };
