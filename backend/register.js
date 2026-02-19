@@ -522,7 +522,7 @@ router.get("/verify-email", async (req, res) => {
     if (users.length === 0) {
       // Debug: log one unverified user's token info (not the actual token)
       const [debug] = await db.promise().query(
-        "SELECT id, LENGTH(verification_token) as tok_len FROM users WHERE verification_token IS NOT NULL AND verification_token != '' AND email_verified = 0 LIMIT 1"
+        "SELECT id, LENGTH(verification_token) as tok_len FROM users WHERE verification_token IS NOT NULL AND verification_token != '' AND email_verified = false LIMIT 1"
       );
       console.log("No user found. Debug - unverified user token length:", debug[0]?.tok_len);
       return res.redirect(`${redirectBase}/verify-result?status=error&message=expired`);
@@ -532,7 +532,7 @@ router.get("/verify-email", async (req, res) => {
     await db
       .promise()
       .query(
-        "UPDATE users SET email_verified = 1, verification_token = '', verification_token_expires = NULL WHERE id = ?",
+        "UPDATE users SET email_verified = true, verification_token = '', verification_token_expires = NULL WHERE id = ?",
         [user.id]
       );
 
@@ -579,7 +579,7 @@ router.post(["/verify-email", "/verify-email/:token"], async (req, res) => {
     await db
       .promise()
       .query(
-        "UPDATE users SET email_verified = 1, verification_token = '', verification_token_expires = NULL WHERE id = ?",
+        "UPDATE users SET email_verified = true, verification_token = '', verification_token_expires = NULL WHERE id = ?",
         [user.id]
       );
 
@@ -791,7 +791,7 @@ router.get("/check-verification", async (req, res) => {
       .query("SELECT email_verified FROM users WHERE id = ?", [req.user.id]);
 
     res.json({
-      isVerified: user[0]?.email_verified === 1,
+      isVerified: !!user[0]?.email_verified,
       email: req.user.email,
     });
   } catch (error) {
