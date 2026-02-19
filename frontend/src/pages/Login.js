@@ -4,7 +4,6 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import poolImage from "../pool.jpg";
 import "./LoginPage.css";
-import facebookLogo from '../logo/facebook logo.png';
 
 const GoogleIcon = () => (
   <svg
@@ -32,30 +31,6 @@ const GoogleIcon = () => (
     />
     <path fill="none" d="M0 0h48v48H0z" />
   </svg>
-);
-
-const GitHubIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-  >
-    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.4.6.1.8-.3.8-.6v-2c-3.3.7-4-1.4-4-1.4-.5-1.3-1.2-1.6-1.2-1.6-1-.7.1-.7.1-.7 1.1.1 1.7 1.1 1.7 1.1 1 .1.8 2 .8 2 1.8 3.1 5.4 2.2 6.7 1.7.2-1.2.7-2.2 1.2-2.8-2.6-.3-5.3-1.3-5.3-5.7 0-1.2.4-2.3 1.1-3.2-.1-.3-.4-1.2.1-2.5 0 0 1-.3 3.2 1.1a11 11 0 0 1 5.8 0c2.2-1.4 3.2-1.1 3.2-1.1.5 1.3.2 2.2.1 2.5.7 1 1.1 2 1.1 3.2 0 4.4-2.7 5.4-5.3 5.7.8.6 1.4 1.6 1.4 3.2v4.5c0 .3.2.8.8.6C20.56 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z" />
-  </svg>
-);
-
-const FacebookIcon = () => (
-  <img 
-    src={facebookLogo} 
-    alt="Facebook Logo" 
-    style={{ 
-      width: '18px', 
-      height: '18px',
-      marginRight: '10px'
-    }} 
-  />
 );
 
 const LoginPage = () => {
@@ -197,20 +172,6 @@ const LoginPage = () => {
           >
             <GoogleIcon />
             Continue with Google
-          </button>
-          <button
-            className="github"
-            onClick={() => handleSocialLogin("github")}
-          >
-            <GitHubIcon />
-            Continue with GitHub
-          </button>
-          <button
-            className="facebook"
-            onClick={() => handleSocialLogin("facebook")}
-          >
-            <FacebookIcon />
-            Continue with Facebook
           </button>
         </div>
       </div>

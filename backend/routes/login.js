@@ -17,9 +17,9 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid email or password." });
     }
 
-    // OAuth accounts have no password - they must log in with Google/GitHub
+    // OAuth accounts have no password - they must log in with Google
     if (!user.password) {
-      return res.status(403).json({ error: "This account was created with Google/GitHub. Please log in with \"Continue with Google\" or \"Continue with GitHub\"." });
+      return res.status(403).json({ error: "This account was created with Google. Please log in with \"Continue with Google\"." });
     }
 
     // Verify the password

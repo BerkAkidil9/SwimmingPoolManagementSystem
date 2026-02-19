@@ -27,7 +27,7 @@ A full-stack swimming pool management system with multi-role support and compreh
 ### Public
 - **Landing page** – About us, package overview, pool locations (Leaflet map)
 - **Multi-step registration** – Personal info, health info, emergency contact, terms acceptance
-- **Social login** – Google, GitHub, Facebook OAuth
+- **Social login** – Google OAuth
 - **Email verification** – Token-based verification flow
 - **Password reset** – Forgot password via email link
 - **Two package types** – Education (12 sessions, 7 AM–6 PM) and Free Swimming (18 sessions, 7 AM–12 AM)
@@ -79,7 +79,7 @@ A full-stack swimming pool management system with multi-role support and compreh
 - **PostgreSQL** 14 or higher
 - **React** 18 (frontend – Create React App ile gelir)
 - **npm** or **yarn**
-- (Optional) Stripe account, Google/GitHub/Facebook OAuth apps for full functionality
+- (Optional) Stripe account, Google OAuth app for full functionality
 
 ---
 
@@ -135,8 +135,6 @@ Copy from `backend/.env.example` and fill in:
 | `DATABASE_URL` | PostgreSQL connection string (preferred) |
 | `DB_HOST` / `DB_USER` / `DB_PASSWORD` / `DB_NAME` | Alternative to DATABASE_URL |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth (optional) |
-| `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | GitHub OAuth (optional) |
-| `FACEBOOK_CLIENT_ID` / `FACEBOOK_CLIENT_SECRET` | Facebook OAuth (optional) |
 | `EMAIL_USER` / `EMAIL_PASSWORD` | SMTP credentials for verification/reset emails |
 | `FRONTEND_URL` | Frontend URL (default: http://localhost:3000) |
 | `STRIPE_SECRET_KEY` | Stripe secret key for payments |
@@ -248,10 +246,8 @@ This project uses a `render.yaml` Blueprint for one-click deploy on Render with 
 
 ### 5. OAuth Provider Callbacks
 
-Add these redirect URIs in Google/GitHub/Facebook developer consoles:
+Add this redirect URI in Google Cloud Console:
 - `https://YOUR-BACKEND.onrender.com/auth/google/callback`
-- `https://YOUR-BACKEND.onrender.com/auth/github/callback`
-- `https://YOUR-BACKEND.onrender.com/auth/facebook/callback`
 
 ---
 
