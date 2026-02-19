@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './MemberDashboard.css';
 import PackagePurchase from './PackagePurchase';
-import { FaSwimmer, FaCalendarAlt, FaTicketAlt, FaTimes, FaClock, FaCheckCircle, FaMapMarkerAlt, FaGraduationCap, FaCommentAlt, FaCheck, FaExclamationTriangle, FaInfoCircle } from 'react-icons/fa';
+import { FaSwimmer, FaCalendarAlt, FaTicketAlt, FaTimes, FaClock, FaCheckCircle, FaMapMarkerAlt, FaGraduationCap, FaCommentAlt, FaCheck, FaExclamationTriangle, FaInfoCircle, FaIdCard, FaImage } from 'react-icons/fa';
 import TransactionHistory from './TransactionHistory';
 import Navbar from './Navbar/Navbar';
+import { API_BASE_URL } from '../config';
 
 const MemberDashboard = () => {
   const [pools, setPools] = useState([]);
@@ -35,7 +36,9 @@ const MemberDashboard = () => {
     dateOfBirth: '',
     phone: '',
     gender: '',
-    health_status: 'pending'
+    health_status: 'pending',
+    id_card_path: '',
+    profile_photo_path: ''
   });
   const [healthStatusWarning, setHealthStatusWarning] = useState('');
   const [formErrors, setFormErrors] = useState({});
@@ -198,7 +201,9 @@ const MemberDashboard = () => {
           gender: response.data.gender || '',
           rejection_count: response.data.rejection_count || 0,
           health_status: response.data.health_status || 'pending',
-          health_status_reason: response.data.health_status_reason || ''
+          health_status_reason: response.data.health_status_reason || '',
+          id_card_path: response.data.id_card_path || '',
+          profile_photo_path: response.data.profile_photo_path || ''
         });
       }
     } catch (error) {
@@ -356,14 +361,14 @@ const MemberDashboard = () => {
     // Name validation
     if (!userProfile.name.trim()) {
       errors.name = "Name is required";
-    } else if (!/^[A-Za-z\s]{2,50}$/.test(userProfile.name)) {
+    } else if (!/^[A-Za-zğüşıöçĞÜŞİÖÇ\s]{2,50}$/.test(userProfile.name)) {
       errors.name = "Please enter a valid name (2-50 characters, letters only)";
     }
     
     // Surname validation
     if (!userProfile.surname.trim()) {
       errors.surname = "Surname is required";
-    } else if (!/^[A-Za-z\s]{2,50}$/.test(userProfile.surname)) {
+    } else if (!/^[A-Za-zğüşıöçĞÜŞİÖÇ\s]{2,50}$/.test(userProfile.surname)) {
       errors.surname = "Please enter a valid surname (2-50 characters, letters only)";
     }
     
@@ -943,6 +948,44 @@ const MemberDashboard = () => {
                           <h4>Documents</h4>
                           <div className="document-hint">Please upload any documents mentioned in the rejection reason</div>
                         </div>
+                        
+                        {(userProfile.id_card_path || userProfile.profile_photo_path) && (
+                          <div className="previous-documents">
+                            <h5>Previously uploaded documents</h5>
+                            <div className="previous-docs-grid">
+                              {userProfile.id_card_path && (
+                                <div className="doc-preview-item">
+                                  <FaIdCard className="doc-icon" />
+                                  <span>ID Card</span>
+                                  <a 
+                                    href={userProfile.id_card_path?.startsWith('https://') ? userProfile.id_card_path : `${API_BASE_URL}/uploads/${userProfile.id_card_path}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    View
+                                  </a>
+                                </div>
+                              )}
+                              {userProfile.profile_photo_path && (
+                                <div className="doc-preview-item">
+                                  <img 
+                                    src={userProfile.profile_photo_path?.startsWith('https://') ? userProfile.profile_photo_path : `${API_BASE_URL}/uploads/${userProfile.profile_photo_path}`}
+                                    alt="Profile"
+                                    className="profile-preview-thumb"
+                                  />
+                                  <span>Profile Photo</span>
+                                  <a 
+                                    href={userProfile.profile_photo_path?.startsWith('https://') ? userProfile.profile_photo_path : `${API_BASE_URL}/uploads/${userProfile.profile_photo_path}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    View
+                                  </a>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
                         
                         <div className={`form-group ${formErrors.idCard ? 'has-error' : ''}`}>
                           <label htmlFor="idCard">ID Card (PDF/JPG/PNG)</label>
