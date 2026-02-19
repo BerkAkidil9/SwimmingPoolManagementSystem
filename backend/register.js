@@ -588,10 +588,22 @@ router.post(
   }
 );
 
+// Safe redirect: only allow same origin as FRONTEND_URL (prevents open redirect)
+function getSafeRedirectBase(redirectParam) {
+  const allowed = (process.env.FRONTEND_URL || "http://localhost:3000").replace(/\/$/, "");
+  if (!redirectParam) return allowed;
+  try {
+    const url = new URL(redirectParam);
+    const allowedUrl = new URL(allowed);
+    if (url.origin === allowedUrl.origin) return url.origin;
+  } catch (_) {}
+  return allowed;
+}
+
 // GET - Email link: /auth/verify-email?token=XXX&redirect=... (token in query avoids truncation)
 router.get("/verify-email", async (req, res) => {
   let token = (req.query.token || req.params?.token || "").trim();
-  const redirectBase = (req.query.redirect || process.env.FRONTEND_URL || "http://localhost:3000").replace(/\/$/, "");
+  const redirectBase = getSafeRedirectBase(req.query.redirect);
 
   try {
     token = decodeURIComponent(token);

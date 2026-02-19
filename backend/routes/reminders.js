@@ -1,17 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../config/database");
-const nodemailer = require("nodemailer");
+const { sendEmail } = require("../utils/sendEmail");
 const { isAdmin, isDoctor } = require("../middleware/auth");
-
-// Create nodemailer transporter
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD
-  }
-});
 
 // Send a reminder email for health report upload
 const sendHealthReportReminderEmail = async (email, firstName, lastName, reason, userId) => {
@@ -19,9 +10,8 @@ const sendHealthReportReminderEmail = async (email, firstName, lastName, reason,
     // Generate the upload URL with the correct route format
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
     const uploadUrl = `${frontendUrl}/upload-health-report/${userId}`;
-    
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
+
+    await sendEmail({
       to: email,
       subject: "Reminder: Health Report Upload Pending",
       html: `
@@ -50,9 +40,7 @@ const sendHealthReportReminderEmail = async (email, firstName, lastName, reason,
           </p>
         </div>
       `
-    };
-    
-    await transporter.sendMail(mailOptions);
+    });
     console.log(`Health report reminder email sent to ${email}`);
   } catch (error) {
     console.error('Error sending health report reminder email:', error);
@@ -235,9 +223,8 @@ const sendInvalidDocumentNotificationEmail = async (email, firstName, lastName, 
     // Generate the upload URL with the correct route format
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
     const uploadUrl = `${frontendUrl}/upload-health-report/${userId}`;
-    
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
+
+    const result = await sendEmail({
       to: email,
       subject: "Health Report Document Invalid",
       html: `
@@ -266,12 +253,9 @@ const sendInvalidDocumentNotificationEmail = async (email, firstName, lastName, 
           </p>
         </div>
       `
-    };
-
-    // Send the email
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Invalid document notification email sent: ' + info.response);
-    return info;
+    });
+    console.log('Invalid document notification email sent');
+    return result;
   } catch (error) {
     console.error('Error sending invalid document notification email:', error);
     throw error;
