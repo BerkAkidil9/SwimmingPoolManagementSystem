@@ -261,16 +261,18 @@ const HealthReviewQueue = () => {
       `${user.name} ${user.surname}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase());
     
-    // Then apply category filter
+    // Then apply category filter (report_count may come as string from PostgreSQL)
+    const reportCount = Number(user.report_count) || 0;
+    const status = String(user.health_status || '').toLowerCase();
     let matchesCategory = true;
     if (activeFilter === 'reports_uploaded') {
-      matchesCategory = user.report_count > 0;
+      matchesCategory = reportCount > 0;
     } else if (activeFilter === 'invalid_reports') {
-      matchesCategory = user.health_status === 'needs_report' && user.report_count > 0;
+      matchesCategory = status === 'needs_report' && reportCount > 0;
     } else if (activeFilter === 'awaiting_first_review') {
-      matchesCategory = user.health_status === 'pending' && user.report_count === 0;
+      matchesCategory = status === 'pending' && reportCount === 0;
     } else if (activeFilter === 'report_requested_no_upload') {
-      matchesCategory = user.health_status === 'needs_report' && user.report_count === 0;
+      matchesCategory = status === 'needs_report' && reportCount === 0;
     }
     
     return matchesSearch && matchesCategory;
@@ -360,19 +362,19 @@ const HealthReviewQueue = () => {
               </div>
               <div className="me-4 mb-2">
                 <span className="text-dark fw-bold">With Uploaded Reports: </span>
-                <Badge bg="primary">{users.filter(p => p.report_count > 0).length}</Badge>
+                <Badge bg="primary">{users.filter(p => (Number(p.report_count) || 0) > 0).length}</Badge>
               </div>
               <div className="me-4 mb-2">
                 <span className="text-dark fw-bold">Invalid Reports: </span>
-                <Badge bg="danger">{users.filter(p => p.health_status === 'needs_report' && p.report_count > 0).length}</Badge>
+                <Badge bg="danger">{users.filter(p => String(p.health_status || '').toLowerCase() === 'needs_report' && (Number(p.report_count) || 0) > 0).length}</Badge>
               </div>
               <div className="me-4 mb-2">
                 <span className="text-dark fw-bold">Awaiting First Review: </span>
-                <Badge bg="warning">{users.filter(p => p.health_status === 'pending' && p.report_count === 0).length}</Badge>
+                <Badge bg="warning">{users.filter(p => String(p.health_status || '').toLowerCase() === 'pending' && (Number(p.report_count) || 0) === 0).length}</Badge>
               </div>
               <div className="mb-2">
                 <span className="text-dark fw-bold">Awaiting Upload: </span>
-                <Badge bg="info">{users.filter(p => p.health_status === 'needs_report' && p.report_count === 0).length}</Badge>
+                <Badge bg="info">{users.filter(p => String(p.health_status || '').toLowerCase() === 'needs_report' && (Number(p.report_count) || 0) === 0).length}</Badge>
               </div>
             </div>
           </div>
