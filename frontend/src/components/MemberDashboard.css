@@ -1238,6 +1238,66 @@
   font-style: italic;
 }
 
+.previous-documents {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.previous-documents h5 {
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+  color: #495057;
+}
+
+.previous-docs-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.doc-preview-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+  min-width: 120px;
+}
+
+.doc-preview-item .doc-icon {
+  font-size: 1.5rem;
+  color: #0077cc;
+}
+
+.doc-preview-item span {
+  font-size: 0.85rem;
+  color: #495057;
+}
+
+.doc-preview-item a {
+  font-size: 0.85rem;
+  color: #0077cc;
+  text-decoration: none;
+}
+
+.doc-preview-item a:hover {
+  text-decoration: underline;
+}
+
+.profile-preview-thumb {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+}
+
 .has-error label {
   color: #e74c3c;
 }
