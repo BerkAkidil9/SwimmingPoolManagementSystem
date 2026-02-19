@@ -3,8 +3,6 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
-const GitHubStrategy = require("passport-github2").Strategy;
-const FacebookStrategy = require('passport-facebook').Strategy;
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -182,114 +180,6 @@ passport.use(
     }
   )
 );
-
-// GitHub Strategy
-passport.use(new GitHubStrategy({
-    clientID: process.env.GITHUB_CLIENT_ID,
-    clientSecret: process.env.GITHUB_CLIENT_SECRET,
-    callbackURL: `${process.env.BACKEND_URL || 'http://localhost:3001'}/auth/github/callback`,
-    scope: ['user:email'],
-    allowSignup: true
-  },
-  async function(accessToken, refreshToken, profile, done) {
-    try {
-      console.log("GitHub OAuth Profile:", profile);
-      
-      // Get primary email from GitHub
-      let email = profile.emails?.[0]?.value;
-
-      // Check if user exists
-      const [existingUsers] = await db.promise().query(
-        'SELECT * FROM users WHERE email = ?',
-        [email]
-      );
-
-      if (existingUsers.length > 0) {
-        // Return existing user with isTemp: false
-        return done(null, {
-          ...existingUsers[0],
-          isTemp: false
-        });
-      }
-
-      // For new users, create temporary user object
-      const tempUser = {
-        isTemp: true,
-        provider: 'github',
-        provider_id: profile.id,
-        name: profile.displayName || profile.username,
-        email: email,
-        profile_picture: profile.photos[0]?.value,
-        socialData: {
-          given_name: profile.displayName?.split(' ')[0] || profile.username,
-          family_name: profile.displayName?.split(' ').slice(1).join(' ') || '',
-          picture: profile.photos[0]?.value,
-          email: email,
-          provider: 'GitHub'
-        }
-      };
-
-      return done(null, tempUser);
-    } catch (error) {
-      console.error('GitHub auth error:', error);
-      done(error, null);
-    }
-  }
-));
-
-// Facebook Strategy
-passport.use(new FacebookStrategy({
-    clientID: process.env.FACEBOOK_CLIENT_ID,
-    clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-    callbackURL: `${process.env.BACKEND_URL || 'http://localhost:3001'}/auth/facebook/callback`,
-    profileFields: ['id', 'emails', 'name', 'picture.type(large)']
-  },
-  async function(accessToken, refreshToken, profile, done) {
-    try {
-      console.log("Facebook OAuth Profile:", profile);
-
-      // Check if user already exists with this email
-      const [existingUsers] = await db
-        .promise()
-        .query("SELECT * FROM users WHERE email = ?", [profile.emails[0].value]);
-
-      if (existingUsers.length > 0) {
-        // Set isTemp:false explicitly for existing users
-        const existingUser = {
-          ...existingUsers[0],
-          isTemp: false  // Explicitly mark as not temporary
-        };
-        console.log("Found existing user with this email:", existingUser.id);
-        return done(null, existingUser);
-      }
-
-      // For new users, create temporary user object with more profile data
-      const tempUser = {
-        isTemp: true,
-        provider: "facebook",
-        provider_id: profile.id,
-        name: profile.name.givenName,
-        surname: profile.name.familyName,
-        email: profile.emails[0].value,
-        profile_picture: profile.photos[0]?.value || null,
-        needsRegistration: true,
-        // Store additional data from Facebook profile
-        socialData: {
-          given_name: profile.name.givenName,
-          family_name: profile.name.familyName,
-          picture: profile.photos[0]?.value,
-          email: profile.emails[0].value,
-          provider: "Facebook"
-        }
-      };
-
-      return done(null, tempUser);
-    } catch (error) {
-      console.error("Facebook auth error:", error);
-      done(error, null);
-    }
-  }
-));
 
 // Add these routes before the main registration route
 
@@ -767,119 +657,6 @@ router.get(
   }
 );
 
-// GitHub auth routes
-router.get(
-  "/github",
-  (req, res, next) => {
-    // Clear existing session before GitHub auth
-    req.session.destroy(() => next());
-  },
-  passport.authenticate("github", { 
-    scope: ["user:email"],
-    allowSignup: true 
-  })
-);
-
-router.get(
-  "/github/callback",
-  passport.authenticate("github", { 
-    failureRedirect: `${process.env.FRONTEND_URL}/login`,
-    session: true
-  }),
-  (req, res) => {
-    console.log("GitHub callback - user:", req.user);
-    
-    if (req.user.isTemp) {
-      // New user - store social data and redirect to registration
-      req.session.socialData = req.user.socialData;
-      req.session.save(err => {
-        if (err) console.error("Session save error:", err);
-        return res.redirect(`${process.env.FRONTEND_URL}/register/social`);
-      });
-    } else {
-      // Existing user - do not allow login if email not verified
-      if (!req.user.email_verified) {
-        req.session.destroy(() => {});
-        return res.redirect(`${process.env.FRONTEND_URL}/login?error=verify_email`);
-      }
-      req.session.user = {
-        id: req.user.id,
-        email: req.user.email,
-        role: req.user.role || 'user',
-        name: req.user.name,
-        verificationStatus: req.user.verification_status
-      };
-      
-      req.session.save(err => {
-        if (err) console.error("Session save error:", err);
-        return res.redirect(`${process.env.FRONTEND_URL}/member/dashboard`);
-      });
-    }
-  }
-);
-
-// Facebook auth routes
-router.get('/facebook',
-  passport.authenticate('facebook', { 
-    scope: ['email', 'public_profile'],
-    prompt: 'select_account'
-  })
-);
-
-router.get('/facebook/callback',
-  passport.authenticate('facebook', { 
-    failureRedirect: `${process.env.FRONTEND_URL}/login`,
-    session: true
-  }),
-  (req, res) => {
-    console.log("Facebook callback - user object:", req.user);
-    console.log("Is temporary user?", req.user.isTemp);
-
-    // Check if user exists in database
-    db.promise().query(
-      'SELECT * FROM users WHERE email = ?',
-      [req.user.email]
-    ).then(([users]) => {
-      if (users.length === 0) {
-        // New user - store social data and redirect to registration
-        req.session.socialData = {
-          given_name: req.user.name?.split(' ')[0],
-          family_name: req.user.name?.split(' ')[1] || '',
-          picture: req.user.profile_picture,
-          email: req.user.email,
-          provider: 'Facebook'
-        };
-        
-        req.session.save(err => {
-          if (err) console.error("Session save error:", err);
-          return res.redirect(`${process.env.FRONTEND_URL}/register/social`);
-        });
-      } else {
-        // Existing user - do not allow login if email not verified
-        if (!users[0].email_verified) {
-          req.session.destroy(() => {});
-          return res.redirect(`${process.env.FRONTEND_URL}/login?error=verify_email`);
-        }
-        req.session.user = {
-          id: users[0].id,
-          email: users[0].email,
-          role: users[0].role || 'user',
-          name: users[0].name,
-          verificationStatus: users[0].verification_status
-        };
-        
-        req.session.save(err => {
-          if (err) console.error("Session save error:", err);
-          return res.redirect(`${process.env.FRONTEND_URL}/member/dashboard`);
-        });
-      }
-    }).catch(error => {
-      console.error("Facebook callback DB error:", error);
-      res.redirect(`${process.env.FRONTEND_URL}/login?error=database`);
-    });
-  }
-);
-
 // Updated file upload routes with error handling
 router.post("/upload-id-card", upload.single("idCard"), async (req, res) => {
   try {
@@ -1259,12 +1036,6 @@ router.get('/social-registration-data', (req, res) => {
   } else {
     res.json(null);
   }
-});
-
-// Add this before the GitHub auth route
-router.get("/github/logout", (req, res) => {
-  // Clear any existing GitHub OAuth sessions
-  res.redirect('https://github.com/logout');
 });
 
 module.exports = router;

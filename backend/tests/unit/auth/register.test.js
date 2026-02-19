@@ -21,12 +21,6 @@ jest.mock('nodemailer', () => ({
 jest.mock('passport-google-oauth20', () => ({
   Strategy: jest.fn().mockImplementation(() => ({ name: 'google' })),
 }));
-jest.mock('passport-github2', () => ({
-  Strategy: jest.fn().mockImplementation(() => ({ name: 'github' })),
-}));
-jest.mock('passport-facebook', () => ({
-  Strategy: jest.fn().mockImplementation(() => ({ name: 'facebook' })),
-}));
 
 const registerRoutes = require('../../../register');
 const db = require('../../../config/database');
