@@ -3,7 +3,11 @@
  * Öncelik: Gmail API (HTTPS) > Resend API > Nodemailer SMTP (sadece lokal)
  */
 const nodemailer = require("nodemailer");
-const GmailTransport = require("gmail-nodemailer-transport");
+const gmailTransportModule = require("gmail-nodemailer-transport");
+const GmailTransport =
+  typeof gmailTransportModule === "function"
+    ? gmailTransportModule
+    : gmailTransportModule.GmailTransport || gmailTransportModule.default;
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const GMAIL_USER = process.env.GMAIL_USER;
