@@ -10,7 +10,8 @@
     "test:coverage": "jest --coverage",
     "db:check": "node scripts/db-check.js",
     "db:test:setup": "node scripts/init-test-db.js",
-    "db:init": "node scripts/init-db.js"
+    "db:init": "node scripts/init-db.js",
+    "gmail:token": "node scripts/get-gmail-refresh-token.js"
   },
   "keywords": [],
   "author": "",
@@ -29,6 +30,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "express-session": "^1.18.1",
+    "gmail-nodemailer-transport": "^3.0.2",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
     "node-cron": "^3.0.3",
@@ -43,6 +45,7 @@
     "stripe": "^17.7.0"
   },
   "devDependencies": {
+    "google-auth-library": "^10.5.0",
     "jest": "^29.7.0",
     "supertest": "^7.0.0"
   }
