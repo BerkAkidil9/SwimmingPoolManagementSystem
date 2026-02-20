@@ -136,8 +136,8 @@ router.get("/reservations", isAuthenticated, async (req, res) => {
 
     // Get active reservations (excluding missed, completed, and canceled)
     const [reservations] = await db.promise().query(
-      `SELECT r.*, p.name as poolName, p.location as poolLocation, s.type, s.session_date, s.start_time, s.end_time 
-       FROM reservations r 
+`SELECT r.*, p.name as "poolName", p.location as "poolLocation", s.type, s.session_date, s.start_time, s.end_time
+       FROM reservations r
        JOIN sessions s ON r.session_id = s.id 
        JOIN "Pools" p ON s.pool_id = p.id 
        WHERE r.user_id = ? AND (r.status IS NULL OR (r.status != 'canceled' AND r.status != 'completed' AND r.status != 'missed'))
@@ -611,9 +611,9 @@ router.get("/history", isAuthenticated, async (req, res) => {
 
     // Get all reservations (including canceled ones)
     const [reservations] = await db.promise().query(
-      `SELECT r.*, r.created_at as reservation_date,
-       p.name as poolName, p.location as poolLocation, s.type, s.session_date, s.start_time, s.end_time 
-       FROM reservations r 
+`SELECT r.*, r.created_at as reservation_date,
+       p.name as "poolName", p.location as "poolLocation", s.type, s.session_date, s.start_time, s.end_time
+       FROM reservations r
        JOIN sessions s ON r.session_id = s.id 
        JOIN "Pools" p ON s.pool_id = p.id 
        WHERE r.user_id = ?
