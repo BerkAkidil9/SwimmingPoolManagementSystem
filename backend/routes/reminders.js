@@ -74,7 +74,7 @@ router.post("/send-health-report-reminders", isDoctorOrAdmin, async (req, res) =
       FROM users u
       WHERE u.health_status = 'needs_report'
       AND u.health_report_requested_at IS NOT NULL
-      AND (CURRENT_TIMESTAMP::date - u.health_report_requested_at::date) >= 5
+      AND ((NOW() AT TIME ZONE 'Europe/Istanbul')::date - (u.health_report_requested_at AT TIME ZONE 'Europe/Istanbul')::date) >= 5
       AND NOT EXISTS (
         SELECT 1 FROM health_reports hr
         WHERE hr.user_id = u.id

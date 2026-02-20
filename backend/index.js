@@ -176,8 +176,8 @@ db.connect((err) => {
         FROM users u
         WHERE u.health_status = 'needs_report'
         AND u.health_report_requested_at IS NOT NULL
-        AND (CURRENT_TIMESTAMP::date - u.health_report_requested_at::date) >= 5
-        AND (u.health_report_reminder_sent_at IS NULL OR (CURRENT_TIMESTAMP::date - u.health_report_reminder_sent_at::date) >= 7)
+        AND ((NOW() AT TIME ZONE 'Europe/Istanbul')::date - (u.health_report_requested_at AT TIME ZONE 'Europe/Istanbul')::date) >= 5
+        AND (u.health_report_reminder_sent_at IS NULL OR ((NOW() AT TIME ZONE 'Europe/Istanbul')::date - (u.health_report_reminder_sent_at AT TIME ZONE 'Europe/Istanbul')::date) >= 7)
         AND NOT EXISTS (
           SELECT 1 FROM health_reports hr
           WHERE hr.user_id = u.id
