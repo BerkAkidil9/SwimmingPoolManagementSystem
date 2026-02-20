@@ -742,9 +742,8 @@ const MemberDashboard = () => {
         <section className="reservations-section">
           <h2>Your Reservations</h2>
           <div className="reservations-grid">
-            {reservations.filter(r => r.status !== 'canceled' && r.status !== 'completed').length > 0 ? (
+            {reservations.length > 0 ? (
               reservations
-                .filter(r => r.status !== 'canceled' && r.status !== 'completed')
                 .map(reservation => (
                   <div key={reservation.id} className={`reservation-card ${selectedReservation === reservation.id ? 'reservation-card-expanded' : ''}`}>
                     {selectedReservation === reservation.id ? (
@@ -801,17 +800,19 @@ const MemberDashboard = () => {
                           </div>
                         </div>
                         <div className="reservation-actions">
-                          <button 
-                            onClick={() => cancelReservation(reservation.id)}
-                            className="cancel-btn"
-                          >
-                            <FaTimes /> Cancel Reservation
-                          </button>
+                          {reservation.status !== 'completed' && (
+                            <button 
+                              onClick={() => cancelReservation(reservation.id)}
+                              className="cancel-btn"
+                            >
+                              <FaTimes /> Cancel Reservation
+                            </button>
+                          )}
                           <a 
                             href="/check-in"
-                            className="check-in-btn"
+                            className={`check-in-btn ${reservation.status === 'completed' ? 'already-checked-in' : ''}`}
                           >
-                            <FaCheckCircle /> Go to Check-In
+                            <FaCheckCircle /> {reservation.status === 'completed' ? 'View QR Code' : 'Go to Check-In'}
                           </a>
                         </div>
                       </>

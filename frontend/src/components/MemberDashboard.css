@@ -1390,6 +1390,14 @@
   box-shadow: none;
 }
 
+.check-in-btn.already-checked-in {
+  background: linear-gradient(135deg, #2196F3, #0D47A1);
+}
+
+.check-in-btn.already-checked-in:hover {
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
 /* Check-in Result Modal */
 .check-in-result-modal {
   max-width: 500px;
