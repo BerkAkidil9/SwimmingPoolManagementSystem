@@ -112,14 +112,17 @@ const HealthReviewQueue = () => {
     try {
       setProcessing(true);
       
-      // Update user status
-      await axios.put(`/api/doctor/health-status/${currentUser.id}`, {
-        status: 'rejected',
-        reason: rejectReason
-      });
-      
-      // Update latest report status
-      await updateLatestReportStatus(currentUser.id, 'rejected', rejectReason);
+      const reportCount = Number(currentUser.report_count || 0);
+      if (reportCount > 0) {
+        // User has uploaded report(s) - report API updates user + sends email (avoid duplicate)
+        await updateLatestReportStatus(currentUser.id, 'rejected', rejectReason);
+      } else {
+        // User has no reports - use health-status endpoint
+        await axios.put(`/api/doctor/health-status/${currentUser.id}`, {
+          status: 'rejected',
+          reason: rejectReason
+        });
+      }
       
       setShowRejectModal(false);
       setRejectReason('');
