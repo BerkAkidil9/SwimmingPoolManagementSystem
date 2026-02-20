@@ -850,51 +850,62 @@ const HealthReviewQueue = () => {
               ) : healthReports.length > 0 ? (
                 <>
                   <p className="mb-3">This user has submitted the following health reports:</p>
-                  <div className="health-reports-list">
-                    {healthReports.map((report, index) => (
-                      <div 
-                        key={report.id} 
-                        className={`health-report-item ${report.status === 'invalid' || report.status === 'rejected' ? 'invalid-report-item' : ''}`}
-                      >
-                        <div className="health-report-info">
-                          <strong>Report #{index + 1}</strong>
-                          <span className="health-report-date">Submitted: {formatDate(report.created_at)}</span>
-                        </div>
-                        <div className="health-report-actions">
-                          <Button
-                            variant="outline-secondary"
-                            size="sm"
-                            className="health-report-btn"
-                            onClick={() => window.open(report.report_path.startsWith('https://') ? report.report_path : `${API_BASE_URL}/uploads/health_reports/${report.report_path.split('/').pop()}`, '_blank')}
+                  <div className="health-reports-documents-container">
+                    {healthReports.map((report, index) => {
+                      const reportUrl = report.report_path?.startsWith('http') 
+                        ? report.report_path 
+                        : `${API_BASE_URL}/uploads/${(report.report_path || '').replace(/^\/+/, '')}`;
+                      const downloadUrl = reportUrl + (reportUrl.includes('?') ? '&' : '?') + 'download=true';
+                      const ext = (report.report_path || '').split('.').pop()?.toLowerCase();
+                      const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(ext);
+                      return (
+                        <div 
+                          key={report.id} 
+                          className={`health-report-document-frame ${report.status === 'invalid' || report.status === 'rejected' ? 'invalid-report-item' : ''}`}
+                        >
+                          <h4>Report #{index + 1}</h4>
+                          <span className="health-report-date-small">Submitted: {formatDate(report.created_at)}</span>
+                          <div className="health-report-preview">
+                            {isImage ? (
+                              <img src={reportUrl} alt={`Report ${index + 1}`} />
+                            ) : (
+                              <iframe src={reportUrl} title={`Report ${index + 1}`} />
+                            )}
+                          </div>
+                          <a
+                            href={reportUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="view-doc-link"
                           >
-                            <FaEye className="me-1" /> View
-                          </Button>
-                          <Button
-                            variant="outline-secondary"
-                            size="sm"
-                            className="health-report-btn"
-                            onClick={() => window.open(report.report_path.startsWith('https://') ? `${report.report_path}?download=true` : `${API_BASE_URL}/uploads/health_reports/${report.report_path.split('/').pop()}?download=true`, '_blank')}
+                            Open in new tab
+                          </a>
+                          <a
+                            href={downloadUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="view-doc-link"
                           >
                             <FaFileDownload className="me-1" /> Download
-                          </Button>
+                          </a>
                           {report.status !== 'invalid' && report.status !== 'rejected' && (
                             <Button
-                              variant="outline-secondary"
+                              variant="outline-danger"
                               size="sm"
-                              className="health-report-btn"
+                              className="mt-2"
                               onClick={() => showInvalidDocumentModal(report)}
                               disabled={(currentUser?.health_report_request_count || 0) >= 3}
-                              title={(currentUser?.health_report_request_count || 0) >= 3 ? "Maximum report request limit (3/3) reached. Reject health status instead." : ""}
+                              title={(currentUser?.health_report_request_count || 0) >= 3 ? "Maximum report request limit (3/3) reached." : ""}
                             >
                               <span role="img" aria-label="Invalid">✕</span> Mark Invalid
                             </Button>
                           )}
                           {(report.status === 'invalid' || report.status === 'rejected') && (
-                            <Badge bg="secondary" className="health-report-badge">Marked Invalid</Badge>
+                            <Badge bg="secondary" className="mt-2">Marked Invalid</Badge>
                           )}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </>
               ) : (

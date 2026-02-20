@@ -225,6 +225,17 @@ router.post("/upload-health-report/:userId", upload.single('report'), async (req
   }
 });
 
+function toWorkerUrlIfR2(urlPath, workerUrl) {
+  if (!urlPath || !workerUrl || typeof urlPath !== "string") return urlPath;
+  if (!urlPath.startsWith("http")) return urlPath;
+  try {
+    const u = new URL(urlPath);
+    const key = u.pathname.replace(/^\//, "");
+    if (key) return `${workerUrl.replace(/\/$/, "")}/${key}`;
+  } catch (_) {}
+  return urlPath;
+}
+
 // Get health reports for a user
 router.get("/health-reports/:userId", isDoctor, async (req, res) => {
   try {
@@ -234,8 +245,14 @@ router.get("/health-reports/:userId", isDoctor, async (req, res) => {
       "SELECT * FROM health_reports WHERE user_id = ? ORDER BY created_at DESC",
       [userId]
     );
+
+    const workerUrl = process.env.R2_WORKER_URL;
+    const transformed = reports.map(r => ({
+      ...r,
+      report_path: toWorkerUrlIfR2(r.report_path, workerUrl) || r.report_path
+    }));
     
-    res.json(reports);
+    res.json(transformed);
   } catch (error) {
     console.error("Error fetching health reports:", error);
     res.status(500).json({ error: "Error fetching health reports" });
