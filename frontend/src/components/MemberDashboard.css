@@ -273,6 +273,34 @@
   font-size: 1rem;
 }
 
+.pool-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.view-location-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: transparent;
+  color: #0396FF;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: 2px solid #0396FF;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-location-btn:hover {
+  background: #0396FF;
+  color: white;
+}
+
 .session-counts {
   display: flex;
   flex-direction: column;
@@ -1823,11 +1851,27 @@
 .reservation-session {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.8rem;
   padding: 0.8rem;
   background: #f8f9fa;
   border-radius: 8px;
   transition: transform 0.2s ease;
+}
+
+.reservation-location .view-location-link {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-size: 0.9rem;
+  color: #0396FF;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.reservation-location .view-location-link:hover {
+  color: #0D47A1;
+  text-decoration: underline;
 }
 
 .reservation-info > div:hover {

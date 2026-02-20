@@ -646,7 +646,18 @@ const MemberDashboard = () => {
                       <span>{pool.freeSwimmingSessionCount} free swimming sessions</span>
                     </div>
                   </div>
-                  <button className="view-sessions-btn">View Sessions</button>
+                  <div className="pool-actions">
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pool.location || pool.name)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="view-location-btn"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <FaMapMarkerAlt /> View Location
+                    </a>
+                    <button className="view-sessions-btn">View Sessions</button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -771,6 +782,15 @@ const MemberDashboard = () => {
                                 <div className="reservation-location">
                                   <FaMapMarkerAlt />
                                   <span>Pool: {reservation.poolName}</span>
+                                  <a
+                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(reservation.poolLocation || reservation.poolName)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="view-location-link"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    View Location
+                                  </a>
                                 </div>
                                 <div className="reservation-session">
                                   <FaSwimmer />
