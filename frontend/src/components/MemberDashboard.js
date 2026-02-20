@@ -783,7 +783,7 @@ const MemberDashboard = () => {
                                   <FaMapMarkerAlt />
                                   <span>Pool: {reservation.poolName}</span>
                                   <a
-                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(reservation.poolLocation || reservation.poolName)}`}
+                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(reservation.poolLocation || reservation.poollocation || reservation.poolName || reservation.poolname || '')}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="view-location-link"

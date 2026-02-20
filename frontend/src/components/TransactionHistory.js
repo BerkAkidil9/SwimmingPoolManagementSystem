@@ -217,7 +217,7 @@ const TransactionHistory = ({ history }) => {
                         <h4>Location</h4>
                         <p>{reservation.poolName}</p>
                         <a
-                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(reservation.poolLocation || reservation.poolName)}`}
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(reservation.poolLocation || reservation.poollocation || reservation.poolName || reservation.poolname || '')}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="view-location-link"
