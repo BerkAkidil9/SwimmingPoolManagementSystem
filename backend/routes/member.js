@@ -612,7 +612,7 @@ router.get("/history", isAuthenticated, async (req, res) => {
     // Get all reservations (including canceled ones)
     const [reservations] = await db.promise().query(
       `SELECT r.*, r.created_at as reservation_date,
-       p.name as poolName, s.type, s.session_date, s.start_time, s.end_time 
+       p.name as poolName, p.location as poolLocation, s.type, s.session_date, s.start_time, s.end_time 
        FROM reservations r 
        JOIN sessions s ON r.session_id = s.id 
        JOIN "Pools" p ON s.pool_id = p.id 
