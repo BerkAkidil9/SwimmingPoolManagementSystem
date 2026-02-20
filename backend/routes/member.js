@@ -872,8 +872,9 @@ router.post("/check-in", isAuthenticated, async (req, res) => {
     }
 
     // Check-in window: from 1 day before session start to 15 minutes after session start
+    // Session times are stored as Turkey local time (Europe/Istanbul, UTC+3)
     const sessionStartTime = new Date(
-      `${reservation.formatted_date}T${reservation.formatted_start}`
+      `${reservation.formatted_date}T${reservation.formatted_start}+03:00`
     );
     const now = new Date();
     const oneDayBefore = new Date(sessionStartTime.getTime() - 24 * 60 * 60 * 1000);

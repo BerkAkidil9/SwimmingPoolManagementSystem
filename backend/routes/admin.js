@@ -11,6 +11,15 @@ const isAdmin = (req, res, next) => {
   next();
 };
 
+// Get current date/time in Turkey (Europe/Istanbul) for session validation
+const getTurkeyNow = () => {
+  const now = new Date();
+  const todayDate = now.toLocaleDateString('en-CA', { timeZone: 'Europe/Istanbul' });
+  const turkeyTime = now.toLocaleTimeString('en-GB', { timeZone: 'Europe/Istanbul', hour12: false });
+  const [h, m] = turkeyTime.split(':').map(Number);
+  return { todayDate, currentHour: h, currentMinute: m };
+};
+
 // Get all pools
 router.get("/pools", isAdmin, async (req, res) => {
   try {
@@ -308,12 +317,9 @@ router.post("/sessions", isAdmin, async (req, res) => {
       });
     }
     
-    // Validate that session is not in the past
-    const now = new Date();
-    const todayDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
-    const currentHour = now.getHours();
-    const currentMinute = now.getMinutes();
-    
+    // Validate that session is not in the past (using Turkey timezone)
+    const { todayDate, currentHour, currentMinute } = getTurkeyNow();
+
     // Check if date is in the past
     if (sessionDate < todayDate) {
       return res.status(400).json({ 
@@ -329,7 +335,7 @@ router.post("/sessions", isAdmin, async (req, res) => {
       
       if (sessionHour < currentHour || (sessionHour === currentHour && sessionMinute <= currentMinute)) {
         return res.status(400).json({ 
-          error: `Cannot create sessions for past times (${startTime}). Current time is ${currentHour}:${String(currentMinute).padStart(2, '0')}` 
+          error: `Cannot create sessions for past times (${startTime}). Current time (Turkey) is ${currentHour}:${String(currentMinute).padStart(2, '0')}` 
         });
       }
     }
@@ -448,12 +454,9 @@ router.put("/sessions/:sessionId", isAdmin, async (req, res) => {
       return res.status(404).json({ error: "Session not found" });
     }
     
-    // Validate that session is not in the past
-    const now = new Date();
-    const todayDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
-    const currentHour = now.getHours();
-    const currentMinute = now.getMinutes();
-    
+    // Validate that session is not in the past (using Turkey timezone)
+    const { todayDate, currentHour, currentMinute } = getTurkeyNow();
+
     // Check if date is in the past
     if (sessionDate < todayDate) {
       return res.status(400).json({ 
@@ -469,7 +472,7 @@ router.put("/sessions/:sessionId", isAdmin, async (req, res) => {
       
       if (sessionHour < currentHour || (sessionHour === currentHour && sessionMinute <= currentMinute)) {
         return res.status(400).json({ 
-          error: `Cannot update to past times (${startTime}). Current time is ${currentHour}:${String(currentMinute).padStart(2, '0')}` 
+          error: `Cannot update to past times (${startTime}). Current time (Turkey) is ${currentHour}:${String(currentMinute).padStart(2, '0')}` 
         });
       }
     }

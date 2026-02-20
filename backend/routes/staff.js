@@ -97,11 +97,15 @@ router.post("/verify-qr-code", async (req, res) => {
         throw err;
       }
       
-      const sessionDate = new Date(reservation.session_date);
-      const sessionEnd = new Date(sessionDate);
+      // Session times are stored as Turkey local time (Europe/Istanbul, UTC+3)
+      const dateStr = typeof reservation.session_date === 'string'
+        ? reservation.session_date.split('T')[0]
+        : reservation.session_date.toISOString().split('T')[0];
       const [hours, minutes] = reservation.end_time.split(':').map(Number);
-      sessionEnd.setHours(hours, minutes, 0);
-      
+      const sessionEnd = new Date(
+        `${dateStr}T${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}+03:00`
+      );
+      const sessionDate = new Date(dateStr);
       const now = new Date();
       
       if (now > sessionEnd) {
