@@ -134,13 +134,15 @@ router.get("/reservations", isAuthenticated, async (req, res) => {
       [req.session.user.id]
     );
 
-    // Get active reservations (excluding missed, completed, and canceled)
+    // Get reservations that are still "current" - show until session ends (includes completed/checked-in)
     const [reservations] = await db.promise().query(
-`SELECT r.*, p.name as "poolName", p.location as "poolLocation", s.type, s.session_date, s.start_time, s.end_time
+      `SELECT r.*, p.name as "poolName", p.location as "poolLocation", s.type, s.session_date, s.start_time, s.end_time
        FROM reservations r
        JOIN sessions s ON r.session_id = s.id 
        JOIN "Pools" p ON s.pool_id = p.id 
-       WHERE r.user_id = ? AND (r.status IS NULL OR (r.status != 'canceled' AND r.status != 'completed' AND r.status != 'missed'))
+       WHERE r.user_id = ? 
+       AND (r.status IS NULL OR (r.status != 'canceled' AND r.status != 'missed'))
+       AND ((s.session_date + s.end_time)::timestamp AT TIME ZONE 'Europe/Istanbul') > NOW()
        ORDER BY s.session_date, s.start_time`,
       [req.session.user.id]
     );

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar/Navbar';
-import { FaSwimmingPool, FaUserCog, FaUserCheck, FaStethoscope, FaChalkboardTeacher, FaCreditCard, FaUserEdit } from 'react-icons/fa';
+import { FaSwimmingPool, FaUserCog, FaUserCheck, FaStethoscope, FaChalkboardTeacher, FaCreditCard, FaUserEdit, FaCheckCircle } from 'react-icons/fa';
 import poolImage from '../../logo/ozu_havuz_0.jpg';
 import './HomePage.css';
 
@@ -118,6 +118,12 @@ const HomePage = () => {
               <p>View your invoices and payments.</p>
               <span className="card-link">Go →</span>
             </div>
+            <Link to="/check-in" className="homepage-card secondary-card link-card">
+              <FaCheckCircle className="card-icon" />
+              <h3>Check-In</h3>
+              <p>Check in for your session and get your QR code.</p>
+              <span className="card-link">Go →</span>
+            </Link>
             <Link to="/edit-profile" className="homepage-card secondary-card link-card">
               <FaUserEdit className="card-icon" />
               <h3>Edit Profile</h3>
