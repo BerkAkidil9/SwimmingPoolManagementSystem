@@ -136,7 +136,7 @@ router.get("/reservations", isAuthenticated, async (req, res) => {
 
     // Get active reservations (excluding missed, completed, and canceled)
     const [reservations] = await db.promise().query(
-      `SELECT r.*, p.name as poolName, s.type, s.session_date, s.start_time, s.end_time 
+      `SELECT r.*, p.name as poolName, p.location as poolLocation, s.type, s.session_date, s.start_time, s.end_time 
        FROM reservations r 
        JOIN sessions s ON r.session_id = s.id 
        JOIN "Pools" p ON s.pool_id = p.id 
