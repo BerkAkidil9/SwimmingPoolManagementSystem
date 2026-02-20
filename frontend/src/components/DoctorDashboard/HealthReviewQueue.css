@@ -142,9 +142,10 @@
 
 .health-report-action-buttons {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 8px;
   margin-top: 12px;
+  align-items: center;
 }
 
 .health-report-action-buttons .btn {
