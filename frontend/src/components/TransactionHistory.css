@@ -19,6 +19,12 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 1.6rem;
+  color: white;
+}
+
+.transaction-header h2,
+.transaction-header h2 svg {
+  color: white;
 }
 
 .transaction-tabs {
@@ -151,6 +157,21 @@
   font-size: 1rem;
   font-weight: 500;
   color: #333;
+}
+
+.view-location-link {
+  display: inline-block;
+  margin-top: 0.4rem;
+  font-size: 0.9rem;
+  color: #0396FF;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.view-location-link:hover {
+  color: #0D47A1;
+  text-decoration: underline;
 }
 
 .package-usage {
