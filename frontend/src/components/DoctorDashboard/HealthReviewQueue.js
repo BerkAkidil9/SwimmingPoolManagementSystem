@@ -872,37 +872,35 @@ const HealthReviewQueue = () => {
                               <iframe src={reportUrl} title={`Report ${index + 1}`} />
                             )}
                           </div>
-                          <a
-                            href={reportUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="view-doc-link"
-                          >
-                            Open in new tab
-                          </a>
-                          <a
-                            href={downloadUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="view-doc-link"
-                          >
-                            <FaFileDownload className="me-1" /> Download
-                          </a>
-                          {report.status !== 'invalid' && report.status !== 'rejected' && (
+                          <div className="health-report-action-buttons">
                             <Button
-                              variant="outline-danger"
+                              variant="outline-secondary"
                               size="sm"
-                              className="mt-2"
-                              onClick={() => showInvalidDocumentModal(report)}
-                              disabled={(currentUser?.health_report_request_count || 0) >= 3}
-                              title={(currentUser?.health_report_request_count || 0) >= 3 ? "Maximum report request limit (3/3) reached." : ""}
+                              onClick={() => window.open(reportUrl, '_blank')}
                             >
-                              <span role="img" aria-label="Invalid">✕</span> Mark Invalid
+                              Open in new tab
                             </Button>
-                          )}
-                          {(report.status === 'invalid' || report.status === 'rejected') && (
-                            <Badge bg="secondary" className="mt-2">Marked Invalid</Badge>
-                          )}
+                            <Button
+                              variant="outline-secondary"
+                              size="sm"
+                              onClick={() => window.open(downloadUrl, '_blank')}
+                            >
+                              <FaFileDownload className="me-1" /> Download
+                            </Button>
+                            {report.status !== 'invalid' && report.status !== 'rejected' ? (
+                              <Button
+                                variant="outline-danger"
+                                size="sm"
+                                onClick={() => showInvalidDocumentModal(report)}
+                                disabled={(currentUser?.health_report_request_count || 0) >= 3}
+                                title={(currentUser?.health_report_request_count || 0) >= 3 ? "Maximum report request limit (3/3) reached." : ""}
+                              >
+                                <span role="img" aria-label="Invalid">✕</span> Mark Invalid
+                              </Button>
+                            ) : (
+                              <Badge bg="secondary" className="align-self-center">Marked Invalid</Badge>
+                            )}
+                          </div>
                         </div>
                       );
                     })}

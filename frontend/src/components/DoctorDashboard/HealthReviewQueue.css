@@ -80,12 +80,13 @@
 
 /* Health Reports Modal - Admin-style document viewer */
 .health-reports-modal {
-  max-width: 1200px;
-  min-width: 500px;
+  max-width: 95vw;
+  width: 1400px;
+  min-width: 600px;
 }
 
 .health-reports-modal .reason-container {
-  max-height: 80vh;
+  max-height: 85vh;
   overflow-y: auto;
 }
 
@@ -97,7 +98,7 @@
 }
 
 .health-report-document-frame {
-  flex: 1 1 400px;
+  flex: 1 1 450px;
   max-width: 100%;
   padding: 16px;
   border: 1px solid #e0e0e0;
@@ -125,7 +126,7 @@
 
 .health-report-preview {
   width: 100%;
-  height: 400px;
+  height: 500px;
   border: 1px solid #ddd;
   border-radius: 4px;
   overflow: hidden;
@@ -139,17 +140,15 @@
   object-fit: contain;
 }
 
-.health-report-document-frame .view-doc-link {
-  display: inline-block;
-  margin-top: 8px;
-  margin-right: 12px;
-  color: #1976d2;
-  font-size: 14px;
-  text-decoration: none;
+.health-report-action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
 }
 
-.health-report-document-frame .view-doc-link:hover {
-  text-decoration: underline;
+.health-report-action-buttons .btn {
+  flex: 0 0 auto;
 }
 
 .health-reports-list {
