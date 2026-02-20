@@ -116,8 +116,8 @@ router.post("/packages", isAuthenticated, async (req, res) => {
   }
 });
 
-// Get current time in Turkey timezone - PostgreSQL
-const TURKEY_NOW = "(NOW() AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Istanbul')";
+// Session times are stored as Istanbul local time. Compare by converting to UTC explicitly.
+// Fixes timezone mismatch when DB session timezone is GMT/UTC (Neon, Render).
 
 // Get member's reservations
 router.get("/reservations", isAuthenticated, async (req, res) => {
@@ -130,7 +130,7 @@ router.get("/reservations", isAuthenticated, async (req, res) => {
        WHERE r.session_id = s.id
        AND r.user_id = $1
        AND (r.status IS NULL OR r.status = 'active')
-       AND (s.session_date + s.end_time)::timestamp < ${TURKEY_NOW}`,
+       AND ((s.session_date + s.end_time)::timestamp AT TIME ZONE 'Europe/Istanbul') < NOW()`,
       [req.session.user.id]
     );
 
@@ -191,7 +191,7 @@ router.get("/pools/:poolId/sessions", isAuthenticated, async (req, res) => {
        FROM sessions s 
        WHERE s.pool_id = $2 
        AND s.type = $3
-       AND (s.session_date + s.start_time)::timestamp > (NOW() AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Istanbul')
+       AND ((s.session_date + s.start_time)::timestamp AT TIME ZONE 'Europe/Istanbul') > NOW()
        ORDER BY s.session_date, s.start_time`,
       [userId, poolId, userPackageType]
     );
@@ -657,7 +657,7 @@ router.get("/pools/:poolId/sessions/count", isAuthenticated, async (req, res) =>
        FROM sessions s 
        WHERE s.pool_id = ? 
        ${typeFilter}
-       AND (s.session_date + s.start_time)::timestamp > (NOW() AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Istanbul')`,
+       AND ((s.session_date + s.start_time)::timestamp AT TIME ZONE 'Europe/Istanbul') > NOW()`,
       [poolId]
     );
     
