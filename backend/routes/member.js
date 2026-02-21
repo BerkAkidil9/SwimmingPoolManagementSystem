@@ -1070,6 +1070,7 @@ router.post("/update-health-info", isAuthenticated, async (req, res) => {
     if (!userId) {
       return res.status(401).json({ error: "Session expired or invalid. Please log in again." });
     }
+    console.log("Update health-info: userId=", userId, "existing check...");
 
     // Always fetch existing health info - we update health questions even when emergency contact is empty
     const [existingHealthInfo] = await db.promise().query(
@@ -1078,6 +1079,7 @@ router.post("/update-health-info", isAuthenticated, async (req, res) => {
     );
 
     if (existingHealthInfo.length > 0) {
+      console.log("Update health-info: Updating existing record for userId=", userId);
       const existing = existingHealthInfo[0];
       // Update existing: use provided values or keep existing for required fields
       const ecName = (emergency_contact_name && emergency_contact_name.trim()) ? emergency_contact_name.trim() : existing.emergency_contact_name;
@@ -1112,8 +1114,11 @@ router.post("/update-health-info", isAuthenticated, async (req, res) => {
         health_additional_info !== undefined ? health_additional_info : existing.health_additional_info,
         userId
       ]);
-    } else if (emergency_contact_name && emergency_contact_phone) {
-      // Insert new health info - requires emergency contact (NOT NULL columns)
+    } else {
+      console.log("Update health-info: Creating new record for userId=", userId);
+      // No health_info exists - INSERT new record (use placeholders for required NOT NULL fields if empty)
+      const ecName = (emergency_contact_name && String(emergency_contact_name).trim()) ? String(emergency_contact_name).trim() : 'Not provided';
+      const ecPhone = (emergency_contact_phone && String(emergency_contact_phone).trim()) ? String(emergency_contact_phone).trim() : '05000000000';
       const hasHeart = has_heart_problems === 1 || has_heart_problems === true;
       const chestPain = chest_pain_activity === 1 || chest_pain_activity === true;
       const balance = balance_dizziness === 1 || balance_dizziness === true;
@@ -1127,7 +1132,7 @@ router.post("/update-health-info", isAuthenticated, async (req, res) => {
           has_heart_problems, chest_pain_activity, balance_dizziness, other_chronic_disease, prescribed_medication,
           bone_joint_issues, doctor_supervised_activity, allergies, chronic_conditions, medications, height, weight, health_additional_info)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`,
-        [userId, blood_type || 'O+', emergency_contact_name.trim(), emergency_contact_phone.trim(), emergency_contact_relationship || 'Other',
+        [userId, blood_type || 'O+', ecName, ecPhone, (emergency_contact_relationship && String(emergency_contact_relationship).trim()) || 'Other',
           hasHeart, chestPain, balance, otherChronic, prescribed, boneJoint, doctorSupervised,
           allergies || null, chronic_conditions || null, medications || null, height || null, weight || null, health_additional_info || null]
       );
@@ -1149,7 +1154,7 @@ router.get("/health-info", isAuthenticated, async (req, res) => {
     );
     
     if (healthInfo.length === 0) {
-      return res.status(404).json({ error: "Health information not found" });
+      return res.json({}); // No health info yet - frontend uses defaults
     }
     
     res.json(healthInfo[0]);
