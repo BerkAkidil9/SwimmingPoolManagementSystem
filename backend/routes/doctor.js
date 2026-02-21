@@ -165,11 +165,13 @@ router.put("/health-status/:userId", isDoctor, async (req, res) => {
       );
     }
     
-    // If additional health report is needed or health status is rejected, send appropriate email to the user
+    // Send appropriate email based on health status update
     if (status === 'needs_report') {
       await sendHealthReportRequestEmail(user.email, user.name, user.surname, reason, userId);
     } else if (status === 'rejected') {
       await sendHealthRejectionEmail(user.email, user.name, user.surname, reason);
+    } else if (status === 'approved') {
+      await sendHealthReportApprovedEmail(user.email, user.name, user.surname);
     }
     
     res.json({ 
