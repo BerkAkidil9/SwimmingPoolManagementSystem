@@ -8,6 +8,15 @@ backend/.env
 *.env.test.local
 *.env.production.local
 
+# Private keys and certificates
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+client_secret*.json
+secrets.json
+
 # User uploads (personal data - GDPR)
 backend/uploads/*
 !backend/uploads/.gitkeep
@@ -15,6 +24,7 @@ backend/uploads/*
 # IDE/Editor (may contain DB passwords etc.)
 .vscode/
 .idea/
+.cursor/
 *.session.sql
 
 # Database dumps and migration files - may contain real user data
@@ -36,6 +46,11 @@ frontend/build/
 .wrangler/
 coverage/
 dist/
+.parcel-cache/
+.turbo/
+.vercel/
+.netlify/
+.cache/
 
 # === UNNECESSARY FILES ===
 *.bak
