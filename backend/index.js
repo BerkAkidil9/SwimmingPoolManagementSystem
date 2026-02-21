@@ -130,6 +130,24 @@ app.use((req, res, next) => {
   next();
 });
 
+// Public pools endpoint at /pools (some ad blockers block /api/*)
+app.get("/pools", async (req, res) => {
+  try {
+    const [pools] = await db.promise().query(`
+      SELECT p.*,
+        (SELECT COUNT(*) FROM sessions s 
+         WHERE s.pool_id = p.id AND s.type = 'education' AND s.session_date >= (NOW() AT TIME ZONE 'Europe/Istanbul')::date) as education_sessions,
+        (SELECT COUNT(*) FROM sessions s 
+         WHERE s.pool_id = p.id AND s.type = 'free_swimming' AND s.session_date >= (NOW() AT TIME ZONE 'Europe/Istanbul')::date) as free_swimming_sessions
+      FROM "Pools" p
+    `);
+    res.json(pools);
+  } catch (err) {
+    console.error("Error fetching pools:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Routes
 app.use("/auth", require("./register"));
 app.use("/auth", loginRoutes);
