@@ -82,14 +82,17 @@ const HealthReviewQueue = () => {
     try {
       setProcessing(true);
       
-      // Update user status
-      await axios.put(`/api/doctor/health-status/${currentUser.id}`, {
-        status: 'approved',
-        reason: approvalReason
-      });
-      
-      // Update latest report status
-      await updateLatestReportStatus(currentUser.id, 'approved', approvalReason);
+      const reportCount = Number(currentUser.report_count || 0);
+      if (reportCount > 0) {
+        // User has uploaded report(s) - only call health-reports (it updates user + report + sends email)
+        await updateLatestReportStatus(currentUser.id, 'approved', approvalReason);
+      } else {
+        // First time review (no reports) - only call health-status (sends approval email)
+        await axios.put(`/api/doctor/health-status/${currentUser.id}`, {
+          status: 'approved',
+          reason: approvalReason
+        });
+      }
       
       setShowApprovalModal(false);
       setApprovalReason('');

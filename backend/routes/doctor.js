@@ -166,6 +166,8 @@ router.put("/health-status/:userId", isDoctor, async (req, res) => {
     }
     
     // Send appropriate email based on health status update
+    // For 'approved': sent here for first-time review (no reports). When user has reports,
+    // frontend only calls health-reports, not this endpoint - so no duplicate.
     if (status === 'needs_report') {
       await sendHealthReportRequestEmail(user.email, user.name, user.surname, reason, userId);
     } else if (status === 'rejected') {
