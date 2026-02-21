@@ -187,8 +187,11 @@
 }
 
 .form-group input.error-input,
+.form-group input.input-error,
 .form-group select.error-input,
-.form-group textarea.error-input {
+.form-group select.input-error,
+.form-group textarea.error-input,
+.form-group textarea.input-error {
   border-color: #d93025;
 }
 
@@ -197,6 +200,31 @@
   font-size: 14px;
   margin-top: 5px;
   display: block;
+}
+
+.required-hint {
+  color: #d93025;
+  font-weight: 500;
+  font-size: 0.9em;
+}
+
+.field-hint {
+  color: #555;
+  font-size: 14px;
+  margin: 8px 0 10px;
+  padding: 10px 12px;
+  background: #fff8e6;
+  border-left: 4px solid #f0b429;
+  border-radius: 4px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.field-hint svg {
+  flex-shrink: 0;
+  color: #f0b429;
+  margin-top: 2px;
 }
 
 .id-document-upload {
