@@ -241,6 +241,13 @@ export const validateEmergencyContact = (values) => {
     errors.emergency_contact_relationship = "Please specify the relationship";
   }
 
+  // When "other" is selected, require specification
+  if (values.emergency_contact_relationship === 'other' && !values.emergency_contact_relationship_other?.trim()) {
+    errors.emergency_contact_relationship_other = "Please specify the relationship";
+  } else if (values.emergency_contact_relationship_other?.length > 100) {
+    errors.emergency_contact_relationship_other = "Relationship description is too long (max 100 characters)";
+  }
+
   return errors;
 };
 
