@@ -22,6 +22,7 @@ const EditProfile = () => {
   };
   
   const [originalPhone, setOriginalPhone] = useState('');
+  const HEALTH_QUESTION_KEYS = ['has_heart_problems', 'chest_pain_activity', 'balance_dizziness', 'other_chronic_disease', 'prescribed_medication', 'bone_joint_issues', 'doctor_supervised_activity'];
   
   // Format phone number with dashes
   const formatPhoneNumber = (value) => {
@@ -1215,13 +1216,23 @@ const EditProfile = () => {
             <div className="form-group">
               <label>
                 <FaNotesMedical /> Additional Health Information
+                {HEALTH_QUESTION_KEYS.some(q => userProfile[q] === 'true') && (
+                  <span className="required-hint"> (required when you answer Yes above)</span>
+                )}
               </label>
+              {HEALTH_QUESTION_KEYS.some(q => userProfile[q] === 'true') && (
+                <p className="field-hint">
+                  <FaExclamationTriangle /> If you answered "Yes" to any health question above, please provide details about your condition(s) in the field below.
+                </p>
+              )}
               <textarea
                 name="health_additional_info"
                 value={userProfile.health_additional_info || ''}
                 onChange={handleInputChange}
-                placeholder="Any additional health information"
+                placeholder={HEALTH_QUESTION_KEYS.some(q => userProfile[q] === 'true') ? "Please describe your health condition(s)..." : "Any additional health information"}
+                className={formErrors.health_additional_info ? 'input-error' : ''}
               />
+              {formErrors.health_additional_info && <span className="error">{formErrors.health_additional_info}</span>}
             </div>
           </div>
           
