@@ -976,13 +976,16 @@ router.post("/update-profile", isAuthenticated, async (req, res) => {
     const { name, surname, email, phone, date_of_birth, gender } = req.body;
     const userId = getCurrentUserId(req);
 
+    // Map "Prefer not to say" to "Other" (DB enum only has Male, Female, Other)
+    const genderValue = (gender === 'Prefer not to say' || !['Male', 'Female', 'Other'].includes(gender)) ? 'Other' : gender;
+
     if (!userId) {
       console.error("Update profile: No user ID - session.user:", !!req.session?.user, "req.user:", !!req.user);
       return res.status(401).json({ error: "Session expired or invalid. Please log in again." });
     }
     console.log("Update profile: userId=", userId, "role=", req.session?.user?.role ?? req.user?.role);
 
-    // Validate required fields
+    // Validate required fields (gender can be "Prefer not to say" - we map it to Other)
     if (!name || !surname || !email || !phone || !date_of_birth || !gender) {
       return res.status(400).json({ error: "All fields are required" });
     }
@@ -1013,7 +1016,7 @@ router.post("/update-profile", isAuthenticated, async (req, res) => {
 
     // Update user profile in database (use pool directly to check rowCount)
     const pgSql = `UPDATE users SET name = $1, surname = $2, email = $3, phone = $4, date_of_birth = $5, gender = $6 WHERE id = $7`;
-    const updateResult = await db.pool.query(pgSql, [name, surname, email, phone, date_of_birth, gender, userId]);
+    const updateResult = await db.pool.query(pgSql, [name, surname, email, phone, date_of_birth, genderValue, userId]);
     if (updateResult.rowCount === 0) {
       console.error("Update profile: No rows affected for userId=", userId);
       return res.status(404).json({ error: "User not found. Please log in again." });
@@ -1040,7 +1043,7 @@ router.post("/update-profile", isAuthenticated, async (req, res) => {
   }
 });
 
-// Update user health info (including emergency contact)
+// Update user health info (including emergency contact and health questions)
 router.post("/update-health-info", isAuthenticated, async (req, res) => {
   try {
     const { 
@@ -1068,72 +1071,66 @@ router.post("/update-health-info", isAuthenticated, async (req, res) => {
       return res.status(401).json({ error: "Session expired or invalid. Please log in again." });
     }
 
-    // Check if emergency contact information is provided
-    if (emergency_contact_name && emergency_contact_phone) {
-      // Check if health info already exists for this user
-      const [existingHealthInfo] = await db.promise().query(
-        "SELECT id FROM health_info WHERE user_id = ?",
-        [userId]
-      );
+    // Always fetch existing health info - we update health questions even when emergency contact is empty
+    const [existingHealthInfo] = await db.promise().query(
+      "SELECT * FROM health_info WHERE user_id = ?",
+      [userId]
+    );
 
-      if (existingHealthInfo.length > 0) {
-        // Update existing health info
-        await db.promise().query(
-          `UPDATE health_info 
-           SET emergency_contact_name = ?, 
-               emergency_contact_phone = ?, 
-               emergency_contact_relationship = ?
-               ${blood_type ? ', blood_type = ?' : ''}
-               ${allergies !== undefined ? ', allergies = ?' : ''}
-               ${chronic_conditions !== undefined ? ', chronic_conditions = ?' : ''}
-               ${medications !== undefined ? ', medications = ?' : ''}
-               ${height ? ', height = ?' : ''}
-               ${weight ? ', weight = ?' : ''}
-               ${has_heart_problems !== undefined ? ', has_heart_problems = ?' : ''}
-               ${chest_pain_activity !== undefined ? ', chest_pain_activity = ?' : ''}
-               ${balance_dizziness !== undefined ? ', balance_dizziness = ?' : ''}
-               ${other_chronic_disease !== undefined ? ', other_chronic_disease = ?' : ''}
-               ${prescribed_medication !== undefined ? ', prescribed_medication = ?' : ''}
-               ${bone_joint_issues !== undefined ? ', bone_joint_issues = ?' : ''}
-               ${doctor_supervised_activity !== undefined ? ', doctor_supervised_activity = ?' : ''}
-               ${health_additional_info !== undefined ? ', health_additional_info = ?' : ''}
-           WHERE user_id = ?`,
-          [
-            emergency_contact_name, 
-            emergency_contact_phone, 
-            emergency_contact_relationship || 'Other', 
-            ...(blood_type ? [blood_type] : []),
-            ...(allergies !== undefined ? [allergies] : []),
-            ...(chronic_conditions !== undefined ? [chronic_conditions] : []),
-            ...(medications !== undefined ? [medications] : []),
-            ...(height ? [height] : []),
-            ...(weight ? [weight] : []),
-            ...(has_heart_problems !== undefined ? [has_heart_problems] : []),
-            ...(chest_pain_activity !== undefined ? [chest_pain_activity] : []),
-            ...(balance_dizziness !== undefined ? [balance_dizziness] : []),
-            ...(other_chronic_disease !== undefined ? [other_chronic_disease] : []),
-            ...(prescribed_medication !== undefined ? [prescribed_medication] : []),
-            ...(bone_joint_issues !== undefined ? [bone_joint_issues] : []),
-            ...(doctor_supervised_activity !== undefined ? [doctor_supervised_activity] : []),
-            ...(health_additional_info !== undefined ? [health_additional_info] : []),
-            userId
-          ]
-        );
-      } else {
-        // Insert new health info
-        await db.promise().query(
-          `INSERT INTO health_info 
-           (user_id, blood_type, emergency_contact_name, emergency_contact_phone, emergency_contact_relationship)
-           VALUES (?, ?, ?, ?, ?)`,
-          [
-            userId, 
-            blood_type || 'O+', // Default blood type if not provided
-            emergency_contact_name, 
-            emergency_contact_phone, 
-            emergency_contact_relationship || 'Other'
-          ]
-        );
-      }
+    if (existingHealthInfo.length > 0) {
+      const existing = existingHealthInfo[0];
+      // Update existing: use provided values or keep existing for required fields
+      const ecName = (emergency_contact_name && emergency_contact_name.trim()) ? emergency_contact_name.trim() : existing.emergency_contact_name;
+      const ecPhone = (emergency_contact_phone && emergency_contact_phone.trim()) ? emergency_contact_phone.trim() : existing.emergency_contact_phone;
+      
+      const pgSql = `UPDATE health_info SET 
+        emergency_contact_name = $1, emergency_contact_phone = $2, emergency_contact_relationship = $3,
+        blood_type = $4, allergies = $5, chronic_conditions = $6, medications = $7,
+        height = $8, weight = $9,
+        has_heart_problems = $10, chest_pain_activity = $11, balance_dizziness = $12,
+        other_chronic_disease = $13, prescribed_medication = $14, bone_joint_issues = $15,
+        doctor_supervised_activity = $16, health_additional_info = $17
+        WHERE user_id = $18`;
+      
+      const hasHeart = has_heart_problems !== undefined ? (has_heart_problems === 1 || has_heart_problems === true) : existing.has_heart_problems;
+      const chestPain = chest_pain_activity !== undefined ? (chest_pain_activity === 1 || chest_pain_activity === true) : existing.chest_pain_activity;
+      const balance = balance_dizziness !== undefined ? (balance_dizziness === 1 || balance_dizziness === true) : existing.balance_dizziness;
+      const otherChronic = other_chronic_disease !== undefined ? (other_chronic_disease === 1 || other_chronic_disease === true) : existing.other_chronic_disease;
+      const prescribed = prescribed_medication !== undefined ? (prescribed_medication === 1 || prescribed_medication === true) : existing.prescribed_medication;
+      const boneJoint = bone_joint_issues !== undefined ? (bone_joint_issues === 1 || bone_joint_issues === true) : existing.bone_joint_issues;
+      const doctorSupervised = doctor_supervised_activity !== undefined ? (doctor_supervised_activity === 1 || doctor_supervised_activity === true) : existing.doctor_supervised_activity;
+
+      await db.pool.query(pgSql, [
+        ecName || '', ecPhone || '', (emergency_contact_relationship && emergency_contact_relationship.trim()) || existing.emergency_contact_relationship || 'Other',
+        blood_type || existing.blood_type || 'O+',
+        allergies !== undefined ? allergies : existing.allergies,
+        chronic_conditions !== undefined ? chronic_conditions : existing.chronic_conditions,
+        medications !== undefined ? medications : existing.medications,
+        height !== undefined && height !== '' ? height : existing.height,
+        weight !== undefined && weight !== '' ? weight : existing.weight,
+        hasHeart, chestPain, balance, otherChronic, prescribed, boneJoint, doctorSupervised,
+        health_additional_info !== undefined ? health_additional_info : existing.health_additional_info,
+        userId
+      ]);
+    } else if (emergency_contact_name && emergency_contact_phone) {
+      // Insert new health info - requires emergency contact (NOT NULL columns)
+      const hasHeart = has_heart_problems === 1 || has_heart_problems === true;
+      const chestPain = chest_pain_activity === 1 || chest_pain_activity === true;
+      const balance = balance_dizziness === 1 || balance_dizziness === true;
+      const otherChronic = other_chronic_disease === 1 || other_chronic_disease === true;
+      const prescribed = prescribed_medication === 1 || prescribed_medication === true;
+      const boneJoint = bone_joint_issues === 1 || bone_joint_issues === true;
+      const doctorSupervised = doctor_supervised_activity === 1 || doctor_supervised_activity === true;
+
+      await db.pool.query(
+        `INSERT INTO health_info (user_id, blood_type, emergency_contact_name, emergency_contact_phone, emergency_contact_relationship,
+          has_heart_problems, chest_pain_activity, balance_dizziness, other_chronic_disease, prescribed_medication,
+          bone_joint_issues, doctor_supervised_activity, allergies, chronic_conditions, medications, height, weight, health_additional_info)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`,
+        [userId, blood_type || 'O+', emergency_contact_name.trim(), emergency_contact_phone.trim(), emergency_contact_relationship || 'Other',
+          hasHeart, chestPain, balance, otherChronic, prescribed, boneJoint, doctorSupervised,
+          allergies || null, chronic_conditions || null, medications || null, height || null, weight || null, health_additional_info || null]
+      );
     }
 
     res.json({ message: "Health information updated successfully" });
