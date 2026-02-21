@@ -10,7 +10,7 @@ const Pools = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const url = `${API_BASE}/api/pools`;
+    const url = `${API_BASE}/pools`;
     axios
       .get(url, { 
         timeout: 20000, 
@@ -24,7 +24,9 @@ const Pools = () => {
         console.error('Error fetching pools:', err);
         const msg = err.code === 'ECONNABORTED' 
           ? "Request timed out. Please try again." 
-          : (err.response?.data?.error || err.message || "Failed to load pools. Please try again later.");
+          : err.message === 'Network Error'
+            ? "Could not connect to the server. If you use an ad blocker, try disabling it for this site or use a private window."
+            : (err.response?.data?.error || err.message || "Failed to load pools. Please try again later.");
         setError(msg);
         setLoading(false);
         setPools([]);
@@ -45,11 +47,16 @@ const Pools = () => {
           onClick={() => {
             setError("");
             setLoading(true);
-            const url = `${API_BASE}/api/pools`;
+            const url = `${API_BASE}/pools`;
             axios.get(url, { timeout: 20000, withCredentials: false })
               .then((res) => { setPools(res.data || []); setLoading(false); setError(""); })
               .catch((err) => { 
-                setError(err.code === 'ECONNABORTED' ? "Request timed out. Try again." : (err.response?.data?.error || "Failed to load pools.")); 
+                const retryMsg = err.code === 'ECONNABORTED' 
+                  ? "Request timed out. Try again." 
+                  : err.message === 'Network Error'
+                    ? "Could not connect. Try disabling ad blocker or use a private window."
+                    : (err.response?.data?.error || "Failed to load pools.");
+                setError(retryMsg); 
                 setLoading(false); 
               });
           }}
