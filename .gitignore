@@ -53,6 +53,10 @@ dist/
 .cache/
 
 # === UNNECESSARY FILES ===
+# All .md except README
+*.md
+!README.md
+
 *.bak
 *.tmp
 *.temp
@@ -66,10 +70,7 @@ Desktop.ini
 deneme.txt
 
 # Unnecessary/temporary files
-NASIL_CALISTIRILIR.md
-GIT_HISTORY_CLEANUP.md
 MyDatabase.session.sql
-frontend/README.md
 frontend/src/components/DoctorDashboard/backup
 
 # Personal helper scripts and migration files (may contain sensitive data)
