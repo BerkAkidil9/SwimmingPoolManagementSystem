@@ -5,6 +5,7 @@ const { sendEmail } = require("../utils/sendEmail");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const axios = require("axios");
 const { uploadToR2 } = require("../utils/r2Storage");
 
 const useR2 = process.env.USE_R2 === 'true';
@@ -239,6 +240,40 @@ function toWorkerUrlIfR2(urlPath, workerUrl) {
   } catch (_) {}
   return urlPath;
 }
+
+// Download health report file (forces download with Content-Disposition: attachment)
+router.get("/health-reports/:reportId/download", isDoctor, async (req, res) => {
+  try {
+    const { reportId } = req.params;
+    const [reports] = await db.promise().query(
+      "SELECT report_path FROM health_reports WHERE id = ?",
+      [reportId]
+    );
+    if (reports.length === 0) {
+      return res.status(404).json({ error: "Report not found" });
+    }
+    const reportPath = reports[0].report_path;
+    const filename = path.basename(reportPath.split('?')[0]) || `health-report-${reportId}.pdf`;
+
+    if (reportPath.startsWith('http')) {
+      const resp = await axios.get(reportPath, { responseType: 'arraybuffer' });
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Content-Type', resp.headers['content-type'] || 'application/octet-stream');
+      res.send(Buffer.from(resp.data));
+    } else {
+      const fullPath = path.resolve(path.join(__dirname, '../uploads', reportPath));
+      const uploadsDir = path.resolve(__dirname, '../uploads');
+      if (!fullPath.startsWith(uploadsDir) || !fs.existsSync(fullPath)) {
+        return res.status(404).json({ error: "File not found" });
+      }
+      res.setHeader('Content-Disposition', `attachment; filename="${path.basename(fullPath)}"`);
+      res.sendFile(fullPath);
+    }
+  } catch (error) {
+    console.error("Health report download error:", error);
+    res.status(500).json({ error: "Download failed" });
+  }
+});
 
 // Get health reports for a user
 router.get("/health-reports/:userId", isDoctor, async (req, res) => {
