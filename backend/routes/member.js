@@ -1050,6 +1050,7 @@ router.post("/update-health-info", isAuthenticated, async (req, res) => {
       emergency_contact_name, 
       emergency_contact_phone, 
       emergency_contact_relationship,
+      emergency_contact_relationship_other,
       blood_type,
       allergies,
       chronic_conditions,
@@ -1087,12 +1088,13 @@ router.post("/update-health-info", isAuthenticated, async (req, res) => {
       
       const pgSql = `UPDATE health_info SET 
         emergency_contact_name = $1, emergency_contact_phone = $2, emergency_contact_relationship = $3,
-        blood_type = $4, allergies = $5, chronic_conditions = $6, medications = $7,
-        height = $8, weight = $9,
-        has_heart_problems = $10, chest_pain_activity = $11, balance_dizziness = $12,
-        other_chronic_disease = $13, prescribed_medication = $14, bone_joint_issues = $15,
-        doctor_supervised_activity = $16, health_additional_info = $17
-        WHERE user_id = $18`;
+        emergency_contact_relationship_other = $4,
+        blood_type = $5, allergies = $6, chronic_conditions = $7, medications = $8,
+        height = $9, weight = $10,
+        has_heart_problems = $11, chest_pain_activity = $12, balance_dizziness = $13,
+        other_chronic_disease = $14, prescribed_medication = $15, bone_joint_issues = $16,
+        doctor_supervised_activity = $17, health_additional_info = $18
+        WHERE user_id = $19`;
       
       const hasHeart = has_heart_problems !== undefined ? (has_heart_problems === 1 || has_heart_problems === true) : existing.has_heart_problems;
       const chestPain = chest_pain_activity !== undefined ? (chest_pain_activity === 1 || chest_pain_activity === true) : existing.chest_pain_activity;
@@ -1102,8 +1104,10 @@ router.post("/update-health-info", isAuthenticated, async (req, res) => {
       const boneJoint = bone_joint_issues !== undefined ? (bone_joint_issues === 1 || bone_joint_issues === true) : existing.bone_joint_issues;
       const doctorSupervised = doctor_supervised_activity !== undefined ? (doctor_supervised_activity === 1 || doctor_supervised_activity === true) : existing.doctor_supervised_activity;
 
+      const ecRelationshipOther = (emergency_contact_relationship === 'other' && emergency_contact_relationship_other) ? emergency_contact_relationship_other.trim() : null;
       await db.pool.query(pgSql, [
         ecName || '', ecPhone || '', (emergency_contact_relationship && emergency_contact_relationship.trim()) || existing.emergency_contact_relationship || 'Other',
+        ecRelationshipOther,
         blood_type || existing.blood_type || 'O+',
         allergies !== undefined ? allergies : existing.allergies,
         chronic_conditions !== undefined ? chronic_conditions : existing.chronic_conditions,
@@ -1127,12 +1131,13 @@ router.post("/update-health-info", isAuthenticated, async (req, res) => {
       const boneJoint = bone_joint_issues === 1 || bone_joint_issues === true;
       const doctorSupervised = doctor_supervised_activity === 1 || doctor_supervised_activity === true;
 
+      const ecRelOther = (emergency_contact_relationship === 'other' && emergency_contact_relationship_other) ? String(emergency_contact_relationship_other).trim() : null;
       await db.pool.query(
-        `INSERT INTO health_info (user_id, blood_type, emergency_contact_name, emergency_contact_phone, emergency_contact_relationship,
+        `INSERT INTO health_info (user_id, blood_type, emergency_contact_name, emergency_contact_phone, emergency_contact_relationship, emergency_contact_relationship_other,
           has_heart_problems, chest_pain_activity, balance_dizziness, other_chronic_disease, prescribed_medication,
           bone_joint_issues, doctor_supervised_activity, allergies, chronic_conditions, medications, height, weight, health_additional_info)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`,
-        [userId, blood_type || 'O+', ecName, ecPhone, (emergency_contact_relationship && String(emergency_contact_relationship).trim()) || 'Other',
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`,
+        [userId, blood_type || 'O+', ecName, ecPhone, (emergency_contact_relationship && String(emergency_contact_relationship).trim()) || 'Other', ecRelOther,
           hasHeart, chestPain, balance, otherChronic, prescribed, boneJoint, doctorSupervised,
           allergies || null, chronic_conditions || null, medications || null, height || null, weight || null, health_additional_info || null]
       );

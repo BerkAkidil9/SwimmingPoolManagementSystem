@@ -45,7 +45,8 @@ const EditProfile = () => {
     emergencyContact: {
       name: '',
       phone: '',
-      relationship: 'parent'
+      relationship: 'parent',
+      relationshipOther: ''
     },
     blood_type: 'O+',
     height: '',
@@ -150,7 +151,8 @@ const EditProfile = () => {
         emergencyContact: {
           name: healthInfo.emergency_contact_name || '',
           phone: healthInfo.emergency_contact_phone || '',
-          relationship: healthInfo.emergency_contact_relationship || 'parent'
+          relationship: healthInfo.emergency_contact_relationship || 'parent',
+          relationshipOther: healthInfo.emergency_contact_relationship_other || ''
         },
         blood_type: healthInfo.blood_type || 'O+',
         height: healthInfo.height || '',
@@ -312,6 +314,7 @@ const EditProfile = () => {
       emergency_contact_name: userProfile.emergencyContact.name,
       emergency_contact_phone: userProfile.emergencyContact.phone,
       emergency_contact_relationship: userProfile.emergencyContact.relationship,
+      emergency_contact_relationship_other: userProfile.emergencyContact.relationshipOther,
       phone: userProfile.phone // To check if emergency phone is same as user's phone
     };
     const emergencyContactErrors = validateEmergencyContact(emergencyContactData);
@@ -320,7 +323,7 @@ const EditProfile = () => {
     const mappedEmergencyContactErrors = {};
     Object.entries(emergencyContactErrors).forEach(([key, value]) => {
       if (key.startsWith('emergency_contact_')) {
-        const formKey = key.replace('emergency_contact_', '');
+        const formKey = key === 'emergency_contact_relationship_other' ? 'relationshipOther' : key.replace('emergency_contact_', '');
         mappedEmergencyContactErrors[`emergencyContact.${formKey}`] = value;
       }
     });
@@ -610,6 +613,7 @@ const EditProfile = () => {
         emergency_contact_name: userProfile.emergencyContact.name,
         emergency_contact_phone: userProfile.emergencyContact.phone,
         emergency_contact_relationship: userProfile.emergencyContact.relationship,
+        emergency_contact_relationship_other: userProfile.emergencyContact.relationship === 'other' ? (userProfile.emergencyContact.relationshipOther || null) : null,
         // Health information
         blood_type: userProfile.blood_type,
         height: userProfile.height,
@@ -1012,6 +1016,24 @@ const EditProfile = () => {
               </select>
               {formErrors['emergencyContact.relationship'] && <span className="error">{formErrors['emergencyContact.relationship']}</span>}
             </div>
+            
+            {userProfile.emergencyContact.relationship === 'other' && (
+              <div className="form-group">
+                <label>
+                  Specify Relationship
+                </label>
+                <input
+                  type="text"
+                  name="emergencyContact.relationshipOther"
+                  value={userProfile.emergencyContact.relationshipOther || ''}
+                  onChange={handleInputChange}
+                  placeholder="Please specify the relationship (e.g. cousin, neighbour)"
+                  maxLength={100}
+                  className={formErrors['emergencyContact.relationshipOther'] ? 'input-error' : ''}
+                />
+                {formErrors['emergencyContact.relationshipOther'] && <span className="error">{formErrors['emergencyContact.relationshipOther']}</span>}
+              </div>
+            )}
           </div>
           
           <div className="form-section">
