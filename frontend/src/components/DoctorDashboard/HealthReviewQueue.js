@@ -861,7 +861,6 @@ const HealthReviewQueue = () => {
                       const reportUrl = report.report_path?.startsWith('http') 
                         ? report.report_path 
                         : `${API_BASE_URL}/uploads/${(report.report_path || '').replace(/^\/+/, '')}`;
-                      const downloadUrl = reportUrl + (reportUrl.includes('?') ? '&' : '?') + 'download=true';
                       const ext = (report.report_path || '').split('.').pop()?.toLowerCase();
                       const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(ext);
                       return (
@@ -889,7 +888,25 @@ const HealthReviewQueue = () => {
                             <Button
                               variant="outline-secondary"
                               size="sm"
-                              onClick={() => window.open(downloadUrl, '_blank')}
+                              onClick={async () => {
+                                try {
+                                  const downloadUrl = `${API_BASE_URL}/api/doctor/health-reports/${report.id}/download`;
+                                  const response = await fetch(downloadUrl, { credentials: 'include' });
+                                  if (!response.ok) throw new Error('Download failed');
+                                  const blob = await response.blob();
+                                  const url = window.URL.createObjectURL(blob);
+                                  const a = document.createElement('a');
+                                  a.href = url;
+                                  a.download = `report-${index + 1}.${ext || 'pdf'}`;
+                                  document.body.appendChild(a);
+                                  a.click();
+                                  window.URL.revokeObjectURL(url);
+                                  document.body.removeChild(a);
+                                } catch (err) {
+                                  console.error('Download error:', err);
+                                  setError('Failed to download report');
+                                }
+                              }}
                             >
                               <FaFileDownload className="me-1" /> Download
                             </Button>
