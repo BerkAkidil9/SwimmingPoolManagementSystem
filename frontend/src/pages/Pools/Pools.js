@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './Pools.css';
 
 const Pools = () => {
@@ -7,21 +8,17 @@ const Pools = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/api/pools`)
+    axios
+      .get('/api/pools', { timeout: 15000 })
       .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch pools");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setPools(data);
+        setPools(response.data || []);
         setLoading(false);
       })
-      .catch((error) => {
-        console.error('Error fetching pools:', error);
-        setError("Failed to load pools. Please try again later.");
+      .catch((err) => {
+        console.error('Error fetching pools:', err);
+        setError(err.response?.data?.error || "Failed to load pools. Please try again later.");
         setLoading(false);
+        setPools([]);
       });
   }, []);
 
@@ -35,7 +32,10 @@ const Pools = () => {
 
   return (
     <div className="pool-list">
-      {pools.map((pool) => (
+      {pools.length === 0 ? (
+        <p className="no-pools">No pools available at the moment.</p>
+      ) : (
+      pools.map((pool) => (
         <div key={pool.id} className="pool-card">
           <h3>{pool.name}</h3>
           <p>Capacity: {pool.capacity}</p>
@@ -44,7 +44,7 @@ const Pools = () => {
             Open in Maps
           </a>
         </div>
-      ))}
+      )))}
     </div>
   );
 };
