@@ -158,14 +158,14 @@ const EditProfile = () => {
         allergies: healthInfo.allergies || '',
         chronic_conditions: healthInfo.chronic_conditions || '',
         medications: healthInfo.medications || '',
-        // Health questions - convert boolean to string 'true'/'false' for the select elements
-        has_heart_problems: healthInfo.has_heart_problems === 1 ? 'true' : 'false',
-        chest_pain_activity: healthInfo.chest_pain_activity === 1 ? 'true' : 'false',
-        balance_dizziness: healthInfo.balance_dizziness === 1 ? 'true' : 'false',
-        other_chronic_disease: healthInfo.other_chronic_disease === 1 ? 'true' : 'false',
-        prescribed_medication: healthInfo.prescribed_medication === 1 ? 'true' : 'false',
-        bone_joint_issues: healthInfo.bone_joint_issues === 1 ? 'true' : 'false',
-        doctor_supervised_activity: healthInfo.doctor_supervised_activity === 1 ? 'true' : 'false',
+        // Health questions - convert to 'true'/'false' (PostgreSQL returns boolean, MySQL may return 0/1)
+        has_heart_problems: (healthInfo.has_heart_problems === 1 || healthInfo.has_heart_problems === true) ? 'true' : 'false',
+        chest_pain_activity: (healthInfo.chest_pain_activity === 1 || healthInfo.chest_pain_activity === true) ? 'true' : 'false',
+        balance_dizziness: (healthInfo.balance_dizziness === 1 || healthInfo.balance_dizziness === true) ? 'true' : 'false',
+        other_chronic_disease: (healthInfo.other_chronic_disease === 1 || healthInfo.other_chronic_disease === true) ? 'true' : 'false',
+        prescribed_medication: (healthInfo.prescribed_medication === 1 || healthInfo.prescribed_medication === true) ? 'true' : 'false',
+        bone_joint_issues: (healthInfo.bone_joint_issues === 1 || healthInfo.bone_joint_issues === true) ? 'true' : 'false',
+        doctor_supervised_activity: (healthInfo.doctor_supervised_activity === 1 || healthInfo.doctor_supervised_activity === true) ? 'true' : 'false',
         health_additional_info: healthInfo.health_additional_info || ''
       }));
       
