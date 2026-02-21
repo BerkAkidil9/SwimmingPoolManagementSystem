@@ -32,7 +32,31 @@
     transition: background-color 0.3s;
   }
   
-  .map-link:hover {
-    background-color: #17a2b8;
-  }
+.map-link:hover {
+  background-color: #17a2b8;
+}
+
+.pools-error {
+  text-align: center;
+  padding: 2rem;
+}
+
+.pools-error .error {
+  color: #dc3545;
+  margin-bottom: 1rem;
+}
+
+.pools-error .retry-btn {
+  padding: 0.5rem 1.5rem;
+  background: var(--primary-color, #0396FF);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.pools-error .retry-btn:hover {
+  opacity: 0.9;
+}
   
