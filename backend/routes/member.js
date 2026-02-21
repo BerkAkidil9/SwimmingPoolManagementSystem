@@ -27,7 +27,7 @@ const storage = useR2
         cb(null, dest);
       },
       filename: (req, file, cb) => {
-        const userId = req.session?.user?.id || 'unknown';
+        const userId = getCurrentUserId(req) || 'unknown';
         cb(null, `${userId}-${Date.now()}${path.extname(file.originalname)}`);
       }
     });
@@ -37,9 +37,20 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }
 });
 
+// Helper to get current user (supports both session and Passport)
+function getCurrentUser(req) {
+  return req.session?.user || (req.isAuthenticated?.() && req.user) || null;
+}
+
+// Helper to get current user ID
+function getCurrentUserId(req) {
+  const user = getCurrentUser(req);
+  return user?.id ?? null;
+}
+
 // Middleware to check if user is authenticated
 const isAuthenticated = (req, res, next) => {
-  if (!req.session.user) {
+  if (!getCurrentUser(req)) {
     return res.status(401).json({ error: "Unauthorized access" });
   }
   next();
@@ -73,7 +84,7 @@ router.get("/package", isAuthenticated, async (req, res) => {
   try {
     const [packageInfo] = await db.promise().query(
       "SELECT * FROM packages WHERE user_id = ? AND remaining_sessions > 0 AND expiry_date >= CURRENT_DATE ORDER BY created_at DESC LIMIT 1",
-      [req.session.user.id]
+      [getCurrentUserId(req)]
     );
     res.json(packageInfo[0] || null);
   } catch (error) {
@@ -90,7 +101,7 @@ router.post("/packages", isAuthenticated, async (req, res) => {
     // Check for active packages only (both remaining sessions > 0 AND not expired)
     const [existingPackage] = await db.promise().query(
       "SELECT * FROM packages WHERE user_id = ? AND remaining_sessions > 0 AND expiry_date >= CURRENT_DATE",
-      [req.session.user.id]
+      [getCurrentUserId(req)]
     );
 
     if (existingPackage.length) {
@@ -106,7 +117,7 @@ router.post("/packages", isAuthenticated, async (req, res) => {
 
     await db.promise().query(
       "INSERT INTO packages (user_id, type, price, remaining_sessions, expiry_date) VALUES (?, ?, ?, ?, ?)",
-      [req.session.user.id, type, price, sessions, expiryDate]
+      [getCurrentUserId(req), type, price, sessions, expiryDate]
     );
 
     res.json({ success: true });
@@ -131,7 +142,7 @@ router.get("/reservations", isAuthenticated, async (req, res) => {
        AND r.user_id = $1
        AND (r.status IS NULL OR r.status = 'active')
        AND ((s.session_date + s.end_time)::timestamp AT TIME ZONE 'Europe/Istanbul') < NOW()`,
-      [req.session.user.id]
+      [getCurrentUserId(req)]
     );
 
     // Get reservations that are still "current" - show until session ends (includes completed/checked-in)
@@ -144,7 +155,7 @@ router.get("/reservations", isAuthenticated, async (req, res) => {
        AND (r.status IS NULL OR (r.status != 'canceled' AND r.status != 'missed'))
        AND ((s.session_date + s.end_time)::timestamp AT TIME ZONE 'Europe/Istanbul') > NOW()
        ORDER BY s.session_date, s.start_time`,
-      [req.session.user.id]
+      [getCurrentUserId(req)]
     );
 
     res.json(reservations);
@@ -157,15 +168,15 @@ router.get("/reservations", isAuthenticated, async (req, res) => {
 // Get sessions for a specific pool - fix date conversion issue
 router.get("/pools/:poolId/sessions", isAuthenticated, async (req, res) => {
   const { poolId } = req.params;
-  const userId = req.session.user.id;
+  const userId = getCurrentUserId(req);
   
   try {
-    console.log(`Getting sessions for pool ${poolId} for user ${req.session.user.id}`);
+    console.log(`Getting sessions for pool ${poolId} for user ${getCurrentUserId(req)}`);
     
     // First, check if user has an active package
     const [userPackages] = await db.promise().query(
       "SELECT * FROM packages WHERE user_id = ? AND remaining_sessions > 0 AND expiry_date >= CURRENT_DATE",
-      [req.session.user.id]
+      [getCurrentUserId(req)]
     );
 
     if (!userPackages.length) {
@@ -305,7 +316,7 @@ router.post("/reservations", isAuthenticated, async (req, res) => {
     // Check user's health status first
     const [userInfo] = await trx.query(
       "SELECT health_status FROM users WHERE id = ?",
-      [req.session.user.id]
+      [getCurrentUserId(req)]
     );
 
     if (!userInfo.length) {
@@ -373,7 +384,7 @@ router.post("/reservations", isAuthenticated, async (req, res) => {
     // Check if user has an active package
     const [packages] = await trx.query(
       "SELECT * FROM packages WHERE user_id = ? AND remaining_sessions > 0 AND expiry_date >= CURRENT_DATE ORDER BY created_at DESC LIMIT 1",
-      [req.session.user.id]
+      [getCurrentUserId(req)]
     );
 
     if (!packages.length) {
@@ -412,7 +423,7 @@ router.post("/reservations", isAuthenticated, async (req, res) => {
 
     const [existingReservation] = await trx.query(
       "SELECT * FROM reservations WHERE user_id = ? AND session_id = ? AND (status IS NULL OR status != 'canceled')",
-      [req.session.user.id, sessionId]
+      [getCurrentUserId(req), sessionId]
     );
 
     if (existingReservation.length > 0) {
@@ -434,7 +445,7 @@ router.post("/reservations", isAuthenticated, async (req, res) => {
        AND (
          (s2.start_time < s1.end_time AND s2.end_time > s1.start_time)
        )`,
-      [sessionId, req.session.user.id]
+      [sessionId, getCurrentUserId(req)]
     );
 
     if (overlappingReservations.length > 0) {
@@ -445,7 +456,7 @@ router.post("/reservations", isAuthenticated, async (req, res) => {
 
     await trx.query(
       "INSERT INTO reservations (user_id, session_id) VALUES (?, ?)",
-      [req.session.user.id, sessionId]
+      [getCurrentUserId(req), sessionId]
     );
 
     await trx.query(
@@ -480,7 +491,7 @@ router.delete("/reservations/:id", isAuthenticated, async (req, res) => {
        FROM reservations r
        JOIN sessions s ON r.session_id = s.id
        WHERE r.id = ? AND r.user_id = ?`,
-      [id, req.session.user.id]
+      [id, getCurrentUserId(req)]
     );
     
     if (!reservationDetails.length) {
@@ -516,12 +527,12 @@ router.delete("/reservations/:id", isAuthenticated, async (req, res) => {
     await db.transaction(async (trx) => {
       await trx.query(
         "UPDATE reservations SET status = 'canceled' WHERE id = ? AND user_id = ?",
-        [id, req.session.user.id]
+        [id, getCurrentUserId(req)]
       );
 
       const [activePackage] = await trx.query(
         "SELECT * FROM packages WHERE user_id = ? AND expiry_date >= CURRENT_DATE ORDER BY created_at DESC LIMIT 1",
-        [req.session.user.id]
+        [getCurrentUserId(req)]
       );
 
       if (activePackage.length) {
@@ -551,7 +562,7 @@ router.post("/feedback", isAuthenticated, async (req, res) => {
     // Insert into database
     const result = await db.promise().query(
       "INSERT INTO feedback (user_id, subject, message) VALUES (?, ?, ?)",
-      [req.session.user.id, subject, message]
+      [getCurrentUserId(req), subject, message]
     );
     
     res.status(201).json({ 
@@ -572,7 +583,7 @@ router.get("/feedback", isAuthenticated, async (req, res) => {
        FROM feedback 
        WHERE user_id = ? 
        ORDER BY created_at DESC`,
-      [req.session.user.id]
+      [getCurrentUserId(req)]
     );
     
     res.json(feedback);
@@ -592,7 +603,7 @@ router.get("/history", isAuthenticated, async (req, res) => {
        FROM packages 
        WHERE user_id = ? 
        ORDER BY created_at DESC`,
-      [req.session.user.id]
+      [getCurrentUserId(req)]
     );
 
     // Calculate derived fields in code instead of querying them
@@ -620,7 +631,7 @@ router.get("/history", isAuthenticated, async (req, res) => {
        JOIN "Pools" p ON s.pool_id = p.id 
        WHERE r.user_id = ?
        ORDER BY r.created_at DESC`,
-      [req.session.user.id]
+      [getCurrentUserId(req)]
     );
 
     // Preserve the 'missed' status when it's set
@@ -711,7 +722,7 @@ router.post("/resubmit-verification", isAuthenticated, upload.fields([
     // Check if user has reached maximum rejections
     const [userRows] = await db.promise().query(
       "SELECT rejection_count FROM users WHERE id = ?",
-      [req.session.user.id]
+      [getCurrentUserId(req)]
     );
     
     if (userRows.length === 0) {
@@ -734,7 +745,7 @@ router.post("/resubmit-verification", isAuthenticated, upload.fields([
       const file = req.files.idCard[0];
       if (useR2 && file.buffer) {
         const ext = path.extname(file.originalname) || '.pdf';
-        idCardPath = await uploadToR2(file.buffer, `id_cards/${req.session.user.id}-${Date.now()}${ext}`, file.mimetype);
+        idCardPath = await uploadToR2(file.buffer, `id_cards/${getCurrentUserId(req)}-${Date.now()}${ext}`, file.mimetype);
       } else {
         idCardPath = `id_cards/${path.basename(file.path)}`;
       }
@@ -743,7 +754,7 @@ router.post("/resubmit-verification", isAuthenticated, upload.fields([
       const file = req.files.profilePhoto[0];
       if (useR2 && file.buffer) {
         const ext = path.extname(file.originalname) || '.jpg';
-        profilePhotoPath = await uploadToR2(file.buffer, `profile_photos/${req.session.user.id}-${Date.now()}${ext}`, file.mimetype);
+        profilePhotoPath = await uploadToR2(file.buffer, `profile_photos/${getCurrentUserId(req)}-${Date.now()}${ext}`, file.mimetype);
       } else {
         profilePhotoPath = `profile_photos/${path.basename(file.path)}`;
       }
@@ -769,7 +780,7 @@ router.post("/resubmit-verification", isAuthenticated, upload.fields([
         gender || null,
         idCardPath,
         profilePhotoPath,
-        req.session.user.id
+        getCurrentUserId(req)
       ]
     );
 
@@ -788,7 +799,7 @@ router.get("/verification-status", isAuthenticated, async (req, res) => {
   try {
     const [result] = await db.promise().query(
       "SELECT verification_status, verification_reason FROM users WHERE id = ?",
-      [req.session.user.id]
+      [getCurrentUserId(req)]
     );
     
     if (result.length === 0) {
@@ -813,7 +824,7 @@ router.get("/profile", isAuthenticated, async (req, res) => {
         name, surname, email, phone, date_of_birth, gender, swimming_ability, role,
         rejection_count, profile_photo_path, id_card_path
       FROM users WHERE id = ?`,
-      [req.session.user.id]
+      [getCurrentUserId(req)]
     );
     
     if (rows.length === 0) {
@@ -842,7 +853,7 @@ router.get("/profile", isAuthenticated, async (req, res) => {
 // Member check-in endpoint
 router.post("/check-in", isAuthenticated, async (req, res) => {
   const { reservationId } = req.body;
-  const userId = req.session.user.id;
+  const userId = getCurrentUserId(req);
 
   if (!reservationId) {
     return res.status(400).json({ error: "Reservation ID is required" });
@@ -934,8 +945,8 @@ router.post("/check-in", isAuthenticated, async (req, res) => {
       checkedInAt: new Date().toISOString(),
       member: {
         id: userId,
-        name: req.session.user.name || '',
-        surname: req.session.user.surname || ''
+        name: getCurrentUser(req)?.name || '',
+        surname: getCurrentUser(req)?.surname || ''
       },
       session: {
         id: reservation.session_id,
@@ -963,7 +974,13 @@ router.post("/check-in", isAuthenticated, async (req, res) => {
 router.post("/update-profile", isAuthenticated, async (req, res) => {
   try {
     const { name, surname, email, phone, date_of_birth, gender } = req.body;
-    const userId = req.session.user.id;
+    const userId = getCurrentUserId(req);
+
+    if (!userId) {
+      console.error("Update profile: No user ID - session.user:", !!req.session?.user, "req.user:", !!req.user);
+      return res.status(401).json({ error: "Session expired or invalid. Please log in again." });
+    }
+    console.log("Update profile: userId=", userId, "role=", req.session?.user?.role ?? req.user?.role);
 
     // Validate required fields
     if (!name || !surname || !email || !phone || !date_of_birth || !gender) {
@@ -994,22 +1011,18 @@ router.post("/update-profile", isAuthenticated, async (req, res) => {
       return res.status(400).json({ error: "This phone number is already in use by another account." });
     }
 
-    // Update user profile in database
-    await db.promise().query(
-      `UPDATE users 
-       SET name = ?, surname = ?, email = ?, phone = ?, date_of_birth = ?, gender = ? 
-       WHERE id = ?`,
-      [name, surname, email, phone, date_of_birth, gender, userId]
-    );
+    // Update user profile in database (use pool directly to check rowCount)
+    const pgSql = `UPDATE users SET name = $1, surname = $2, email = $3, phone = $4, date_of_birth = $5, gender = $6 WHERE id = $7`;
+    const updateResult = await db.pool.query(pgSql, [name, surname, email, phone, date_of_birth, gender, userId]);
+    if (updateResult.rowCount === 0) {
+      console.error("Update profile: No rows affected for userId=", userId);
+      return res.status(404).json({ error: "User not found. Please log in again." });
+    }
 
-    // Update user session
-    req.session.user = {
-      ...req.session.user,
-      name,
-      surname,
-      email,
-      phone
-    };
+    // Update session if it exists (keeps UI in sync)
+    if (req.session?.user) {
+      req.session.user = { ...req.session.user, name, surname, email, phone };
+    }
 
     res.json({ message: "Profile updated successfully" });
   } catch (error) {
@@ -1050,7 +1063,10 @@ router.post("/update-health-info", isAuthenticated, async (req, res) => {
       health_additional_info
     } = req.body;
     
-    const userId = req.session.user.id;
+    const userId = getCurrentUserId(req);
+    if (!userId) {
+      return res.status(401).json({ error: "Session expired or invalid. Please log in again." });
+    }
 
     // Check if emergency contact information is provided
     if (emergency_contact_name && emergency_contact_phone) {
@@ -1132,7 +1148,7 @@ router.get("/health-info", isAuthenticated, async (req, res) => {
   try {
     const [healthInfo] = await db.promise().query(
       "SELECT * FROM health_info WHERE user_id = ?",
-      [req.session.user.id]
+      [getCurrentUserId(req)]
     );
     
     if (healthInfo.length === 0) {
@@ -1150,7 +1166,7 @@ router.get("/health-info", isAuthenticated, async (req, res) => {
 router.post("/upload-id-card", isAuthenticated, upload.single("idCard"), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: "No file uploaded" });
-    const userId = req.session.user.id;
+    const userId = getCurrentUserId(req);
     let filePath;
     if (useR2 && req.file.buffer) {
       const ext = path.extname(req.file.originalname) || '.pdf';
@@ -1171,7 +1187,7 @@ router.post("/upload-id-card", isAuthenticated, upload.single("idCard"), async (
 router.post("/upload-profile-photo", isAuthenticated, upload.single("profilePhoto"), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: "No file uploaded" });
-    const userId = req.session.user.id;
+    const userId = getCurrentUserId(req);
     let filePath;
     if (useR2 && req.file.buffer) {
       const ext = path.extname(req.file.originalname) || '.jpg';
