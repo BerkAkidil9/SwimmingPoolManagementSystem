@@ -906,15 +906,32 @@ router.post("/check-in", isAuthenticated, async (req, res) => {
 
     const userPackage = packageResult[0];
 
-    // Update reservation status to completed
-    await db.promise().query(
-      "UPDATE reservations SET status = 'completed' WHERE id = ?",
-      [reservationId]
-    );
+    // Generate unique check-in code (format required by staff verification)
+    const checkInCode = `${reservationId}-${Date.now()}`;
+
+    // Update reservation status and store check-in code for cross-device QR access
+    try {
+      await db.promise().query(
+        `UPDATE reservations SET status = 'completed', check_in_code = ?, checked_in_at = CURRENT_TIMESTAMP WHERE id = ?`,
+        [checkInCode, reservationId]
+      );
+    } catch (colErr) {
+      // Fallback if migration not run (column doesn't exist)
+      if (colErr.message?.includes('check_in_code') || colErr.message?.includes('does not exist')) {
+        await db.promise().query(
+          "UPDATE reservations SET status = 'completed' WHERE id = ?",
+          [reservationId]
+        );
+      } else {
+        throw colErr;
+      }
+    }
 
     res.json({
       success: true,
       message: "Check-in successful",
+      checkInCode,
+      checkedInAt: new Date().toISOString(),
       member: {
         id: userId,
         name: req.session.user.name || '',
