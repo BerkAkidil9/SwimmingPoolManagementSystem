@@ -956,7 +956,7 @@ const EditProfile = () => {
                   id="idCard"
                   ref={idCardRef}
                   onChange={handleIdCardChange}
-                  accept=".jpg,.jpeg,.png,.pdf"
+                  accept="application/pdf,.pdf"
                 />
               </div>
             </div>
