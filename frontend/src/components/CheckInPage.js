@@ -51,12 +51,6 @@ const CheckInPage = () => {
     
     fetchReservations();
     fetchUserData();
-    
-    // Load any checked-in reservations from localStorage
-    const storedCheckedIns = localStorage.getItem('checkedInReservations');
-    if (storedCheckedIns) {
-      setCheckedInReservations(JSON.parse(storedCheckedIns));
-    }
   }, []);
   
   const fetchUserData = async () => {
@@ -123,19 +117,33 @@ const CheckInPage = () => {
     try {
       setLoading(true);
       const response = await axios.get('/api/member/reservations');
+      const allReservations = response.data || [];
       
-      // Filter only active reservations that are today or in the future
+      // Filter only active reservations that are today or in the future (for upcoming list)
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       
-      const activeReservations = response.data.filter(r => {
+      const activeReservations = allReservations.filter(r => {
         const reservationDate = new Date(r.session_date);
         return r.status !== 'canceled' && 
                r.status !== 'completed' && 
                reservationDate >= today;
       });
       
+      // Checked-in reservations from API (cross-device - works on any PC/phone)
+      const completedReservations = allReservations
+        .filter(r => r.status === 'completed')
+        .map(r => ({
+          ...r,
+          checkInCode: r.check_in_code || r.checkInCode,
+          checkInTime: r.checked_in_at 
+            ? new Date(r.checked_in_at).toLocaleTimeString() 
+            : (r.checkInTime || ''),
+          status: 'checked-in'
+        }));
+      
       setReservations(activeReservations);
+      setCheckedInReservations(completedReservations);
       setError('');
     } catch (err) {
       setError('Failed to fetch reservations: ' + (err.response?.data?.error || err.message));
@@ -185,8 +193,8 @@ const CheckInPage = () => {
       const response = await axios.post('/api/member/check-in', { reservationId: reservation.id });
       
       if (response.data.success) {
-        const timestamp = Date.now();
-        const verificationHash = generateVerificationHash(reservation.id, timestamp);
+        const checkInCode = response.data.checkInCode || `${reservation.id}-${Date.now()}`;
+        const checkedInAt = response.data.checkedInAt || new Date().toISOString();
         
         // Get actual user ID from multiple sources
         const membershipId = 
@@ -198,37 +206,31 @@ const CheckInPage = () => {
           reservation.userId?.toString() ||  
           reservation.memberId?.toString();
         
-        // Store for future reference
         if (membershipId) localStorage.setItem('membershipId', membershipId);
         
         const newCheckInResult = { 
           ...reservation,
-          checkInTime: new Date().toLocaleTimeString(),
+          checkInTime: new Date(checkedInAt).toLocaleTimeString(),
           status: 'checked-in',
-          checkInCode: `${reservation.id}-${timestamp}`, // Generate a unique code for this check-in
+          checkInCode,
+          check_in_code: checkInCode,
+          checked_in_at: checkedInAt,
           memberName: userData?.name || userData?.fullName || localStorage.getItem('memberName') || 'Member',
-          membershipId: membershipId,
-          verificationHash: verificationHash,
-          checkInTimestamp: timestamp
+          membershipId: membershipId
         };
         
         setCheckInResult(newCheckInResult);
         
-        // Store the check-in result in localStorage
-        const storedCheckedIns = localStorage.getItem('checkedInReservations');
-        let updatedCheckedIns = storedCheckedIns ? JSON.parse(storedCheckedIns) : [];
-        
-        // Check if this reservation is already stored
-        const existingIndex = updatedCheckedIns.findIndex(ci => ci.id === reservation.id);
-        
-        if (existingIndex >= 0) {
-          updatedCheckedIns[existingIndex] = newCheckInResult;
-        } else {
-          updatedCheckedIns.push(newCheckInResult);
-        }
-        
-        localStorage.setItem('checkedInReservations', JSON.stringify(updatedCheckedIns));
-        setCheckedInReservations(updatedCheckedIns);
+        // Add to checked-in list (from API - works cross-device)
+        setCheckedInReservations(prev => {
+          const existing = prev.findIndex(ci => ci.id === reservation.id);
+          if (existing >= 0) {
+            const updated = [...prev];
+            updated[existing] = newCheckInResult;
+            return updated;
+          }
+          return [...prev, newCheckInResult];
+        });
         
         setCheckInInfoStatus('success');
         setCheckInInfoMessage('Check-in successful! Please show this confirmation to the staff.');
@@ -283,10 +285,10 @@ const CheckInPage = () => {
       // Then try other sources
       return userData?.id?.toString() || 
              localStorage.getItem('membershipId') || 
-             '263'; // Fallback to known ID as last resort
+             '';
     } catch (err) {
       console.error('Error getting user ID:', err);
-      return '263'; // Fallback value
+      return '';
     }
   };
 
@@ -550,7 +552,7 @@ const CheckInPage = () => {
                         poolName: selectedQRCode.poolName || '',
                         date: selectedQRCode.session_date ? new Date(selectedQRCode.session_date).toLocaleDateString() : '',
                         time: selectedQRCode.start_time ? `${selectedQRCode.start_time} - ${selectedQRCode.end_time}` : '',
-                        checkInCode: selectedQRCode.checkInCode || `${selectedQRCode.id || ''}-${Date.now()}`
+                        checkInCode: selectedQRCode.checkInCode || selectedQRCode.check_in_code || `${selectedQRCode.id || ''}-${Date.now()}`
                       })}
                       size={200}
                       level={"M"}
@@ -621,7 +623,7 @@ const CheckInPage = () => {
                           poolName: checkInResult.poolName || '',
                           date: checkInResult.session_date ? new Date(checkInResult.session_date).toLocaleDateString() : '',
                           time: checkInResult.start_time ? `${checkInResult.start_time} - ${checkInResult.end_time}` : '',
-                          checkInCode: checkInResult.checkInCode || `${checkInResult.id || ''}-${Date.now()}`
+                          checkInCode: checkInResult.checkInCode || checkInResult.check_in_code || `${checkInResult.id || ''}-${Date.now()}`
                         })}
                         size={200}
                         level={"M"}

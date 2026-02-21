@@ -189,7 +189,9 @@ CREATE TABLE reservations (
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   session_id INTEGER NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  status reservation_status_enum DEFAULT 'active'
+  status reservation_status_enum DEFAULT 'active',
+  check_in_code VARCHAR(100),
+  checked_in_at TIMESTAMP
 );
 
 -- QR code verifications
