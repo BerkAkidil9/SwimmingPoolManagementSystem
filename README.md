@@ -93,7 +93,7 @@ A full-stack swimming pool management system with multi-role support and compreh
 
 - **Node.js** 18 or higher (20 recommended for Render deployment)
 - **PostgreSQL** 14 or higher
-- **React** 18 (frontend – Create React App ile gelir)
+- **React** 18 (frontend – comes with Create React App)
 - **npm** or **yarn**
 - (Optional) Stripe account, Google OAuth app for full functionality
 
@@ -114,7 +114,7 @@ Create a PostgreSQL database (e.g. `swimcenter`) and run the schema:
 
 ```bash
 cd backend
-createdb swimcenter   # or create via pgAdmin / psql
+createdb swimcenter   # On Windows: use pgAdmin or psql if createdb is not in PATH
 psql -d swimcenter -f sql/schema_postgres.sql
 # Or: npm run db:init   (uses DATABASE_URL or DB_* from .env)
 ```
@@ -127,7 +127,7 @@ npm install
 cp .env.example .env
 ```
 
-`cp .env.example .env` creates `.env` from the template; edit `.env` with your database credentials and API keys.
+`cp .env.example .env` creates `.env` from the template; edit `.env` with your credentials. Minimum for local run: `DATABASE_URL` (or `DB_*`), `SESSION_SECRET`, `FRONTEND_URL`.
 
 ### 4. Frontend setup
 
@@ -233,10 +233,11 @@ Create a PostgreSQL database at [Neon](https://neon.tech), [Supabase](https://su
 
 1. Render Dashboard → **New** → **Blueprint**
 2. Connect this GitHub repo
-3. Render creates: backend Web Service (`swimcenter-api`), frontend Static Site (`swimcenter`)
-4. Set `DATABASE_URL` in the backend service env vars (from step 1)
-5. After first deploy, run schema once: `cd backend && npm run db:init` (Dashboard → Shell)
+3. Render creates: backend Web Service and frontend Static Site
+4. In the backend service → Environment, add `DATABASE_URL` (from step 1)
+5. After first deploy, run schema once: `npm run db:init` (backend service → Shell)
 6. Fill in `sync: false` env vars (R2, OAuth, Email, Stripe)
+7. Check each service's real URL in Render Dashboard. If your service names differ from the blueprint defaults, update `FRONTEND_URL` and `BACKEND_URL` in the backend service Environment to match.
 
 ### 3. Cloudflare R2 (File Storage)
 
@@ -247,9 +248,8 @@ Render has TLS issues with direct R2. Use the **Cloudflare Worker proxy** – se
 
 ### 4. Manual Render setup (if not using Blueprint)
 
-- **Backend:** Web Service, Root: `backend`, Build: `npm install`, Start: `node index.js`
-- **Frontend:** Static Site, Root: `frontend`, Build: `npm install && npm run build`, Publish: `frontend/build`
-- Add env vars from `backend/.env.example`; set `DATABASE_URL` from your external PostgreSQL
+- **Backend:** Web Service, Root: `backend`, Build: `npm install`, Start: `node index.js`. Add env vars from `backend/.env.example`; set `DATABASE_URL` from your external PostgreSQL.
+- **Frontend:** Static Site, Root: `frontend`, Build: `npm install && npm run build`, Publish: `build`. Add `REACT_APP_API_URL` (backend URL) and `REACT_APP_STRIPE_PUBLISHABLE_KEY` in Environment.
 
 ### 5. OAuth Provider Callbacks
 
