@@ -17,6 +17,7 @@ A full-stack swimming pool management system with multi-role support and compreh
 - [Environment Variables](#environment-variables)
 - [Running the Application](#running-the-application)
 - [Testing](#testing)
+- [Deployment](#deployment)
 - [Security Notes](#security-notes)
 - [License](#license)
 
@@ -24,25 +25,38 @@ A full-stack swimming pool management system with multi-role support and compreh
 
 ## Features
 
-### Public
-- **Landing page** – About us, package overview, pool locations (Leaflet map)
-- **Multi-step registration** – Personal info, health info, emergency contact, terms acceptance
-- **Social login** – Google OAuth
-- **Email verification** – Token-based verification flow
-- **Password reset** – Forgot password via email link
-- **Two package types** – Education (12 sessions, 7 AM–6 PM) and Free Swimming (18 sessions, 7 AM–12 AM)
+### Landing Page
+- About us, package overview, pool locations (Leaflet map)
+- Two package types – Education (12 sessions, 7 AM–6 PM) and Free Swimming (18 sessions, 7 AM–12 AM)
+
+### Register
+- Multi-step registration – Personal info, health info, emergency contact, terms acceptance, privacy policy (`/privacy-policy`)
+- Social registration – Google OAuth (`/register/social`)
+
+### Login
+- Social login – Google OAuth
+- Regular login
+- Forgot password (`/forgot-password`)
+
+### Others
+*(Features that don't have a dedicated section)*
+- **Email verification** – Token-based verification flow; verify result (`/verify-result`)
+
+### Home Page (`/home`)
+- Role-based landing for logged-in users (Admin Panel, Doctor Dashboard, Coach Dashboard, Staff Verification, Member Dashboard cards)
 
 ### Shared Navbar (logged-in users)
 - Role-based dashboard link (Admin Panel, Doctor Dashboard, Coach Dashboard, Staff Verification, Member Dashboard)
-- Admin/Doctor/Coach: extra Member Dashboard link
+- Admin/Doctor/Coach/Staff: extra Member Dashboard link
 - Billing
 - Edit Profile (profile and health info management)
 - Logout
 
-*Landing Page and Staff Verification use their own layouts.*
+*Landing Page uses its own layout.*
 
 ### Member Dashboard
 - View and purchase packages
+- Resubmit verification (if rejected)
 - Create and cancel session reservations
 - QR code for check-in
 - Transaction history
@@ -56,12 +70,13 @@ A full-stack swimming pool management system with multi-role support and compreh
 - Email notifications to users
 
 ### Doctor Dashboard
-- Health review queue
-- Approve, reject, or request health reports
-- Upload health reports on behalf of users
-- Health report upload (via doctor email link – members receive link and upload at `/upload-health-report/:userId`)
-- Send health report reminders
-- View pending reminders
+- **Health review queue** – Users awaiting health assessment; approve, reject, or request additional health report
+- **Approve / reject / request health report** – Approve or reject user health status; or request additional documentation (member receives email link to upload)
+- **Review uploaded reports** – View, download, approve or reject health reports uploaded by members
+- **Invalid document notification** – Mark reports as invalid; member receives notification to resubmit
+- **Health report upload (by members)** – When doctor requests a report, members upload at `/health-report-upload?userId=` or `/upload-health-report/:userId`
+- **Send health report reminders** – Send reminder emails to members who haven't uploaded requested reports
+- **View pending reminders** – See users needing reminders and reminder history
 
 ### Staff Portal
 - QR code verification for check-in
@@ -71,11 +86,12 @@ A full-stack swimming pool management system with multi-role support and compreh
 - View members
 - Update swimming ability status
 
+
 ---
 
 ## Prerequisites
 
-- **Node.js** 18 or higher
+- **Node.js** 18 or higher (20 recommended for Render deployment)
 - **PostgreSQL** 14 or higher
 - **React** 18 (frontend – Create React App ile gelir)
 - **npm** or **yarn**
@@ -134,10 +150,19 @@ Copy from `backend/.env.example` and fill in:
 |----------|-------------|
 | `DATABASE_URL` | PostgreSQL connection string (preferred) |
 | `DB_HOST` / `DB_USER` / `DB_PASSWORD` / `DB_NAME` | Alternative to DATABASE_URL |
+| `BACKEND_URL` | Backend base URL (OAuth callback; e.g. http://localhost:3001) |
+| `CALLBACK_URL` | OAuth redirect URL (optional) |
+| `SESSION_SECRET` | Required for production; use a strong random string |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth (optional) |
-| `EMAIL_USER` / `EMAIL_PASSWORD` | SMTP credentials for verification/reset emails |
 | `FRONTEND_URL` | Frontend URL (default: http://localhost:3000) |
 | `STRIPE_SECRET_KEY` | Stripe secret key for payments |
+| `STRIPE_PUBLISHABLE_KEY` | Stripe publishable key |
+| **R2 (Render)** | `R2_WORKER_URL`, `R2_WORKER_SECRET` – Cloudflare Worker proxy (see [cloudflare-worker/README.md](cloudflare-worker/README.md)) |
+| **R2 (Local)** | `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, `R2_PUBLIC_URL` |
+| `USE_R2` | Set to `true` for R2 storage |
+| **Email (Gmail API)** | `GMAIL_USER`, `GMAIL_REFRESH_TOKEN` – preferred on Render |
+| **Email (Resend)** | `RESEND_API_KEY`, `EMAIL_FROM` – alternative |
+| **Email (SMTP)** | `EMAIL_USER`, `EMAIL_PASSWORD` – local fallback only |
 
 ### Frontend (`frontend/.env`)
 
@@ -172,77 +197,59 @@ App runs at `http://localhost:3000`.
 
 ## Testing
 
-### Backend unit tests
+From project root:
 
 ```bash
-cd backend
-npm test
+npm test                  # All tests (unit + integration + e2e)
+npm run test:unit         # Backend + frontend unit only
+npm run test:integration   # Integration (requires swimcenter_test PostgreSQL)
+npm run test:e2e           # E2E (frontend must run on localhost:3000)
 ```
 
-### Backend integration tests
-
-Requires a test database (e.g. `swimcenter_test`):
+### Per-component
 
 ```bash
-cd backend
-# Set DATABASE_URL to point to test DB, then:
-npm run db:test:setup   # First time: creates schema
-npm run test:integration
+cd backend && npm test                                    # Backend unit
+cd frontend && npm test -- --watchAll=false --forceExit   # Frontend unit
+cd backend && npm run db:test:setup && npm run test:integration
+cd tests/e2e && npm test   # E2E (Playwright); run frontend first
 ```
 
-### Frontend tests
+Integration tests require a PostgreSQL database `swimcenter_test`. E2E tests use Playwright; frontend should be running at `localhost:3000`.
 
-```bash
-cd frontend
-npm test
-```
-
-### E2E tests (Playwright)
-
-Backend and frontend must be running:
-
-```bash
-cd tests/e2e
-npm install
-npm test
-```
-
-See [tests/README.md](tests/README.md) for detailed test structure and coverage.
+See [tests/README.md](tests/README.md) for detailed structure, coverage (Backend unit 51, Frontend unit 71, Integration 29, E2E 13), and setup.
 
 ---
 
-## Deployment (Render Blueprint + PostgreSQL + Cloudflare R2)
+## Deployment
 
-This project uses a `render.yaml` Blueprint for one-click deploy on Render with PostgreSQL and Cloudflare R2.
+This project uses a `render.yaml` Blueprint for one-click deploy on Render. **Render does not create a PostgreSQL database** – use an external provider (Neon, Supabase, ElephantSQL) and set `DATABASE_URL` manually.
 
-### 1. Deploy via Blueprint
+### 1. External PostgreSQL (Required)
+
+Create a PostgreSQL database at [Neon](https://neon.tech), [Supabase](https://supabase.com), or [ElephantSQL](https://www.elephantsql.com/), then copy the connection string.
+
+### 2. Deploy via Blueprint
 
 1. Render Dashboard → **New** → **Blueprint**
 2. Connect this GitHub repo
-3. Render creates: backend Web Service, frontend Static Site, PostgreSQL database
-4. After first deploy, run schema once: `npm run db:init` (Dashboard → Shell, or use Render PostgreSQL psql)
-5. Fill in `sync: false` env vars in the Dashboard (R2, OAuth, Email, Stripe)
+3. Render creates: backend Web Service (`swimcenter-api`), frontend Static Site (`swimcenter`)
+4. Set `DATABASE_URL` in the backend service env vars (from step 1)
+5. After first deploy, run schema once: `cd backend && npm run db:init` (Dashboard → Shell)
+6. Fill in `sync: false` env vars (R2, OAuth, Email, Stripe)
 
-### 2. Cloudflare R2 (File Storage)
+### 3. Cloudflare R2 (File Storage)
 
-1. Cloudflare Dashboard → R2 → Create bucket `swimcenter-uploads`
-2. R2 → Manage R2 API Tokens → Create token (Object Read & Write)
-3. Bucket → Settings → Public access → Enable (R2.dev subdomain)
-4. Note public URL (e.g. `https://pub-xxx.r2.dev`)
-5. Use: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, `R2_PUBLIC_URL`
+Render has TLS issues with direct R2. Use the **Cloudflare Worker proxy** – see [cloudflare-worker/README.md](cloudflare-worker/README.md) for setup.
 
-### 3. Manual Render setup (if not using Blueprint)
+- Deploy the Worker, then set `R2_WORKER_URL` and `R2_WORKER_SECRET` in Render
+- Alternatively, for local dev with direct R2: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, `R2_PUBLIC_URL`
+
+### 4. Manual Render setup (if not using Blueprint)
 
 - **Backend:** Web Service, Root: `backend`, Build: `npm install`, Start: `node index.js`
 - **Frontend:** Static Site, Root: `frontend`, Build: `npm install && npm run build`, Publish: `frontend/build`
-- Add env vars from `backend/.env.example`; use `DATABASE_URL` from Render PostgreSQL
-
-### 4. Render – Frontend (Static Site)
-
-1. New → Static Site
-2. Connect same repo, Root Directory: `frontend`
-3. Build: `npm install && npm run build`, Publish: `build`
-4. Add `REACT_APP_API_URL` = your backend URL
+- Add env vars from `backend/.env.example`; set `DATABASE_URL` from your external PostgreSQL
 
 ### 5. OAuth Provider Callbacks
 
@@ -254,7 +261,9 @@ Add this redirect URI in Google Cloud Console:
 ## Security Notes
 
 - **Never commit** `.env` files or real credentials. Use `.env.example` as a template.
-- **Email:** Configure `EMAIL_USER` and `EMAIL_PASSWORD` for verification and password reset emails.
+- **Session:** Set `SESSION_SECRET` to a strong random string in production.
+- **Email:** Configure Gmail API (`GMAIL_USER`, `GMAIL_REFRESH_TOKEN`), Resend (`RESEND_API_KEY`), or SMTP (`EMAIL_USER`, `EMAIL_PASSWORD`) for verification and password reset.
+- **R2 Worker:** Keep `R2_WORKER_SECRET` private when using the Cloudflare Worker proxy.
 - User uploads (`backend/uploads/`) are excluded from version control.
 
 ---
