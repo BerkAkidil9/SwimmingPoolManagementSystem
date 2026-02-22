@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Creates the test database schema for PostgreSQL.
- * Uses TEST_DATABASE_URL or TEST_DB_* env vars (never uses production DB).
+ * Uses TEST_DATABASE_URL (Neon) or TEST_DB_* env vars (never uses production DB).
  * Usage: node scripts/init-test-db.js
  * Local: npm run db:test:setup
  */
@@ -36,7 +36,7 @@ async function initTestDb() {
       }
     } catch (e) {
       const msg = e.code === "ECONNREFUSED"
-        ? "PostgreSQL'e bağlanılamadı. Servis çalışıyor mu? (localhost:" + (port || 5432) + ")"
+        ? "Cannot connect to PostgreSQL. Is the service running? (" + host + ":" + (port || 5432) + ")"
         : (e.message || e.code || e);
       console.error("Error creating test DB:", msg);
       process.exit(1);

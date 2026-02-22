@@ -1,38 +1,38 @@
 # Swim Center R2 Upload Worker
 
-Render/Heroku gibi platformlardan Cloudflare R2'ye dosya yükleme için proxy Worker.
-TLS handshake sorununu bypass eder.
+Proxy Worker for uploading files from Render/Heroku to Cloudflare R2. Bypasses TLS handshake issues on some platforms. Also supports GET (file read) as proxy when r2.dev is blocked in certain regions.
 
-## Kurulum
+## Setup
 
-### 1. Cloudflare hesabında R2 bucket oluşturun (yoksa)
+### 1. Create R2 bucket in Cloudflare (if needed)
 ```bash
 npx wrangler r2 bucket create swimcenter-uploads
 ```
 
-### 2. wrangler.toml'da bucket adını kontrol edin
-`bucket_name` sizin R2 bucket adınızla aynı olmalı.
+### 2. Check bucket name in wrangler.toml
+`bucket_name` must match your R2 bucket (default: `swimcenter-uploads`).
 
-### 3. Worker'a secret ekleyin
-Güçlü bir rastgele string oluşturun (ör: `openssl rand -hex 32`):
+### 3. Add secret to Worker
+Generate a strong random string (e.g. `openssl rand -hex 32`):
 ```bash
 npx wrangler secret put R2_WORKER_SECRET
 ```
-Bu değeri aynen backend `.env` ve Render'a `R2_WORKER_SECRET` olarak ekleyeceksiniz.
+Add the same value to backend `.env` and Render as `R2_WORKER_SECRET`.
 
 ### 4. Deploy
 ```bash
+cd cloudflare-worker
 npx wrangler deploy
 ```
-Worker URL'i alacaksınız (ör: `https://swimcenter-r2-upload.xxx.workers.dev`).
+You will get the Worker URL (e.g. `https://swimcenter-r2-upload.xxx.workers.dev`).
 
-### 5. Backend ortam değişkenleri
-Render / .env içine ekleyin:
+### 5. Backend environment variables
+Add to Render / backend `.env`:
 ```
 R2_WORKER_URL=https://swimcenter-r2-upload.xxx.workers.dev
-R2_WORKER_SECRET=<yukarıda oluşturduğunuz secret>
-R2_PUBLIC_URL=https://pub-xxx.r2.dev   # R2 public bucket URL'iniz
+R2_WORKER_SECRET=<secret from step 3>
+R2_PUBLIC_URL=https://pub-xxx.r2.dev   # Your R2 public bucket URL
 USE_R2=true
 ```
 
-R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY artık **Render için gerekli değil** (lokal geliştirme için kalabilir).
+`R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` are **not required for Render** when using the Worker (keep for local dev if using direct R2).

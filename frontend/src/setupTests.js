@@ -10,9 +10,14 @@ global.fetch = jest.fn(() =>
 
 // Mock axios for components that use it
 jest.mock('axios', () => ({
-  get: jest.fn(() => Promise.resolve({ data: { isAuthenticated: false }, status: 200 })),
-  post: jest.fn(() => Promise.resolve({ data: {} })),
-  defaults: { baseURL: '', withCredentials: false },
+  __esModule: true,
+  default: {
+    get: jest.fn(() => Promise.resolve({ data: { isAuthenticated: false }, status: 200 })),
+    post: jest.fn(() => Promise.resolve({ data: {} })),
+    put: jest.fn(() => Promise.resolve({ data: {} })),
+    delete: jest.fn(() => Promise.resolve({ data: {} })),
+    defaults: { baseURL: '', withCredentials: false },
+  },
 }));
 
 // Example: Suppress console warnings in tests

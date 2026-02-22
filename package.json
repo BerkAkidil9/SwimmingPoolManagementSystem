@@ -1,1 +1,12 @@
-{"name":"swimming-pool-management-system","version":"1.0.0","description":"Swimming Pool Management System","main":"index.js","scripts":{"start":"node index.js"},"dependencies":{"body-parser":"^1.20.3","cors":"^2.8.5","swimming-pool-management-system":"file:","dotenv":"^16.4.5","express":"^4.21.1","express-session":"^1.18.1","mysql":"^2.18.1","passport":"^0.7.0"}}
+{"name":"swimming-pool-management-system","version":"1.0.0","description":"Swimming Pool Management System","main":"index.js","scripts":{
+  "start":"node index.js",
+"test":"npm run test:full",
+"test:unit":"npm run test:backend && npm run test:frontend",
+"test:backend":"cd backend && npm test",
+"test:frontend":"cd frontend && npm test -- --watchAll=false --forceExit --passWithNoTests",
+"test:integration":"cd backend && npm run db:test:setup && npm run test:integration",
+"test:e2e":"cd tests/e2e && npm test",
+"test:all":"npm run test:full",
+"test:full":"npm run test:unit && npm run test:integration && npm run test:e2e",
+"db:check":"cd backend && node scripts/check-postgres.js"
+},"dependencies":{"body-parser":"^1.20.3","cors":"^2.8.5","swimming-pool-management-system":"file:","dotenv":"^16.4.5","express":"^4.21.1","express-session":"^1.18.1","mysql":"^2.18.1","passport":"^0.7.0"}}
