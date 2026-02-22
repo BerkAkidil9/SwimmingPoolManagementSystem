@@ -1,42 +1,19 @@
--- Swimming Pool Management System - PostgreSQL Schema (synced from Neon)
--- Usage: psql $DATABASE_URL -f schema_postgres.sql
--- Or: npm run db:init
-
--- Drop tables in reverse dependency order
-DROP TABLE IF EXISTS qr_code_verifications;
-DROP TABLE IF EXISTS reservations;
-DROP TABLE IF EXISTS sessions;
-DROP TABLE IF EXISTS feedback;
-DROP TABLE IF EXISTS health_info;
-DROP TABLE IF EXISTS health_reports;
-DROP TABLE IF EXISTS packages;
-DROP TABLE IF EXISTS payment_methods;
-DROP TABLE IF EXISTS payments;
-DROP TABLE IF EXISTS users CASCADE;
-DROP TABLE IF EXISTS "Pools" CASCADE;
-
--- Drop existing types (for re-running schema)
-DROP TYPE IF EXISTS reservation_status_enum CASCADE;
-DROP TYPE IF EXISTS payment_status_enum CASCADE;
-DROP TYPE IF EXISTS package_type_enum CASCADE;
-DROP TYPE IF EXISTS report_status_enum CASCADE;
-DROP TYPE IF EXISTS feedback_status_enum CASCADE;
-DROP TYPE IF EXISTS blood_type_enum CASCADE;
-DROP TYPE IF EXISTS health_status_enum CASCADE;
-DROP TYPE IF EXISTS verification_status_enum CASCADE;
-DROP TYPE IF EXISTS role_enum CASCADE;
-DROP TYPE IF EXISTS swimming_ability_enum CASCADE;
-DROP TYPE IF EXISTS gender_enum CASCADE;
+--
+-- Raw pg_dump from Neon (reference; Neon-specific \restrict, \unrestrict, ALTER DEFAULT PRIVILEGES removed)
+-- For init scripts use schema_postgres.sql instead (has DROP statements).
+--
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
-
---
--- Custom types (PostgreSQL enums)
---
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
 
 CREATE TYPE public.blood_type_enum AS ENUM (
     'A+',
@@ -113,9 +90,8 @@ CREATE TYPE public.verification_status_enum AS ENUM (
     'rejected'
 );
 
---
--- Tables
---
+SET default_tablespace = '';
+SET default_table_access_method = heap;
 
 CREATE TABLE public."Pools" (
     id integer NOT NULL,
@@ -126,7 +102,14 @@ CREATE TABLE public."Pools" (
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE SEQUENCE public."Pools_id_seq" AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+CREATE SEQUENCE public."Pools_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
 ALTER SEQUENCE public."Pools_id_seq" OWNED BY public."Pools".id;
 
 CREATE TABLE public.feedback (
@@ -138,7 +121,14 @@ CREATE TABLE public.feedback (
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE SEQUENCE public.feedback_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+CREATE SEQUENCE public.feedback_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
 ALTER SEQUENCE public.feedback_id_seq OWNED BY public.feedback.id;
 
 CREATE TABLE public.health_info (
@@ -164,7 +154,14 @@ CREATE TABLE public.health_info (
     health_additional_info text
 );
 
-CREATE SEQUENCE public.health_info_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+CREATE SEQUENCE public.health_info_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
 ALTER SEQUENCE public.health_info_id_seq OWNED BY public.health_info.id;
 
 CREATE TABLE public.health_reports (
@@ -177,7 +174,14 @@ CREATE TABLE public.health_reports (
     rejected_reason text
 );
 
-CREATE SEQUENCE public.health_reports_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+CREATE SEQUENCE public.health_reports_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
 ALTER SEQUENCE public.health_reports_id_seq OWNED BY public.health_reports.id;
 
 CREATE TABLE public.packages (
@@ -190,7 +194,14 @@ CREATE TABLE public.packages (
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE SEQUENCE public.packages_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+CREATE SEQUENCE public.packages_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
 ALTER SEQUENCE public.packages_id_seq OWNED BY public.packages.id;
 
 CREATE TABLE public.payment_methods (
@@ -205,7 +216,14 @@ CREATE TABLE public.payment_methods (
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE SEQUENCE public.payment_methods_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+CREATE SEQUENCE public.payment_methods_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
 ALTER SEQUENCE public.payment_methods_id_seq OWNED BY public.payment_methods.id;
 
 CREATE TABLE public.payments (
@@ -218,7 +236,14 @@ CREATE TABLE public.payments (
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE SEQUENCE public.payments_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+CREATE SEQUENCE public.payments_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
 ALTER SEQUENCE public.payments_id_seq OWNED BY public.payments.id;
 
 CREATE TABLE public.qr_code_verifications (
@@ -229,7 +254,14 @@ CREATE TABLE public.qr_code_verifications (
     verified_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE SEQUENCE public.qr_code_verifications_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+CREATE SEQUENCE public.qr_code_verifications_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
 ALTER SEQUENCE public.qr_code_verifications_id_seq OWNED BY public.qr_code_verifications.id;
 
 CREATE TABLE public.reservations (
@@ -242,7 +274,14 @@ CREATE TABLE public.reservations (
     checked_in_at timestamp without time zone
 );
 
-CREATE SEQUENCE public.reservations_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+CREATE SEQUENCE public.reservations_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
 ALTER SEQUENCE public.reservations_id_seq OWNED BY public.reservations.id;
 
 CREATE TABLE public.sessions (
@@ -255,7 +294,14 @@ CREATE TABLE public.sessions (
     session_date date NOT NULL
 );
 
-CREATE SEQUENCE public.sessions_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+CREATE SEQUENCE public.sessions_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
 ALTER SEQUENCE public.sessions_id_seq OWNED BY public.sessions.id;
 
 CREATE TABLE public.users (
@@ -294,12 +340,15 @@ CREATE TABLE public.users (
     health_report_request_count integer DEFAULT 0
 );
 
-CREATE SEQUENCE public.users_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
-ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
+CREATE SEQUENCE public.users_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
 
---
--- Defaults for serial columns
---
+ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 ALTER TABLE ONLY public."Pools" ALTER COLUMN id SET DEFAULT nextval('public."Pools_id_seq"'::regclass);
 ALTER TABLE ONLY public.feedback ALTER COLUMN id SET DEFAULT nextval('public.feedback_id_seq'::regclass);
@@ -313,44 +362,82 @@ ALTER TABLE ONLY public.reservations ALTER COLUMN id SET DEFAULT nextval('public
 ALTER TABLE ONLY public.sessions ALTER COLUMN id SET DEFAULT nextval('public.sessions_id_seq'::regclass);
 ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
 
---
--- Primary keys and unique constraints
---
+ALTER TABLE ONLY public."Pools"
+    ADD CONSTRAINT "Pools_pkey" PRIMARY KEY (id);
 
-ALTER TABLE ONLY public."Pools" ADD CONSTRAINT "Pools_pkey" PRIMARY KEY (id);
-ALTER TABLE ONLY public.feedback ADD CONSTRAINT feedback_pkey PRIMARY KEY (id);
-ALTER TABLE ONLY public.health_info ADD CONSTRAINT health_info_pkey PRIMARY KEY (id);
-ALTER TABLE ONLY public.health_reports ADD CONSTRAINT health_reports_pkey PRIMARY KEY (id);
-ALTER TABLE ONLY public.packages ADD CONSTRAINT packages_pkey PRIMARY KEY (id);
-ALTER TABLE ONLY public.payment_methods ADD CONSTRAINT payment_methods_pkey PRIMARY KEY (id);
-ALTER TABLE ONLY public.payments ADD CONSTRAINT payments_pkey PRIMARY KEY (id);
-ALTER TABLE ONLY public.qr_code_verifications ADD CONSTRAINT qr_code_verifications_check_in_code_key UNIQUE (check_in_code);
-ALTER TABLE ONLY public.qr_code_verifications ADD CONSTRAINT qr_code_verifications_pkey PRIMARY KEY (id);
-ALTER TABLE ONLY public.reservations ADD CONSTRAINT reservations_pkey PRIMARY KEY (id);
-ALTER TABLE ONLY public.sessions ADD CONSTRAINT sessions_pkey PRIMARY KEY (id);
-ALTER TABLE ONLY public.users ADD CONSTRAINT users_email_key UNIQUE (email);
-ALTER TABLE ONLY public.users ADD CONSTRAINT users_phone_key UNIQUE (phone);
-ALTER TABLE ONLY public.users ADD CONSTRAINT users_pkey PRIMARY KEY (id);
-ALTER TABLE ONLY public.users ADD CONSTRAINT users_provider_provider_id_key UNIQUE (provider, provider_id);
+ALTER TABLE ONLY public.feedback
+    ADD CONSTRAINT feedback_pkey PRIMARY KEY (id);
 
---
--- Indexes
---
+ALTER TABLE ONLY public.health_info
+    ADD CONSTRAINT health_info_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.health_reports
+    ADD CONSTRAINT health_reports_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.packages
+    ADD CONSTRAINT packages_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.payment_methods
+    ADD CONSTRAINT payment_methods_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.payments
+    ADD CONSTRAINT payments_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.qr_code_verifications
+    ADD CONSTRAINT qr_code_verifications_check_in_code_key UNIQUE (check_in_code);
+
+ALTER TABLE ONLY public.qr_code_verifications
+    ADD CONSTRAINT qr_code_verifications_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.reservations
+    ADD CONSTRAINT reservations_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.sessions
+    ADD CONSTRAINT sessions_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_email_key UNIQUE (email);
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_phone_key UNIQUE (phone);
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_provider_provider_id_key UNIQUE (provider, provider_id);
 
 CREATE INDEX idx_users_health_report ON public.users USING btree (health_status, health_report_requested_at);
 
---
--- Foreign keys
---
+ALTER TABLE ONLY public.feedback
+    ADD CONSTRAINT feedback_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
-ALTER TABLE ONLY public.feedback ADD CONSTRAINT feedback_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
-ALTER TABLE ONLY public.health_info ADD CONSTRAINT health_info_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
-ALTER TABLE ONLY public.health_reports ADD CONSTRAINT health_reports_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
-ALTER TABLE ONLY public.packages ADD CONSTRAINT packages_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
-ALTER TABLE ONLY public.payment_methods ADD CONSTRAINT payment_methods_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
-ALTER TABLE ONLY public.payments ADD CONSTRAINT payments_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
-ALTER TABLE ONLY public.qr_code_verifications ADD CONSTRAINT qr_code_verifications_reservation_id_fkey FOREIGN KEY (reservation_id) REFERENCES public.reservations(id) ON DELETE CASCADE;
-ALTER TABLE ONLY public.qr_code_verifications ADD CONSTRAINT qr_code_verifications_verified_by_fkey FOREIGN KEY (verified_by) REFERENCES public.users(id) ON DELETE CASCADE;
-ALTER TABLE ONLY public.reservations ADD CONSTRAINT reservations_session_id_fkey FOREIGN KEY (session_id) REFERENCES public.sessions(id) ON DELETE CASCADE;
-ALTER TABLE ONLY public.reservations ADD CONSTRAINT reservations_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
-ALTER TABLE ONLY public.sessions ADD CONSTRAINT sessions_pool_id_fkey FOREIGN KEY (pool_id) REFERENCES public."Pools"(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.health_info
+    ADD CONSTRAINT health_info_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.health_reports
+    ADD CONSTRAINT health_reports_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.packages
+    ADD CONSTRAINT packages_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.payment_methods
+    ADD CONSTRAINT payment_methods_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.payments
+    ADD CONSTRAINT payments_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.qr_code_verifications
+    ADD CONSTRAINT qr_code_verifications_reservation_id_fkey FOREIGN KEY (reservation_id) REFERENCES public.reservations(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.qr_code_verifications
+    ADD CONSTRAINT qr_code_verifications_verified_by_fkey FOREIGN KEY (verified_by) REFERENCES public.users(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.reservations
+    ADD CONSTRAINT reservations_session_id_fkey FOREIGN KEY (session_id) REFERENCES public.sessions(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.reservations
+    ADD CONSTRAINT reservations_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.sessions
+    ADD CONSTRAINT sessions_pool_id_fkey FOREIGN KEY (pool_id) REFERENCES public."Pools"(id) ON DELETE CASCADE;

@@ -3,6 +3,7 @@
  * Initializes the PostgreSQL database with schema.
  * Usage: DATABASE_URL=postgresql://... node scripts/init-db.js
  * Or with .env: node scripts/init-db.js
+ * Works with local PostgreSQL and Neon (DATABASE_URL).
  */
 require("dotenv").config();
 const { Pool } = require("pg");

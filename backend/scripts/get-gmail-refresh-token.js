@@ -1,15 +1,15 @@
 /**
- * Gmail API için Refresh Token alma script (tek seferlik)
+ * Get Gmail API Refresh Token (one-time)
  *
- * Çalıştırma:
- *   1. .env'de GOOGLE_CLIENT_ID ve GOOGLE_CLIENT_SECRET dolu olmalı
- *   2. Google Cloud Console'da:
- *      - Gmail API etkinleştir
- *      - OAuth consent screen → Scopes → https://www.googleapis.com/auth/gmail.send ekle
- *      - Credentials → OAuth 2.0 Client → Authorized redirect URIs'ye http://localhost:3333/oauth2callback ekle
+ * Usage:
+ *   1. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env
+ *   2. In Google Cloud Console:
+ *      - Enable Gmail API
+ *      - OAuth consent screen → Scopes → add https://www.googleapis.com/auth/gmail.send
+ *      - Credentials → OAuth 2.0 Client → Add http://localhost:3333/oauth2callback to Authorized redirect URIs
  *   3. node scripts/get-gmail-refresh-token.js
- *   4. Tarayıcı açılacak, Gmail hesabınla giriş yap ve izin ver
- *   5. Çıkan GMAIL_REFRESH_TOKEN değerini .env'e ekle
+ *   4. Browser opens; sign in with Gmail and grant permission
+ *   5. Add the displayed GMAIL_REFRESH_TOKEN to .env
  */
 require("dotenv").config();
 const http = require("http");
@@ -23,7 +23,7 @@ async function main() {
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
   if (!clientId || !clientSecret) {
-    console.error("Hata: .env'de GOOGLE_CLIENT_ID ve GOOGLE_CLIENT_SECRET tanımlı olmalı.");
+    console.error("Error: GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET must be set in .env");
     process.exit(1);
   }
 
@@ -41,15 +41,15 @@ async function main() {
         const code = url.searchParams.get("code");
         res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
         res.end(
-          "<h1>Başarılı!</h1><p>Bu pencereyi kapatabilirsin. Terminale dön.</p>"
+          "<h1>Success!</h1><p>You can close this window. Return to the terminal.</p>"
         );
         server.close();
         resolve(code);
       }
     });
     server.listen(3333, () => {
-      console.log("\nTarayıcı açılıyor... Gmail hesabınla giriş yap ve izin ver.\n");
-      console.log("Açılmazsa bu linki kopyalayıp tarayıcıya yapıştır:\n");
+      console.log("\nOpening browser... Sign in with Gmail and grant permission.\n");
+      console.log("If it doesn't open, copy this link to your browser:\n");
       console.log(authUrl);
       console.log("\n");
       if (process.platform === "win32") {
@@ -65,7 +65,7 @@ async function main() {
 
   const code = await codePromise;
   if (!code) {
-    console.error("Hata: Authorization code alınamadı.");
+    console.error("Error: Authorization code not received.");
     process.exit(1);
   }
 
@@ -73,12 +73,12 @@ async function main() {
   const refreshToken = tokens.refresh_token;
 
   if (!refreshToken) {
-    console.error("Hata: Refresh token alınamadı. Gmail hesabınla tekrar dene.");
+    console.error("Error: Refresh token not received. Try again with your Gmail account.");
     process.exit(1);
   }
 
-  console.log("\n--- .env dosyana ekle (veya güncelle): ---\n");
-  console.log(`GMAIL_USER=senin@gmail.com`);
+  console.log("\n--- Add to your .env (or update): ---\n");
+  console.log(`GMAIL_USER=your@gmail.com`);
   console.log(`GMAIL_REFRESH_TOKEN=${refreshToken}`);
   console.log("\n------------------------------------------\n");
 }

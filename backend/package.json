@@ -44,8 +44,12 @@
     "stripe": "^17.7.0"
   },
   "devDependencies": {
+    "embedded-postgres": "^18.2.0-beta.16",
     "google-auth-library": "^10.5.0",
     "jest": "^29.7.0",
     "supertest": "^7.0.0"
+  },
+  "optionalDependencies": {
+    "@embedded-postgres/windows-x64": "^18.2.0-beta.16"
   }
 }

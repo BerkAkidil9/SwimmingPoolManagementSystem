@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+!.env.test.example
 backend/.env
 *.env.local
 *.env.development.local
@@ -74,20 +75,29 @@ MyDatabase.session.sql
 frontend/src/components/DoctorDashboard/backup
 
 # Personal helper scripts and migration files (may contain sensitive data)
+/scripts/
 backend/scripts/create-user4.js
 backend/scripts/reset-user4-for-email-test.js
+backend/scripts/migrate-mysql-to-postgres.js
 backend/reset_mysql_password.ps1
 backend/mysql_reset_init.sql
 backend/mysql84_kullan.ps1
 backend/update_health_status.sql
 backend/schema_update.sql
 backend/create_status_history.sql
-backend/migrations/staff_role.sql
-backend/migrations/qr_verification_tracking.sql
-backend/migrations/doctor_role.sql
-backend/migrations/coach_role.sql
+backend/migrations/
+backend/sql/add_check_in_columns.sql
+backend/sql/schema_test.sql
+backend/sql/schema_only.sql
 
 # Test artifacts
+backend/data/
+backend/tests/setup.js
 tests/e2e/playwright-report/
 tests/e2e/test-results/
 tests/backend/
+
+# Frontend mocks
+frontend/__mocks__/
+frontend/src/api/__mocks__/
+frontend/src/__mocks__/

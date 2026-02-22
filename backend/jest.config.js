@@ -9,6 +9,6 @@ module.exports = {
     'register.js',
     '!**/node_modules/**',
   ],
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
+  setupFilesAfterEnv: [],
   testTimeout: 10000,
 };

@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { fetchPools } from '../../api/poolsApi';
 import './Pools.css';
-
-const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
 const Pools = () => {
   const [pools, setPools] = useState([]);
@@ -10,14 +8,9 @@ const Pools = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const url = `${API_BASE}/pools`;
-    axios
-      .get(url, { 
-        timeout: 20000, 
-        withCredentials: false 
-      })
-      .then((response) => {
-        setPools(response.data || []);
+    fetchPools()
+      .then((data) => {
+        setPools(data || []);
         setLoading(false);
       })
       .catch((err) => {
@@ -47,9 +40,8 @@ const Pools = () => {
           onClick={() => {
             setError("");
             setLoading(true);
-            const url = `${API_BASE}/pools`;
-            axios.get(url, { timeout: 20000, withCredentials: false })
-              .then((res) => { setPools(res.data || []); setLoading(false); setError(""); })
+            fetchPools()
+              .then((data) => { setPools(data || []); setLoading(false); setError(""); })
               .catch((err) => { 
                 const retryMsg = err.code === 'ECONNABORTED' 
                   ? "Request timed out. Try again." 
