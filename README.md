@@ -9,8 +9,15 @@ A full-stack swimming pool management system with multi-role support and compreh
 
 ---
 
+## Live Demo
+
+**[Live Demo](https://swimcenter.onrender.com)** – Try the app deployed on Render.
+
+---
+
 ## Table of Contents 
 
+- [Live Demo](#live-demo)
 - [Features](#features)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
@@ -118,6 +125,14 @@ createdb swimcenter   # On Windows: use pgAdmin or psql if createdb is not in PA
 psql -d swimcenter -f sql/schema_postgres.sql
 # Or: npm run db:init   (uses DATABASE_URL or DB_* from .env)
 ```
+
+### Creating admin / staff / doctor / coach accounts
+
+Normal registration only creates accounts with the `user` role. To create admin, doctor, staff, or coach accounts:
+
+1. Register normally.
+2. Update the role in the database: `UPDATE users SET role = 'admin' WHERE email = 'your@email.com';`
+3. Valid roles: `admin`, `doctor`, `staff`, `coach`
 
 ### 3. Backend setup
 
