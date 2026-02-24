@@ -347,10 +347,10 @@ router.delete("/payment-methods/:id", isAuthenticated, async (req, res) => {
   }
 });
 
-// Get Stripe publishable key (from env for test/live flexibility)
+// Get Stripe publishable key (from env only - no hardcoded fallback)
 router.get("/config", (req, res) => {
-  res.json({ 
-    publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || process.env.STRIPE_PUBLISHABLE_KEY || "" 
+  res.json({
+    publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || "",
   });
 });
 
