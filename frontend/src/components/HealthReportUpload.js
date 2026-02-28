@@ -1,19 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { FaUpload, FaFileUpload, FaExclamationTriangle, FaCheck } from 'react-icons/fa';
 import axios from 'axios';
 import './HealthReportUpload.css';
 
 const HealthReportUpload = () => {
-  const { userId: paramsUserId } = useParams();
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const queryUserId = queryParams.get('userId');
-  
-  // Use userId from either the URL params or query params
-  const userId = paramsUserId || queryUserId;
-  
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -22,25 +14,27 @@ const HealthReportUpload = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [preview, setPreview] = useState(null);
-  const [isReminderFlow, setIsReminderFlow] = useState(!!queryUserId);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
         setLoading(true);
-        // Get user information to display the name and health status reason
-        const response = await axios.get(`/api/member/user/${userId}`);
+        const response = await axios.get('/api/member/user/me', { withCredentials: true });
         setUser(response.data);
         setError(null);
       } catch (err) {
-        setError('Error loading user information: ' + (err.response?.data?.error || err.message));
+        if (err.response?.status === 401) {
+          setError('Please log in to upload your health report.');
+        } else {
+          setError('Error loading user information: ' + (err.response?.data?.error || err.message));
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchUserDetails();
-  }, [userId]);
+  }, []);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -85,10 +79,9 @@ const HealthReportUpload = () => {
       const formData = new FormData();
       formData.append('report', file);
 
-      await axios.post(`/api/doctor/upload-health-report/${userId}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+      await axios.post('/api/member/upload-health-report', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        withCredentials: true
       });
 
       setSuccess(true);
@@ -137,8 +130,13 @@ const HealthReportUpload = () => {
       <Container className="health-report-upload mt-5">
         <Alert variant="danger">
           <FaExclamationTriangle className="me-2" />
-          User not found or you don't have permission to upload a health report for this user.
+          {error || 'User not found or you need to log in to upload a health report.'}
         </Alert>
+        {error && error.includes('log in') && (
+          <Button variant="primary" className="mt-3" onClick={() => navigate('/login')}>
+            Go to Login
+          </Button>
+        )}
       </Container>
     );
   }

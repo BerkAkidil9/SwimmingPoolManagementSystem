@@ -37,6 +37,35 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }
 });
 
+// Health report upload: memory storage (userId from session in route), 10MB, pdf/jpg/png
+const healthReportStorage = multer.memoryStorage();
+const uploadHealthReport = multer({
+  storage: healthReportStorage,
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const filetypes = /pdf|jpg|jpeg|png/;
+    if (filetypes.test(file.mimetype) && filetypes.test(path.extname(file.originalname).toLowerCase())) {
+      return cb(null, true);
+    }
+    cb(new Error("Only pdf, jpg, jpeg, and png files are allowed"));
+  }
+});
+
+async function getHealthReportPath(req, userId) {
+  if (useR2 && req.file && req.file.buffer) {
+    const ext = path.extname(req.file.originalname) || '.pdf';
+    const key = `health_reports/user-${userId}-health-report-${Date.now()}-${Math.round(Math.random() * 1E9)}${ext}`;
+    return await uploadToR2(req.file.buffer, key, req.file.mimetype);
+  }
+  const dir = path.join(__dirname, "../uploads/health_reports");
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  const ext = path.extname(req.file.originalname) || '.pdf';
+  const filename = `user-${userId}-health-report-${Date.now()}-${Math.round(Math.random() * 1E9)}${ext}`;
+  const fullPath = path.join(dir, filename);
+  fs.writeFileSync(fullPath, req.file.buffer);
+  return `health_reports/${filename}`;
+}
+
 // Helper to get current user (supports both session and Passport)
 function getCurrentUser(req) {
   return req.session?.user || (req.isAuthenticated?.() && req.user) || null;
@@ -56,26 +85,41 @@ const isAuthenticated = (req, res, next) => {
   next();
 };
 
-// Get user by ID (for health report upload)
-// This endpoint is public since it needs to be accessed from email links
-router.get("/user/:userId", async (req, res) => {
+// Get current user's own info (authenticated only - for health report upload screen etc.)
+router.get("/user/me", isAuthenticated, async (req, res) => {
   try {
-    const { userId } = req.params;
-    
-    // Only return essential information for the health report upload screen
+    const userId = getCurrentUserId(req);
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
     const [userRows] = await db.promise().query(
       "SELECT id, name, surname, email, health_status, health_status_reason FROM users WHERE id = ?",
       [userId]
     );
-    
-    if (userRows.length === 0) {
-      return res.status(404).json({ error: "User not found" });
-    }
-    
+    if (userRows.length === 0) return res.status(404).json({ error: "User not found" });
     res.json(userRows[0]);
   } catch (error) {
     console.error("Error fetching user:", error);
     res.status(500).json({ error: "Error fetching user information" });
+  }
+});
+
+// Upload health report (authenticated member, own report only)
+router.post("/upload-health-report", isAuthenticated, uploadHealthReport.single('report'), async (req, res) => {
+  try {
+    const userId = getCurrentUserId(req);
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+    const [userRows] = await db.promise().query("SELECT id, health_status FROM users WHERE id = ?", [userId]);
+    if (userRows.length === 0) return res.status(404).json({ error: "User not found" });
+    if (userRows[0].health_status !== 'needs_report') {
+      return res.status(403).json({ error: "You are not currently required to upload a health report or have already uploaded one" });
+    }
+    if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+    const reportPath = await getHealthReportPath(req, userId);
+    await db.promise().query("INSERT INTO health_reports (user_id, report_path) VALUES (?, ?)", [userId, reportPath]);
+    await db.promise().query("UPDATE users SET health_status = 'pending' WHERE id = ?", [userId]);
+    res.json({ success: true, message: "Health report uploaded successfully" });
+  } catch (error) {
+    console.error("Error uploading health report:", error);
+    res.status(500).json({ error: "Error uploading health report" });
   }
 });
 

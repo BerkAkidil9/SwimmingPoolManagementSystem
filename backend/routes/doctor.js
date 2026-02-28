@@ -210,24 +210,12 @@ router.post("/upload-health-report-doctor/:userId", isDoctor, upload.single('rep
   }
 });
 
-router.post("/upload-health-report/:userId", upload.single('report'), async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const [userRows] = await db.promise().query("SELECT id, health_status FROM users WHERE id = ?", [userId]);
-    if (userRows.length === 0) return res.status(404).json({ error: "User not found" });
-    const user = userRows[0];
-    if (user.health_status !== 'needs_report') {
-      return res.status(403).json({ error: "You are not currently required to upload a health report or have already uploaded one" });
-    }
-    if (!req.file) return res.status(400).json({ error: "No file uploaded" });
-    const reportPath = await getReportPath(req, userId);
-    await db.promise().query("INSERT INTO health_reports (user_id, report_path) VALUES (?, ?)", [userId, reportPath]);
-    await db.promise().query("UPDATE users SET health_status = 'pending' WHERE id = ?", [userId]);
-    res.json({ success: true, message: "Health report uploaded successfully" });
-  } catch (error) {
-    console.error("Error uploading health report:", error);
-    res.status(500).json({ error: "Error uploading health report" });
-  }
+// Deprecated: unauthenticated upload by userId. Use POST /api/member/upload-health-report with login instead.
+router.post("/upload-health-report/:userId", (req, res) => {
+  res.status(410).json({
+    error: "This endpoint is no longer available. Please log in and use the health report upload page.",
+    use: "POST /api/member/upload-health-report (with authentication)"
+  });
 });
 
 function toWorkerUrlIfR2(urlPath, workerUrl) {

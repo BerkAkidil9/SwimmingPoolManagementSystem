@@ -104,9 +104,13 @@ app.use("/uploads", (req, res, next) => {
   }
 });
 
+const sessionSecret = process.env.SESSION_SECRET;
+if (!sessionSecret || typeof sessionSecret !== 'string' || sessionSecret.trim() === '') {
+  throw new Error('SESSION_SECRET environment variable is required. Set it in .env (e.g. a long random string).');
+}
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "your_secret_key",
+    secret: sessionSecret,
     resave: true,
     saveUninitialized: false,
     cookie: {
