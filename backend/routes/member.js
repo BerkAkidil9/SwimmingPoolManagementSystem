@@ -704,20 +704,17 @@ router.get("/pools/:poolId/sessions/count", isAuthenticated, async (req, res) =>
     if (type && !['education', 'free_swimming'].includes(type)) {
       return res.status(400).json({ error: "Invalid session type" });
     }
-    
-    // Add type filter if provided
-    const typeFilter = type ? `AND s.type = '${type}'` : '';
-    
-    // Count future sessions only
+
+    // Parameterized type filter (no string interpolation)
     const [result] = await db.promise().query(
       `SELECT COUNT(*) as count
-       FROM sessions s 
-       WHERE s.pool_id = ? 
-       ${typeFilter}
-       AND ((s.session_date + s.start_time)::timestamp AT TIME ZONE 'Europe/Istanbul') > NOW()`,
-      [poolId]
+       FROM sessions s
+       WHERE s.pool_id = ?
+         AND (s.type = ? OR ? IS NULL)
+         AND ((s.session_date + s.start_time)::timestamp AT TIME ZONE 'Europe/Istanbul') > NOW()`,
+      [poolId, type || null, type || null]
     );
-    
+
     console.log(`Session count for pool ${poolId}, type ${type || 'all'}: ${result[0].count}`);
     res.json({ count: result[0].count });
   } catch (error) {

@@ -1,11 +1,23 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FaCheckCircle, FaTimesCircle, FaSpinner, FaInfoCircle } from 'react-icons/fa';
 import { API_BASE_URL } from '../../config';
 import './EmailVerification.css';
 
+// Token from URL path (legacy) or from hash fragment (secure - not sent in Referer/logs)
+function getTokenFromLocation() {
+  const hash = window.location.hash.slice(1);
+  if (hash) {
+    const params = new URLSearchParams(hash);
+    return params.get('token') || '';
+  }
+  return null;
+}
+
 const EmailVerification = () => {
-  const { token } = useParams();
+  const tokenFromParams = useParams().token;
+  const tokenFromHash = useMemo(getTokenFromLocation, []);
+  const token = tokenFromParams || tokenFromHash || '';
   const navigate = useNavigate();
   const [status, setStatus] = useState("verifying");
   const [message, setMessage] = useState("");

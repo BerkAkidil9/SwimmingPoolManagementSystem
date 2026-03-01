@@ -1,19 +1,21 @@
 require("dotenv").config();
 const { Pool } = require("pg");
 
-if (process.env.NODE_ENV === "production" && !process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL is required in production. Set it in your environment.");
-}
-
-const connectionString = process.env.DATABASE_URL || (
-  process.env.DB_HOST
+const connectionString =
+  process.env.DATABASE_URL ||
+  (process.env.DB_HOST
     ? `postgresql://${process.env.DB_USER || "postgres"}:${process.env.DB_PASSWORD || ""}@${process.env.DB_HOST}:${process.env.DB_PORT || 5432}/${process.env.DB_NAME || "swimcenter"}`
-    : "postgresql://postgres:postgres@localhost:5432/swimcenter"
-);
+    : null);
+
+if (!connectionString) {
+  throw new Error(
+    "Database connection required. Set DATABASE_URL or DB_HOST (and optionally DB_USER, DB_PASSWORD, DB_NAME, DB_PORT)."
+  );
+}
 
 const pool = new Pool({
   connectionString,
-  ssl: process.env.NODE_ENV === "production" && process.env.DATABASE_URL ? { rejectUnauthorized: false } : false,
+  ssl: process.env.NODE_ENV === "production" && process.env.DATABASE_URL ? { rejectUnauthorized: true } : false,
 });
 
 // Convert ? placeholders to PostgreSQL $1, $2, ...

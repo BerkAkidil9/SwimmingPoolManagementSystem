@@ -140,9 +140,9 @@ function App() {
               }
             />
 
-            {/* Email Verification - old flow (kept for backwards compatibility) */}
+            {/* Email verification: token in hash (secure) or in path (legacy) */}
+            <Route path="/verify-email" element={<EmailVerification />} />
             <Route path="/verify-email/:token" element={<EmailVerification />} />
-            {/* Verify result - backend redirects here after GET /auth/verify-email/:token */}
             <Route path="/verify-result" element={<VerifyResult />} />
 
             {/* Admin Dashboard */}
@@ -231,7 +231,8 @@ function App() {
             {/* Free Swimming Package */}
             <Route path="/free-swimming-package" element={<FreeSwimmingPackage />} />
             
-            {/* Reset Password */}
+            {/* Reset password: token in hash (secure) or in path (legacy) */}
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
             
             {/* Forgot Password */}

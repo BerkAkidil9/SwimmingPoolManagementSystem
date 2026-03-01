@@ -1,11 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FaKey, FaEnvelope, FaExclamationTriangle, FaCheckCircle, FaEye, FaEyeSlash } from 'react-icons/fa';
 import './ResetPassword.css';
 
+// Token from URL path (legacy) or from hash fragment (secure - not sent in Referer/logs)
+function getTokenFromLocation() {
+  const hash = window.location.hash.slice(1);
+  if (hash) {
+    const params = new URLSearchParams(hash);
+    return params.get('token') || '';
+  }
+  return null;
+}
+
 const ResetPassword = () => {
-  const { token } = useParams();
+  const tokenFromParams = useParams().token;
+  const tokenFromHash = useMemo(getTokenFromLocation, []);
+  const token = tokenFromParams || tokenFromHash;
   const navigate = useNavigate();
   const [isValidToken, setIsValidToken] = useState(false);
   const [email, setEmail] = useState('');
@@ -22,13 +34,16 @@ const ResetPassword = () => {
     setCapsLockOn(e.getModifierState('CapsLock'));
   };
 
-  // Verify token on component mount
+  // Verify token on component mount (POST when token from hash so token never appears in URL)
   useEffect(() => {
     const verifyToken = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`/auth/reset-password/${token}`);
-        setIsValidToken(response.data.valid === true || response.data.message === 'Token is valid');
+        const isFromHash = !!tokenFromHash;
+        const response = isFromHash
+          ? await axios.post('/auth/validate-reset-token', { token }, { withCredentials: true })
+          : await axios.get(`/auth/reset-password/${token}`, { withCredentials: true });
+        setIsValidToken(response.data.message === 'Token is valid');
         setEmail(response.data.email || '');
         setError('');
       } catch (err) {
@@ -46,7 +61,7 @@ const ResetPassword = () => {
       setError('No reset token provided.');
       setLoading(false);
     }
-  }, [token]);
+  }, [token, tokenFromHash]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

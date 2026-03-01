@@ -15,9 +15,9 @@ const generateVerificationToken = () => {
 };
 
 const sendVerificationEmail = async (email, token) => {
-  const backendUrl = process.env.BACKEND_URL || process.env.API_URL || 'http://localhost:3001';
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-  const verificationLink = `${backendUrl}/auth/verify-email?token=${encodeURIComponent(token)}&redirect=${encodeURIComponent(frontendUrl)}`;
+  // Token in hash fragment only - not sent in Referer or server logs (security)
+  const verificationLink = `${frontendUrl}/verify-email#token=${encodeURIComponent(token)}`;
 
   await sendEmail({
     to: email,
@@ -25,7 +25,7 @@ const sendVerificationEmail = async (email, token) => {
     html: `
         <h1>Email Verification</h1>
         <p>Please click the link below to verify your email address:</p>
-        <a href="${verificationLink}">${verificationLink}</a>
+        <a href="${verificationLink}">Verify my email</a>
         <p>This link will expire in 24 hours.</p>
       `,
   });
@@ -916,8 +916,8 @@ router.post('/reset-password-request', resetRequestLimiter, async (req, res) => 
       [resetToken, resetTokenExpires, user.id]
     );
     
-    // Create reset URL
-    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password/${resetToken}`;
+    // Token in hash fragment only - not sent in Referer or server logs (security)
+    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password#token=${encodeURIComponent(resetToken)}`;
     
     await sendEmail({
       to: user.email,
@@ -937,27 +937,46 @@ router.post('/reset-password-request', resetRequestLimiter, async (req, res) => 
   }
 });
 
+// Validate reset token (GET with token in URL - kept for backward compatibility with old email links)
 router.get('/reset-password/:token', resetSubmitLimiter, async (req, res) => {
   try {
     const { token } = req.params;
-    
-    // Find user with this token and that hasn't expired
-    const [users] = await db.promise().query(
-      'SELECT * FROM users WHERE password_reset_token = ? AND password_reset_expires > NOW()',
-      [token]
-    );
-    
-    if (users.length === 0) {
+    const valid = await validateResetToken(token);
+    if (!valid) {
       return res.status(400).json({ error: 'Password reset token is invalid or has expired' });
     }
-    
-    // Token is valid - do not expose email to client
     res.status(200).json({ message: 'Token is valid' });
   } catch (error) {
     console.error('Error verifying token:', error);
     res.status(500).json({ error: 'Server error. Please try again.' });
   }
 });
+
+// Validate reset token via POST body (for new links that use hash fragment - token never in URL)
+router.post('/validate-reset-token', resetSubmitLimiter, async (req, res) => {
+  try {
+    const { token } = req.body || {};
+    if (!token) {
+      return res.status(400).json({ error: 'Missing token' });
+    }
+    const valid = await validateResetToken(token);
+    if (!valid) {
+      return res.status(400).json({ error: 'Password reset token is invalid or has expired' });
+    }
+    res.status(200).json({ message: 'Token is valid' });
+  } catch (error) {
+    console.error('Error validating reset token:', error);
+    res.status(500).json({ error: 'Server error. Please try again.' });
+  }
+});
+
+async function validateResetToken(token) {
+  const [users] = await db.promise().query(
+    'SELECT id FROM users WHERE password_reset_token = ? AND password_reset_expires > NOW()',
+    [token]
+  );
+  return users.length > 0;
+}
 
 router.post('/reset-password', resetSubmitLimiter, async (req, res) => {
   try {
