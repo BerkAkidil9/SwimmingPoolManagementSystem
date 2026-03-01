@@ -692,8 +692,8 @@ const MemberDashboard = () => {
                           <span>{session.type === 'education' ? 'Education' : 'Free Swimming'}</span>
                         </div>
                       )}
-                      <div className="session-spots" title="Bu oturumda rezervasyon yapılabilecek kalan kişi sayısı">
-                        Kalan kontenjan: {session.available_spots != null ? session.available_spots : '—'}
+                      <div className="session-spots">
+                        Available Spots: {session.available_spots != null ? session.available_spots : '—'}
                       </div>
                     </div>
                     <button 

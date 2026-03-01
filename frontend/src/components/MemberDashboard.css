@@ -1058,6 +1058,21 @@
   100% { transform: scale(0.2); opacity: 0.6; }
 }
 
+/* Session card text readable on any background */
+.session-card,
+.session-card .session-header,
+.session-card .session-details,
+.session-card .session-details .session-date,
+.session-card .session-details .session-type,
+.session-card .session-details .session-spots {
+  color: #333;
+}
+
+.session-card .session-header h3,
+.session-card .session-header .session-time {
+  color: #333;
+}
+
 /* Add styling for already booked sessions */
 .session-card.already-booked {
   border: 1px solid #4CAF50;
