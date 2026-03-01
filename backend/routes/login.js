@@ -1,9 +1,16 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
+const rateLimit = require("express-rate-limit");
 const db = require("../config/database");
 const router = express.Router();
 
-router.post("/login", async (req, res) => {
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { error: "Too many login attempts. Try again later." },
+});
+
+router.post("/login", loginLimiter, async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -89,9 +96,7 @@ router.post("/login", async (req, res) => {
     });
   } catch (err) {
     console.error("LOGIN ERROR:", err);
-    console.error("LOGIN ERROR - Message:", err.message);
-    console.error("LOGIN ERROR - Stack:", err.stack);
-    res.status(500).json({ error: err.message || "Server error. Please try again." });
+    res.status(500).json({ error: "Invalid email or password." });
   }
 });
 

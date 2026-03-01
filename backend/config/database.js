@@ -1,6 +1,10 @@
 require("dotenv").config();
 const { Pool } = require("pg");
 
+if (process.env.NODE_ENV === "production" && !process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL is required in production. Set it in your environment.");
+}
+
 const connectionString = process.env.DATABASE_URL || (
   process.env.DB_HOST
     ? `postgresql://${process.env.DB_USER || "postgres"}:${process.env.DB_PASSWORD || ""}@${process.env.DB_HOST}:${process.env.DB_PORT || 5432}/${process.env.DB_NAME || "swimcenter"}`

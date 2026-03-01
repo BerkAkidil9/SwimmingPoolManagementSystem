@@ -29,6 +29,7 @@
     "crypto": "^1.0.1",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
+    "express-rate-limit": "^8.2.1",
     "express-session": "^1.18.1",
     "gmail-nodemailer-transport": "^3.0.2",
     "googleapis": "^171.4.0",

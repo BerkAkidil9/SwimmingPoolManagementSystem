@@ -34,18 +34,19 @@ describe('Member Integration', () => {
     await db.promise().query('DELETE FROM users WHERE id = ?', [userId]);
   });
 
-  it('GET /user/:userId returns user for valid id', async () => {
-    const res = await request(app).get(`/api/member/user/${userId}`);
+  it('GET /user/me returns 401 when not authenticated', async () => {
+    const res = await request(app).get('/api/member/user/me');
+    expect(res.status).toBe(401);
+  });
 
+  it('GET /user/me returns user after login', async () => {
+    const agent = request.agent(app);
+    await agent.post('/auth/login').send({ email: testEmail, password: testPassword });
+
+    const res = await agent.get('/api/member/user/me');
     expect(res.status).toBe(200);
     expect(res.body.id).toBe(userId);
     expect(res.body.email).toBe(testEmail);
-  });
-
-  it('GET /user/:userId returns 404 for invalid id', async () => {
-    const res = await request(app).get('/api/member/user/999999');
-
-    expect(res.status).toBe(404);
   });
 
   it('GET /package-prices returns prices', async () => {

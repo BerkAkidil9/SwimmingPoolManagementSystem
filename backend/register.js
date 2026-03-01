@@ -1,6 +1,7 @@
 const { validateRegistration } = require("./validations");
 const express = require("express");
 const bcrypt = require("bcryptjs");
+const rateLimit = require("express-rate-limit");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const multer = require("multer");
@@ -529,6 +530,12 @@ router.get("/verify-email", async (req, res) => {
     }
 
     const user = users[0];
+    const now = new Date();
+    const expires = user.verification_token_expires ? new Date(user.verification_token_expires) : null;
+    if (expires && now > expires) {
+      return res.redirect(`${redirectBase}/verify-result?status=error&message=expired`);
+    }
+
     await db
       .promise()
       .query(
@@ -572,8 +579,12 @@ router.post(["/verify-email", "/verify-email/:token"], async (req, res) => {
     }
 
     const user = users[0];
-    // Expiry check disabled - was causing false "expired" due to timezone/format issues
-    console.log("User verified successfully", user.id);
+    // Enforce verification token expiry
+    const now = new Date();
+    const expires = user.verification_token_expires ? new Date(user.verification_token_expires) : null;
+    if (expires && now > expires) {
+      return res.status(400).json({ message: "Verification link has expired." });
+    }
 
     // Update user as verified and clear token
     await db
@@ -866,8 +877,20 @@ router.get("/clear-all-session", (req, res) => {
   });
 });
 
+// Rate limiters for password reset (brute force protection)
+const resetRequestLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { error: "Too many reset requests. Try again later." },
+});
+const resetSubmitLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { error: "Too many attempts. Try again later." },
+});
+
 // Password Reset Routes
-router.post('/reset-password-request', async (req, res) => {
+router.post('/reset-password-request', resetRequestLimiter, async (req, res) => {
   try {
     const { email } = req.body;
     
@@ -914,7 +937,7 @@ router.post('/reset-password-request', async (req, res) => {
   }
 });
 
-router.get('/reset-password/:token', async (req, res) => {
+router.get('/reset-password/:token', resetSubmitLimiter, async (req, res) => {
   try {
     const { token } = req.params;
     
@@ -928,18 +951,15 @@ router.get('/reset-password/:token', async (req, res) => {
       return res.status(400).json({ error: 'Password reset token is invalid or has expired' });
     }
     
-    // Return success with email (to pre-fill form)
-    res.status(200).json({ 
-      message: 'Token is valid',
-      email: users[0].email
-    });
+    // Token is valid - do not expose email to client
+    res.status(200).json({ message: 'Token is valid' });
   } catch (error) {
     console.error('Error verifying token:', error);
     res.status(500).json({ error: 'Server error. Please try again.' });
   }
 });
 
-router.post('/reset-password', async (req, res) => {
+router.post('/reset-password', resetSubmitLimiter, async (req, res) => {
   try {
     const { token, password } = req.body;
     

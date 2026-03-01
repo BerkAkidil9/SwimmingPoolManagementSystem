@@ -114,8 +114,8 @@ router.get('/reset-password/:token', async (req, res) => {
             return res.status(400).json({ error: 'Password reset token has expired' });
         }
         
-        // Token is valid
-        res.json({ valid: true, email: user.email });
+        // Token is valid - do not expose email to client
+        res.json({ valid: true });
     } catch (error) {
         console.error('Error verifying reset token:', error);
         res.status(500).json({ error: 'An error occurred. Please try again.' });

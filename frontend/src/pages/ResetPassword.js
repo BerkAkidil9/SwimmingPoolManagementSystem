@@ -28,8 +28,8 @@ const ResetPassword = () => {
       try {
         setLoading(true);
         const response = await axios.get(`/auth/reset-password/${token}`);
-        setIsValidToken(true);
-        setEmail(response.data.email);
+        setIsValidToken(response.data.valid === true || response.data.message === 'Token is valid');
+        setEmail(response.data.email || '');
         setError('');
       } catch (err) {
         setIsValidToken(false);
@@ -134,19 +134,20 @@ const ResetPassword = () => {
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label>
-                <FaEnvelope /> Email
-              </label>
-              <input
-                type="email"
-                value={email}
-                disabled
-                className="disabled-input"
-              />
-              <small>This is the email associated with your account</small>
-            </div>
-            
+            {email && (
+              <div className="form-group">
+                <label>
+                  <FaEnvelope /> Email
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  disabled
+                  className="disabled-input"
+                />
+                <small>This is the email associated with your account</small>
+              </div>
+            )}
             <div className="form-group">
               <label>
                 <FaKey /> New Password

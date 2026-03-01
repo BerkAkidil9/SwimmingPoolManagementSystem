@@ -126,13 +126,15 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Debugging middleware
-app.use((req, res, next) => {
-  console.log("Session ID:", req.sessionID);
-  console.log("Is Authenticated:", req.isAuthenticated?.());
-  console.log("User:", req.user);
-  next();
-});
+// Debugging middleware - only in non-production to avoid leaking session/user to logs
+if (process.env.NODE_ENV !== 'production') {
+  app.use((req, res, next) => {
+    console.log("Session ID:", req.sessionID);
+    console.log("Is Authenticated:", req.isAuthenticated?.());
+    console.log("User:", req.user);
+    next();
+  });
+}
 
 // Public pools endpoint at /pools (some ad blockers block /api/*)
 app.get("/pools", async (req, res) => {
@@ -165,13 +167,13 @@ app.use("/api/staff", staffRoutes);
 app.use("/api/coach", coachRoutes);
 
 
-// Error handling middleware
+// Error handling middleware (do not expose err.message to client)
 app.use((err, req, res, next) => {
   console.error("Error:", err);
   if (err.name === "MulterError") {
     return res.status(400).json({ error: "File upload error" });
   }
-  res.status(500).json({ error: err.message || "Internal server error" });
+  res.status(500).json({ error: "Internal server error" });
 });
 
 // Production: DATABASE_URL must be set (Neon connection string)

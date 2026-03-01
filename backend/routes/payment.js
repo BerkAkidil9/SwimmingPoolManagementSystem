@@ -24,7 +24,6 @@ const getOrCreateStripeCustomer = async (userId, email) => {
     
     // If user has a stripe_customer_id, return it
     if (userRow.length > 0 && userRow[0].stripe_customer_id) {
-      console.log(`Using existing Stripe customer: ${userRow[0].stripe_customer_id}`);
       return userRow[0].stripe_customer_id;
     }
     
@@ -35,8 +34,6 @@ const getOrCreateStripeCustomer = async (userId, email) => {
       },
       email: email || `user${userId}@example.com` // Use email if provided, otherwise generate one
     });
-    
-    console.log(`Created new Stripe customer: ${customer.id}`);
     
     // Save the stripe_customer_id to the user record
     await db.promise().query(
@@ -105,25 +102,12 @@ router.post("/payment-success", isAuthenticated, async (req, res) => {
   try {
     const { paymentIntentId, packageType, saveCard, paymentMethodId } = req.body;
     
-    console.log("Payment success request received:", { 
-      paymentIntentId, 
-      packageType, 
-      saveCard, 
-      paymentMethodId,
-      userId: req.session.user.id 
-    });
-    
     if (!paymentIntentId || !packageType) {
       return res.status(400).json({ error: "Payment intent ID and package type are required" });
     }
 
     // Verify the payment with Stripe
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-    console.log("Retrieved payment intent:", {
-      id: paymentIntent.id,
-      status: paymentIntent.status,
-      paymentMethod: paymentIntent.payment_method
-    });
     
     if (paymentIntent.status !== "succeeded") {
       return res.status(400).json({ error: "Payment has not been completed" });
@@ -161,30 +145,20 @@ router.post("/payment-success", isAuthenticated, async (req, res) => {
 
       // If the user chose to save the card and we have the payment method ID
       if (saveCard && paymentMethodId) {
-        console.log("Attempting to save payment method:", paymentMethodId);
         try {
           // Get the payment method details from Stripe
           const paymentMethod = await stripe.paymentMethods.retrieve(paymentMethodId);
-          console.log("Retrieved payment method:", {
-            id: paymentMethod.id,
-            type: paymentMethod.type,
-            card: paymentMethod.card ? {
-              brand: paymentMethod.card.brand,
-              last4: paymentMethod.card.last4,
-              exp_month: paymentMethod.card.exp_month,
-              exp_year: paymentMethod.card.exp_year
-            } : null
-          });
           
           // Attach payment method to customer if not already attached
           try {
             await stripe.paymentMethods.attach(paymentMethodId, {
               customer: customerId,
             });
-            console.log(`Attached payment method ${paymentMethodId} to customer ${customerId}`);
           } catch (attachError) {
             // If this fails because it's already attached, that's okay
-            console.log("Error attaching payment method - may already be attached:", attachError.message);
+            if (process.env.NODE_ENV !== 'production') {
+              console.log("Error attaching payment method - may already be attached:", attachError.message);
+            }
           }
           
           if (paymentMethod && paymentMethod.card) {
@@ -199,8 +173,6 @@ router.post("/payment-success", isAuthenticated, async (req, res) => {
               ]
             );
             
-            console.log("Existing card check:", { count: existingCard.length });
-            
             // Only save if it's a new card
             if (existingCard.length === 0) {
               // Get count of existing payment methods for this user
@@ -212,14 +184,7 @@ router.post("/payment-success", isAuthenticated, async (req, res) => {
               // Set as default if this is the first card
               const isDefault = cardCount[0].count === 0 ? true : false;
               
-              console.log("Inserting new payment method:", {
-                userId: req.session.user.id,
-                isDefault: isDefault,
-                brand: paymentMethod.card.brand,
-                last4: paymentMethod.card.last4
-              });
-              
-              // Save the card details
+              // Save the card details (do not log card/payment method IDs or metadata)
               await trx.query(
                 "INSERT INTO payment_methods (user_id, payment_method_id, card_brand, last4, exp_month, exp_year, is_default) VALUES (?, ?, ?, ?, ?, ?, ?)",
                 [
@@ -232,13 +197,9 @@ router.post("/payment-success", isAuthenticated, async (req, res) => {
                   isDefault
                 ]
               );
-              
-              console.log("Payment method saved to DB");
-            } else {
-              console.log("Card already exists, not saving duplicate");
             }
           } else {
-            console.error("Payment method missing card details:", paymentMethod);
+            console.error("Payment method missing card details");
           }
         } catch (pmError) {
           console.error("Error processing payment method:", pmError);
@@ -248,11 +209,10 @@ router.post("/payment-success", isAuthenticated, async (req, res) => {
       }
     });
 
-    console.log("Transaction committed successfully");
     res.json({ success: true });
   } catch (error) {
     console.error("Error processing payment:", error);
-    res.status(500).json({ error: "Failed to process payment", details: error.message });
+    res.status(500).json({ error: "Failed to process payment" });
   }
 });
 
