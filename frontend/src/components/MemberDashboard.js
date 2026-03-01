@@ -75,35 +75,10 @@ const MemberDashboard = () => {
 
   const fetchPools = async () => {
     try {
-      const response = await axios.get('/api/pools');
+      // Üye paneli: tek istekte havuz + sayılar (View Sessions ile aynı mantık)
+      const response = await axios.get('/api/member/pools', { withCredentials: true });
       console.log('Fetched pools:', response.data);
-      
-      // When fetching pools, also get session counts for each pool
-      const poolsWithCounts = await Promise.all(response.data.map(async pool => {
-        try {
-          // Get education session count
-          const educationRes = await axios.get(`/api/member/pools/${pool.id}/sessions/count?type=education`);
-          
-          // Get free swimming session count
-          const freeSwimmingRes = await axios.get(`/api/member/pools/${pool.id}/sessions/count?type=free_swimming`);
-          
-          return {
-            ...pool,
-            educationSessionCount: educationRes.data.count || 0,
-            freeSwimmingSessionCount: freeSwimmingRes.data.count || 0
-          };
-        } catch (err) {
-          console.error(`Error fetching counts for pool ${pool.id}:`, err);
-          return {
-            ...pool,
-            educationSessionCount: 0,
-            freeSwimmingSessionCount: 0
-          };
-        }
-      }));
-      
-      console.log('Pools with counts:', poolsWithCounts);
-      setPools(poolsWithCounts);
+      setPools(response.data || []);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching pools:', error);
@@ -717,8 +692,8 @@ const MemberDashboard = () => {
                           <span>{session.type === 'education' ? 'Education' : 'Free Swimming'}</span>
                         </div>
                       )}
-                      <div className="session-spots">
-                        Available Spots: {session.available_spots != null ? session.available_spots : '—'}
+                      <div className="session-spots" title="Bu oturumda rezervasyon yapılabilecek kalan kişi sayısı">
+                        Kalan kontenjan: {session.available_spots != null ? session.available_spots : '—'}
                       </div>
                     </div>
                     <button 

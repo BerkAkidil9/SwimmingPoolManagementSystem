@@ -85,6 +85,33 @@ const isAuthenticated = (req, res, next) => {
   next();
 };
 
+// Havuz listesi + sayılar (View Sessions ile aynı mantık: sadece henüz başlamamış oturumlar)
+router.get("/pools", isAuthenticated, async (req, res) => {
+  try {
+    const [pools] = await db.promise().query(`
+      SELECT p.id, p.name, p.location, p.capacity, p.rules,
+        (SELECT COUNT(*) FROM sessions s WHERE s.pool_id = p.id AND s.type = 'education'
+         AND ((s.session_date + s.start_time)::timestamp AT TIME ZONE 'Europe/Istanbul') > NOW())::int as education_session_count,
+        (SELECT COUNT(*) FROM sessions s WHERE s.pool_id = p.id AND s.type = 'free_swimming'
+         AND ((s.session_date + s.start_time)::timestamp AT TIME ZONE 'Europe/Istanbul') > NOW())::int as free_swimming_session_count
+      FROM "Pools" p
+    `);
+    const list = (pools || []).map(p => ({
+      id: p.id,
+      name: p.name,
+      location: p.location,
+      capacity: p.capacity,
+      rules: p.rules,
+      educationSessionCount: Number(p.education_session_count) || 0,
+      freeSwimmingSessionCount: Number(p.free_swimming_session_count) || 0
+    }));
+    res.json(list);
+  } catch (err) {
+    console.error("Error fetching member pools:", err);
+    res.status(500).json({ error: "Failed to load pools" });
+  }
+});
+
 // Get current user's own info (authenticated only - for health report upload screen etc.)
 router.get("/user/me", isAuthenticated, async (req, res) => {
   try {
