@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require("../config/database");
 const { sendEmail } = require("../utils/sendEmail");
 const { isAdmin, isDoctor } = require("../middleware/auth");
+const { escapeHtml } = require("../utils/security");
 
 // Send a reminder email for health report upload
 const sendHealthReportReminderEmail = async (email, firstName, lastName, reason, userId) => {
@@ -18,13 +19,13 @@ const sendHealthReportReminderEmail = async (email, firstName, lastName, reason,
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
           <h2 style="color: #333; text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px;">Reminder: Health Report Upload</h2>
           
-          <p>Dear ${firstName} ${lastName},</p>
+          <p>Dear ${escapeHtml(firstName)} ${escapeHtml(lastName)},</p>
           
           <p>We noticed that you have not yet uploaded the health documentation requested by our medical team. To complete your health assessment and gain access to swimming activities, please upload the required documents at your earliest convenience.</p>
           
           <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
             <h3 style="margin-top: 0; color: #333;">Documentation Requested:</h3>
-            <p style="margin-bottom: 0;">${reason}</p>
+            <p style="margin-bottom: 0;">${escapeHtml(reason)}</p>
           </div>
           
           <p>Please click the button below to upload the requested health documentation:</p>
@@ -231,13 +232,13 @@ const sendInvalidDocumentNotificationEmail = async (email, firstName, lastName, 
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
           <h2 style="color: #333; text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px;">Invalid Health Report Document</h2>
           
-          <p>Dear ${firstName} ${lastName},</p>
+          <p>Dear ${escapeHtml(firstName)} ${escapeHtml(lastName)},</p>
           
           <p>Our medical team has reviewed your submitted health report document and determined that it does not meet our requirements for the following reason:</p>
           
           <div style="background-color: #fff5f5; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #dc3545;">
             <h3 style="margin-top: 0; color: #dc3545;">Reason for Rejection:</h3>
-            <p style="margin-bottom: 0;">${invalidReason}</p>
+            <p style="margin-bottom: 0;">${escapeHtml(invalidReason)}</p>
           </div>
           
           <p>Please upload a valid health report document as soon as possible to gain access to swimming activities.</p>

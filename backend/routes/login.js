@@ -73,8 +73,8 @@ router.post("/login", loginLimiter, async (req, res) => {
       verification: user.verification_status
     });
     
-    // Create session - allow rejected users to log in, but mark their status
-    req.session.user = { 
+    // Regenerate session to prevent session fixation attacks
+    const userData = { 
       id: user.id, 
       email: user.email,
       role: user.role || 'user',
@@ -82,17 +82,28 @@ router.post("/login", loginLimiter, async (req, res) => {
       verificationStatus: user.verification_status
     };
 
-    console.log("LOGIN BACKEND - Session created:", req.session.user);
-
-    // Send response based on role and verification status
-    res.json({ 
-      isAuthenticated: true, 
-      user: { 
-        id: user.id, 
-        name: user.name,
-        role: user.role || 'user',
-        verificationStatus: user.verification_status
+    req.session.regenerate((regenerateErr) => {
+      if (regenerateErr) {
+        console.error("Session regeneration error:", regenerateErr);
+        return res.status(500).json({ error: "Session error. Please try again." });
       }
+      req.session.user = userData;
+      req.session.save((saveErr) => {
+        if (saveErr) {
+          console.error("Session save error:", saveErr);
+          return res.status(500).json({ error: "Session error. Please try again." });
+        }
+        console.log("LOGIN BACKEND - Session created:", req.session.user);
+        res.json({ 
+          isAuthenticated: true, 
+          user: { 
+            id: user.id, 
+            name: user.name,
+            role: user.role || 'user',
+            verificationStatus: user.verification_status
+          }
+        });
+      });
     });
   } catch (err) {
     console.error("LOGIN ERROR:", err);

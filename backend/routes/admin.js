@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../config/database");
 const { sendEmail } = require("../utils/sendEmail");
+const { escapeHtml } = require("../utils/security");
 
 // Middleware to check if user is admin
 const isAdmin = (req, res, next) => {
@@ -226,13 +227,13 @@ const sendRejectionEmail = async (email, firstName, lastName, reason) => {
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
           <h2 style="color: #333; text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px;">Verification Status Update</h2>
           
-          <p>Dear ${firstName} ${lastName},</p>
+          <p>Dear ${escapeHtml(firstName)} ${escapeHtml(lastName)},</p>
           
           <p>We regret to inform you that your account verification has been <strong style="color: #f44336;">rejected</strong>.</p>
           
           <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
             <h3 style="margin-top: 0; color: #333;">Reason for Rejection:</h3>
-            <p style="margin-bottom: 0;">${reason}</p>
+            <p style="margin-bottom: 0;">${escapeHtml(reason)}</p>
           </div>
           
           <p>You can update your information and try again by logging into your account and navigating to the verification section.</p>
@@ -263,13 +264,13 @@ const sendThirdRejectionEmail = async (email, firstName, lastName, reason) => {
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
           <h2 style="color: #333; text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px;">Final Verification Status</h2>
           
-          <p>Dear ${firstName} ${lastName},</p>
+          <p>Dear ${escapeHtml(firstName)} ${escapeHtml(lastName)},</p>
           
           <p>We regret to inform you that your account verification has been <strong style="color: #f44336;">rejected for the third time</strong>.</p>
           
           <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
             <h3 style="margin-top: 0; color: #333;">Reason for Rejection:</h3>
-            <p style="margin-bottom: 0;">${reason}</p>
+            <p style="margin-bottom: 0;">${escapeHtml(reason)}</p>
           </div>
           
           <p><strong>Important:</strong> After three rejections, you will no longer be able to update or resubmit your information through the verification system.</p>

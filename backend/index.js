@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const session = require("express-session");
+const pgSession = require("connect-pg-simple")(session);
 const passport = require("passport");
 const path = require("path");
 const fs = require("fs");
@@ -9,6 +10,7 @@ const crypto = require("crypto");
 const axios = require("axios");
 const cron = require("node-cron");
 require("dotenv").config();
+const { escapeHtml } = require("./utils/security");
 
 const loginRoutes = require("./routes/login");
 const landingPageRoutes = require("./routes/landingPage");
@@ -75,14 +77,18 @@ if (!sessionSecret || typeof sessionSecret !== 'string' || sessionSecret.trim() 
 }
 app.use(
   session({
+    store: new pgSession({
+      pool: db.pool,
+      tableName: "user_sessions",
+      createTableIfMissing: true,
+    }),
     secret: sessionSecret,
-    resave: true,
+    resave: false,
     saveUninitialized: false,
     cookie: {
       secure: process.env.NODE_ENV === 'production',
       maxAge: 24 * 60 * 60 * 1000,
       httpOnly: true,
-      // Cross-origin: frontend (swimcenter) and backend (swimcenter-api) are different origins
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     },
   })
@@ -143,7 +149,6 @@ const csrfSafeRoutes = [
   '/auth/google', '/auth/google/callback',
   '/auth/verify-email',
   '/auth/check-email', '/auth/check-phone',
-  '/auth/login', '/auth/register',
   '/auth/reset-password', '/auth/validate-reset-token',
   '/auth/reset-password-request',
 ];
@@ -269,13 +274,13 @@ db.connect((err) => {
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
                 <h2 style="color: #333; text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px;">Reminder: Health Report Upload</h2>
                 
-                <p>Dear ${user.name} ${user.surname},</p>
+                <p>Dear ${escapeHtml(user.name)} ${escapeHtml(user.surname)},</p>
                 
                 <p>We noticed that you have not yet uploaded the health documentation requested by our medical team. To complete your health assessment and gain access to swimming activities, please upload the required documents at your earliest convenience.</p>
                 
                 <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
                   <h3 style="margin-top: 0; color: #333;">Documentation Requested:</h3>
-                  <p style="margin-bottom: 0;">${user.health_status_reason}</p>
+                  <p style="margin-bottom: 0;">${escapeHtml(user.health_status_reason)}</p>
                 </div>
                 
                 <p>Please click the button below to upload the requested health documentation:</p>

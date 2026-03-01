@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../config/database");
 const { sendEmail } = require("../utils/sendEmail");
+const { escapeHtml } = require("../utils/security");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -398,13 +399,13 @@ const sendHealthReportRequestEmail = async (email, firstName, lastName, reason, 
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
           <h2 style="color: #333; text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px;">Additional Health Report Required</h2>
           
-          <p>Dear ${firstName} ${lastName},</p>
+          <p>Dear ${escapeHtml(firstName)} ${escapeHtml(lastName)},</p>
           
           <p>After reviewing your health information, our medical team requires additional documentation to complete your health assessment.</p>
           
           <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
             <h3 style="margin-top: 0; color: #333;">Reason for Additional Documentation:</h3>
-            <p style="margin-bottom: 0;">${reason}</p>
+            <p style="margin-bottom: 0;">${escapeHtml(reason)}</p>
           </div>
           
           <p>Please click the button below to upload the requested health documentation:</p>
@@ -437,13 +438,13 @@ const sendHealthRejectionEmail = async (email, firstName, lastName, reason) => {
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
           <h2 style="color: #333; text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px;">Health Assessment Status Update</h2>
           
-          <p>Dear ${firstName} ${lastName},</p>
+          <p>Dear ${escapeHtml(firstName)} ${escapeHtml(lastName)},</p>
           
           <p>After careful review of your health information, our medical team has determined that you are currently unable to participate in swimming activities at our facility.</p>
           
           <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #e53935;">
             <h3 style="margin-top: 0; color: #333;">Reason:</h3>
-            <p style="margin-bottom: 0;">${reason}</p>
+            <p style="margin-bottom: 0;">${escapeHtml(reason)}</p>
           </div>
           
 
@@ -475,7 +476,7 @@ const sendHealthReportApprovedEmail = async (email, firstName, lastName) => {
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
           <h2 style="color: #333; text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px;">Health Status Approved</h2>
           
-          <p>Dear ${firstName} ${lastName},</p>
+          <p>Dear ${escapeHtml(firstName)} ${escapeHtml(lastName)},</p>
           
           <p>We are pleased to inform you that your health status has been <strong style="color: #4CAF50;">approved</strong>.</p>
           
@@ -505,13 +506,13 @@ const sendHealthReportRejectedEmail = async (email, firstName, lastName, reason)
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
           <h2 style="color: #333; text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px;">Health Report Feedback</h2>
           
-          <p>Dear ${firstName} ${lastName},</p>
+          <p>Dear ${escapeHtml(firstName)} ${escapeHtml(lastName)},</p>
           
           <p>After reviewing your submitted health report, our medical team has determined that additional information is needed.</p>
           
           <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
             <h3 style="margin-top: 0; color: #333;">Doctor's Notes:</h3>
-            <p style="margin-bottom: 0;">${reason}</p>
+            <p style="margin-bottom: 0;">${escapeHtml(reason)}</p>
           </div>
           
           <p>Please log in to your account and submit a new health report addressing the concerns mentioned above.</p>

@@ -144,6 +144,14 @@ const validatePersonalInfo = (formData, errors, socialUser) => {
             errors.password = 'Password is required';
         } else if (formData.password.length < 8) {
             errors.password = 'Password must be at least 8 characters';
+        } else if (formData.password.length > 128) {
+            errors.password = 'Password must be at most 128 characters';
+        } else if (!/[A-Z]/.test(formData.password)) {
+            errors.password = 'Password must contain at least one uppercase letter';
+        } else if (!/[a-z]/.test(formData.password)) {
+            errors.password = 'Password must contain at least one lowercase letter';
+        } else if (!/\d/.test(formData.password)) {
+            errors.password = 'Password must contain at least one number';
         }
 
         if (!formData.confirmPassword) {

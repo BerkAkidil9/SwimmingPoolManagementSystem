@@ -9,6 +9,7 @@ const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");
 const { sendEmail } = require("./utils/sendEmail");
+const { hashToken, validatePasswordStrength } = require("./utils/security");
 
 const generateVerificationToken = () => {
   return crypto.randomBytes(32).toString("hex");
@@ -359,11 +360,13 @@ router.post(
 
       // Generate verification token (for all registrations - including social)
       const verificationToken = generateVerificationToken();
+      const hashedVerificationToken = hashToken(verificationToken);
       const tokenExpires = new Date();
       tokenExpires.setHours(tokenExpires.getHours() + 24);
 
       debug(11, "Inserting user into DB...");
       // Insert user data with verification fields (PostgreSQL: RETURNING id for insertId)
+      // Store hashed token in DB; raw token is sent to user via email
       const [insertRows] = await db.promise().query(
         `INSERT INTO users (
                 provider, provider_id, profile_picture,
@@ -379,7 +382,6 @@ router.post(
           socialUser?.name || name || null,
           surname || null,
           date_of_birth || null,
-          // PostgreSQL enum: Male/Female/Other, Yes/No (case-sensitive)
           gender ? String(gender).charAt(0).toUpperCase() + String(gender).slice(1).toLowerCase() : null,
           swimming_ability ? String(swimming_ability).charAt(0).toUpperCase() + String(swimming_ability).slice(1).toLowerCase() : null,
           phone || null,
@@ -390,7 +392,7 @@ router.post(
           marketing_accepted === true || marketing_accepted === "true",
           idCardPath,
           profilePhotoPath,
-          verificationToken,
+          hashedVerificationToken,
           tokenExpires,
           false, // email_verified
         ]
@@ -516,23 +518,20 @@ router.get("/verify-email", async (req, res) => {
   }
 
   try {
-    // Try exact match first, then TRIM match (in case DB has extra spaces)
+    // Hash the incoming token and compare against stored hash
+    const hashedIncomingToken = hashToken(token);
     let [users] = await db
       .promise()
-      .query("SELECT * FROM users WHERE verification_token = ?", [token]);
+      .query("SELECT * FROM users WHERE verification_token = ?", [hashedIncomingToken]);
 
     if (users.length === 0) {
       [users] = await db
         .promise()
-        .query("SELECT * FROM users WHERE TRIM(verification_token) = ?", [token]);
+        .query("SELECT * FROM users WHERE TRIM(verification_token) = ?", [hashedIncomingToken]);
     }
 
     if (users.length === 0) {
-      // Debug: log one unverified user's token info (not the actual token)
-      const [debug] = await db.promise().query(
-        "SELECT id, LENGTH(verification_token) as tok_len FROM users WHERE verification_token IS NOT NULL AND verification_token != '' AND email_verified = false LIMIT 1"
-      );
-      console.log("No user found. Debug - unverified user token length:", debug[0]?.tok_len);
+      console.log("No user found for verification token hash");
       return res.redirect(`${redirectBase}/verify-result?status=error&message=expired`);
     }
 
@@ -572,12 +571,13 @@ router.post(["/verify-email", "/verify-email/:token"], async (req, res) => {
   }
 
   try {
-    // Find user by token
+    // Hash the incoming token and compare against stored hash
+    const hashedIncomingToken = hashToken(token);
     const [users] = await db
       .promise()
       .query(
         "SELECT * FROM users WHERE verification_token = ?",
-        [token]
+        [hashedIncomingToken]
       );
 
     if (users.length === 0) {
@@ -586,14 +586,12 @@ router.post(["/verify-email", "/verify-email/:token"], async (req, res) => {
     }
 
     const user = users[0];
-    // Enforce verification token expiry
     const now = new Date();
     const expires = user.verification_token_expires ? new Date(user.verification_token_expires) : null;
     if (expires && now > expires) {
       return res.status(400).json({ message: "Verification link has expired." });
     }
 
-    // Update user as verified and clear token
     await db
       .promise()
       .query(
@@ -633,31 +631,36 @@ router.get(
       console.log("Redirecting existing user to dashboard");
       console.log("User role is:", req.user.role);
       
-      // Create a proper session for the user with explicit role
-      req.session.user = {
+      // Regenerate session to prevent session fixation attacks
+      const oauthUserData = {
         id: req.user.id,
         email: req.user.email,
         role: req.user.role || 'user',
         name: req.user.name,
         verificationStatus: req.user.verification_status
       };
+      const oauthUserRole = req.user.role;
       
-      // Save the session before redirecting
-      req.session.save(err => {
-        if (err) {
-          console.error("Session save error:", err);
+      req.session.regenerate(regenerateErr => {
+        if (regenerateErr) {
+          console.error("Session regeneration error:", regenerateErr);
         }
+        req.session.user = oauthUserData;
+        req.session.passport = { user: { isTemp: false, id: oauthUserData.id } };
         
-        // Add more explicit logging for the redirection
-        console.log(`Redirecting user with role ${req.user.role} to appropriate dashboard`);
-        
-        // Redirect based on role
-        if (req.user.role === 'admin') {
-          return res.redirect(`${process.env.FRONTEND_URL}/admin`);
-        } else {
-          // Default to member dashboard for regular users
-          return res.redirect(`${process.env.FRONTEND_URL}/member/dashboard`);
-        }
+        req.session.save(err => {
+          if (err) {
+            console.error("Session save error:", err);
+          }
+          
+          console.log(`Redirecting user with role ${oauthUserRole} to appropriate dashboard`);
+          
+          if (oauthUserRole === 'admin') {
+            return res.redirect(`${process.env.FRONTEND_URL}/admin`);
+          } else {
+            return res.redirect(`${process.env.FRONTEND_URL}/member/dashboard`);
+          }
+        });
       });
     } else {
       // New user logic...
@@ -825,6 +828,7 @@ router.post("/resend-verification", async (req, res) => {
     }
 
     const verificationToken = generateVerificationToken();
+    const hashedVerificationToken = hashToken(verificationToken);
     const tokenExpires = new Date();
     tokenExpires.setHours(tokenExpires.getHours() + 24);
 
@@ -833,7 +837,7 @@ router.post("/resend-verification", async (req, res) => {
              SET verification_token = ?, 
                  verification_token_expires = ? 
              WHERE id = ?`,
-      [verificationToken, tokenExpires, req.user.id]
+      [hashedVerificationToken, tokenExpires, req.user.id]
     );
 
     await sendVerificationEmail(req.user.email, verificationToken);
@@ -910,14 +914,14 @@ router.post('/reset-password-request', resetRequestLimiter, async (req, res) => 
     
     const user = users[0];
     
-    // Generate reset token
+    // Generate reset token - store hash in DB, send raw token to user
     const resetToken = crypto.randomBytes(32).toString('hex');
+    const hashedResetToken = hashToken(resetToken);
     const resetTokenExpires = new Date(Date.now() + 3600000); // 1 hour from now
     
-    // Save token to database
     await db.promise().query(
       'UPDATE users SET password_reset_token = ?, password_reset_expires = ? WHERE id = ?',
-      [resetToken, resetTokenExpires, user.id]
+      [hashedResetToken, resetTokenExpires, user.id]
     );
     
     // Token in hash fragment only - not sent in Referer or server logs (security)
@@ -975,9 +979,10 @@ router.post('/validate-reset-token', resetSubmitLimiter, async (req, res) => {
 });
 
 async function validateResetToken(token) {
+  const hashedIncoming = hashToken(token);
   const [users] = await db.promise().query(
     'SELECT id FROM users WHERE password_reset_token = ? AND password_reset_expires > NOW()',
-    [token]
+    [hashedIncoming]
   );
   return users.length > 0;
 }
@@ -989,11 +994,18 @@ router.post('/reset-password', resetSubmitLimiter, async (req, res) => {
     if (!token || !password) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
+
+    // Validate password strength
+    const { valid, error: pwError } = validatePasswordStrength(password);
+    if (!valid) {
+      return res.status(400).json({ error: pwError });
+    }
     
-    // Find user with this token and that hasn't expired
+    // Hash the incoming token and compare against stored hash
+    const hashedIncoming = hashToken(token);
     const [users] = await db.promise().query(
       'SELECT * FROM users WHERE password_reset_token = ? AND password_reset_expires > NOW()',
-      [token]
+      [hashedIncoming]
     );
     
     if (users.length === 0) {

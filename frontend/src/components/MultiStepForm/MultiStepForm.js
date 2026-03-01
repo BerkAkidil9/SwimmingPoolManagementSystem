@@ -209,10 +209,18 @@ const MultiStepForm = ({ isSocialRegistration: isFromSocial }) => {
                 }
 
                 const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+                // Fetch CSRF token for the register request (fetch API doesn't use axios interceptors)
+                let csrfToken = '';
+                try {
+                    const csrfResp = await fetch(`${apiUrl}/api/csrf-token`, { credentials: 'include' });
+                    const csrfData = await csrfResp.json();
+                    csrfToken = csrfData.csrfToken || '';
+                } catch (_) {}
                 const response = await fetch(`${apiUrl}/auth/register`, {
                     method: 'POST',
                     body: formDataToSend,
-                    credentials: 'include'
+                    credentials: 'include',
+                    headers: csrfToken ? { 'X-CSRF-Token': csrfToken } : {}
                 });
 
                 if (!response.ok) {
