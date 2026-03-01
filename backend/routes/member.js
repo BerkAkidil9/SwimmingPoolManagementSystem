@@ -1032,10 +1032,7 @@ router.post("/check-in", isAuthenticated, async (req, res) => {
     });
   } catch (error) {
     console.error("Error during member check-in:", error);
-    res.status(500).json({
-      error: error.message || "Error processing check-in",
-      message: error.message || "Error processing check-in"
-    });
+    res.status(500).json({ error: "Error processing check-in" });
   }
 });
 
@@ -1108,7 +1105,7 @@ router.post("/update-profile", isAuthenticated, async (req, res) => {
         return res.status(400).json({ error: "This phone number is already in use by another account." });
       }
     }
-    res.status(500).json({ error: error.message || "Error updating profile. Please try again." });
+    res.status(500).json({ error: "Error updating profile. Please try again." });
   }
 });
 

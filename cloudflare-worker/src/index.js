@@ -7,8 +7,37 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // GET: Dosya oku (r2.dev bloklu bölgeler için proxy)
+    // CORS preflight
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        status: 204,
+        headers: {
+          "Access-Control-Allow-Origin": env.ALLOWED_ORIGIN || "*",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, X-Auth-Secret, X-R2-Key, X-Content-Type",
+          "Access-Control-Max-Age": "86400",
+        },
+      });
+    }
+
+    // GET: Dosya oku (Origin/Referer whitelist ile korunur)
     if (request.method === "GET" && url.pathname !== "/" && url.pathname !== "") {
+      const allowedOrigins = (env.ALLOWED_ORIGINS || "https://swimcenter.onrender.com,https://swimcenter-api.onrender.com,http://localhost:3000,http://localhost:3001").split(",");
+      const origin = request.headers.get("Origin") || "";
+      const referer = request.headers.get("Referer") || "";
+      const authSecret = request.headers.get("X-Auth-Secret");
+
+      const isOriginAllowed = origin && allowedOrigins.some(o => origin.startsWith(o.trim()));
+      const isRefererAllowed = referer && allowedOrigins.some(o => referer.startsWith(o.trim()));
+      const isSecretValid = authSecret && authSecret === env.R2_WORKER_SECRET;
+
+      if (!isOriginAllowed && !isRefererAllowed && !isSecretValid) {
+        return new Response(JSON.stringify({ error: "Forbidden" }), {
+          status: 403,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
       const key = url.pathname.replace(/^\//, "");
       if (!key) {
         return new Response("Bad Request", { status: 400 });
@@ -20,7 +49,8 @@ export default {
         }
         const headers = new Headers();
         object.writeHttpMetadata(headers);
-        headers.set("Access-Control-Allow-Origin", "*");
+        const respOrigin = isOriginAllowed ? origin : (allowedOrigins[0] || "*").trim();
+        headers.set("Access-Control-Allow-Origin", respOrigin);
         return new Response(object.body, { status: 200, headers });
       } catch (err) {
         console.error("R2 get error:", err);

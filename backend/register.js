@@ -182,10 +182,15 @@ passport.use(
   )
 );
 
-// Add these routes before the main registration route
+// Rate limiter for uniqueness checks (prevents user enumeration at scale)
+const checkUniquenessLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 15,
+  message: { error: "Too many requests. Please try again later." },
+});
 
 // Check email uniqueness
-router.post('/check-email', async (req, res) => {
+router.post('/check-email', checkUniquenessLimiter, async (req, res) => {
     try {
         const { email } = req.body;
         const [rows] = await db.promise().query(
@@ -200,7 +205,7 @@ router.post('/check-email', async (req, res) => {
 });
 
 // Check phone uniqueness
-router.post('/check-phone', async (req, res) => {
+router.post('/check-phone', checkUniquenessLimiter, async (req, res) => {
     try {
         const { phone } = req.body;
         const [rows] = await db.promise().query(
@@ -214,10 +219,19 @@ router.post('/check-phone', async (req, res) => {
     }
 });
 
+// Rate limiter for registration (prevents mass account creation and resource abuse)
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  message: { error: "Too many registration attempts. Please try again later." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Registration route with file uploads
-// Updated registration route
 router.post(
   "/register",
+  registerLimiter,
   upload.fields([
     { name: "idCard", maxCount: 1 },
     { name: "profilePhoto", maxCount: 1 },
@@ -459,22 +473,15 @@ router.post(
           return res.status(400).json({ error: "Phone number already registered" });
         }
       }
-      // More specific errors for debugging
       const msg = (error.message || "").toLowerCase();
       if (msg.includes("r2") || msg.includes("not configured")) {
         return res.status(500).json({ error: "File upload service not configured. Contact support." });
       }
       if (msg.includes("column") || msg.includes("syntax") || error.code) {
-        return res.status(500).json({
-          error: "Database error.",
-          debug: error.message,
-        });
+        console.error("[REGISTER] Database error:", error);
+        return res.status(500).json({ error: "An internal error occurred. Please try again." });
       }
-      // Show actual error for debugging (remove in production when fixed)
-      res.status(500).json({
-        error: "Error during registration",
-        debug: error.message,
-      });
+      res.status(500).json({ error: "An internal error occurred during registration." });
     }
   }
 );
@@ -855,22 +862,20 @@ router.get("/clear-session", (req, res) => {
   });
 });
 
-// Add a clear session endpoint to help with testing
-router.get("/clear-all-session", (req, res) => {
-  // Clear passport session
+// Clear all session data (requires authentication, POST only)
+router.post("/clear-all-session", (req, res) => {
+  if (!req.session?.user && !req.isAuthenticated?.()) {
+    return res.status(401).json({ error: "Not authenticated" });
+  }
   req.logout(function(err) {
     if (err) {
       console.error("Logout error:", err);
     }
-    
-    // Also clear our custom session
     req.session.destroy((err) => {
       if (err) {
         console.error("Session destroy error:", err);
         return res.status(500).json({ error: "Failed to clear session" });
       }
-      
-      // Clear cookies as well
       res.clearCookie('connect.sid');
       return res.json({ success: true, message: "Session and cookies cleared" });
     });
@@ -894,14 +899,13 @@ router.post('/reset-password-request', resetRequestLimiter, async (req, res) => 
   try {
     const { email } = req.body;
     
-    // Check if user exists
     const [users] = await db.promise().query(
       'SELECT * FROM users WHERE email = ?',
       [email]
     );
     
     if (users.length === 0) {
-      return res.status(404).json({ error: 'No account with that email address exists.' });
+      return res.status(200).json({ message: 'If an account with that email exists, a password reset link has been sent.' });
     }
     
     const user = users[0];
@@ -930,7 +934,7 @@ router.post('/reset-password-request', resetRequestLimiter, async (req, res) => 
       `
     });
     
-    res.status(200).json({ message: 'Password reset email sent successfully' });
+    res.status(200).json({ message: 'If an account with that email exists, a password reset link has been sent.' });
   } catch (error) {
     console.error('Error sending reset email:', error);
     res.status(500).json({ error: 'Failed to send reset email. Please try again later.' });
@@ -1035,8 +1039,7 @@ router.use((err, req, res, next) => {
     return res.status(400).json({ error: "Error uploading file." });
   }
 
-  // Handle other errors
-  res.status(500).json({ error: err.message || "Internal server error" });
+  res.status(500).json({ error: "Internal server error" });
 });
 
 // Add a new route to handle social registration email verification

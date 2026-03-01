@@ -32,6 +32,50 @@ import HomePage from './pages/HomePage/HomePage';
 axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 axios.defaults.withCredentials = true;
 
+// CSRF token management
+let csrfToken = null;
+
+async function fetchCsrfToken() {
+  try {
+    const response = await axios.get('/api/csrf-token');
+    csrfToken = response.data.csrfToken;
+    return csrfToken;
+  } catch (err) {
+    console.error('Failed to fetch CSRF token:', err);
+    return null;
+  }
+}
+
+axios.interceptors.request.use(async (config) => {
+  const method = (config.method || '').toUpperCase();
+  if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+    if (!csrfToken) {
+      await fetchCsrfToken();
+    }
+    if (csrfToken) {
+      config.headers['X-CSRF-Token'] = csrfToken;
+    }
+  }
+  return config;
+});
+
+axios.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response?.status === 403 && error.response?.data?.error?.includes('CSRF') && !originalRequest._csrfRetry) {
+      originalRequest._csrfRetry = true;
+      csrfToken = null;
+      await fetchCsrfToken();
+      if (csrfToken) {
+        originalRequest.headers['X-CSRF-Token'] = csrfToken;
+        return axios(originalRequest);
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -56,14 +100,15 @@ function App() {
       });
     };
 
-    // Add this useEffect to check auth status on load
-    const checkAuth = async () => {
+    // Fetch initial CSRF token, then check auth status
+    const init = async () => {
+      await fetchCsrfToken();
+      
       try {
         const response = await axios.get('/auth/check-auth', { withCredentials: true });
         setIsAuthenticated(response.data.isAuthenticated);
         
         if (response.data.isAuthenticated && response.data.user) {
-          // Store user in session storage for components that need it
           sessionStorage.setItem('user', JSON.stringify(response.data.user));
         }
       } catch (error) {
@@ -72,7 +117,7 @@ function App() {
       }
     };
     
-    checkAuth();
+    init();
   }, []);
 
   return (

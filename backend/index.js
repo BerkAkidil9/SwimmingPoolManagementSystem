@@ -5,6 +5,7 @@ const session = require("express-session");
 const passport = require("passport");
 const path = require("path");
 const fs = require("fs");
+const crypto = require("crypto");
 const axios = require("axios");
 const cron = require("node-cron");
 require("dotenv").config();
@@ -61,48 +62,12 @@ app.use(
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token']
   })
 );
 
 app.use(bodyParser.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
-
-// Custom file serving middleware (path traversal protection)
-app.use("/uploads", (req, res, next) => {
-  const filePath = req.path.replace(/^\/+/, '');
-  const uploadsDir = path.resolve(__dirname, 'uploads');
-  const fullPath = path.resolve(path.join(__dirname, 'uploads', filePath));
-  // Block path traversal - fullPath must stay inside uploads
-  if (!fullPath.startsWith(uploadsDir + path.sep) && fullPath !== uploadsDir) {
-    return res.status(403).send('Forbidden');
-  }
-  if (fs.existsSync(fullPath)) {
-    console.log("File found, serving:", fullPath);
-    
-    // Check if this is a download request
-    if (req.query.download === 'true') {
-      console.log("Sending as download");
-      const filename = path.basename(fullPath);
-      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    }
-    
-    // Set appropriate content type headers for common file types
-    const ext = path.extname(fullPath).toLowerCase();
-    if (ext === '.pdf') {
-      res.setHeader('Content-Type', 'application/pdf');
-    } else if (ext === '.jpg' || ext === '.jpeg') {
-      res.setHeader('Content-Type', 'image/jpeg');
-    } else if (ext === '.png') {
-      res.setHeader('Content-Type', 'image/png');
-    }
-    
-    res.sendFile(fullPath);
-  } else {
-    console.log("File not found:", fullPath);
-    res.status(404).send('File not found');
-  }
-});
 
 const sessionSecret = process.env.SESSION_SECRET;
 if (!sessionSecret || typeof sessionSecret !== 'string' || sessionSecret.trim() === '') {
@@ -125,6 +90,79 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Custom file serving middleware (path traversal protection + authentication)
+app.use("/uploads", (req, res, next) => {
+  const user = req.session?.user || (req.isAuthenticated?.() && req.user);
+  if (!user) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+
+  const filePath = req.path.replace(/^\/+/, '');
+  const uploadsDir = path.resolve(__dirname, 'uploads');
+  const fullPath = path.resolve(path.join(__dirname, 'uploads', filePath));
+  if (!fullPath.startsWith(uploadsDir + path.sep) && fullPath !== uploadsDir) {
+    return res.status(403).send('Forbidden');
+  }
+  if (fs.existsSync(fullPath)) {
+    if (req.query.download === 'true') {
+      const filename = path.basename(fullPath);
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    }
+    
+    const ext = path.extname(fullPath).toLowerCase();
+    if (ext === '.pdf') {
+      res.setHeader('Content-Type', 'application/pdf');
+    } else if (ext === '.jpg' || ext === '.jpeg') {
+      res.setHeader('Content-Type', 'image/jpeg');
+    } else if (ext === '.png') {
+      res.setHeader('Content-Type', 'image/png');
+    }
+    
+    res.sendFile(fullPath);
+  } else {
+    res.status(404).send('File not found');
+  }
+});
+
+// --- CSRF Protection (Synchronizer Token Pattern) ---
+function generateCsrfToken() {
+  return crypto.randomBytes(32).toString('hex');
+}
+
+app.get("/api/csrf-token", (req, res) => {
+  if (!req.session) {
+    return res.status(500).json({ error: "Session not available" });
+  }
+  const token = generateCsrfToken();
+  req.session.csrfToken = token;
+  res.json({ csrfToken: token });
+});
+
+const csrfSafeRoutes = [
+  '/auth/google', '/auth/google/callback',
+  '/auth/verify-email',
+  '/auth/check-email', '/auth/check-phone',
+  '/auth/login', '/auth/register',
+  '/auth/reset-password', '/auth/validate-reset-token',
+  '/auth/reset-password-request',
+];
+
+function csrfProtection(req, res, next) {
+  if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') {
+    return next();
+  }
+  if (csrfSafeRoutes.some(route => req.originalUrl.startsWith(route))) {
+    return next();
+  }
+  const token = req.headers['x-csrf-token'] || req.body?._csrf;
+  if (!token || !req.session?.csrfToken || token !== req.session.csrfToken) {
+    return res.status(403).json({ error: "Invalid or missing CSRF token" });
+  }
+  next();
+}
+
+app.use(csrfProtection);
 
 // Debugging middleware - only in non-production to avoid leaking session/user to logs
 if (process.env.NODE_ENV !== 'production') {

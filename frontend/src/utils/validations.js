@@ -1,40 +1,28 @@
-// Update patterns to be more strict
+import axios from 'axios';
+
 const patterns = {
   email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
   phone: /^05\d{2}[- ]?\d{3}[- ]?\d{2}[- ]?\d{2}$/, // Turkish phone format
   name: /^[A-Za-zğüşıöçĞÜŞİÖÇ\s]{2,50}$/, // Turkish characters, 2-50 chars
 };
 
-// Add server validation check functions and export them
-const getApiBaseUrl = () => process.env.REACT_APP_API_URL || 'http://localhost:3001';
-
 export const checkEmailUnique = async (email) => {
   try {
-    const response = await fetch(`${getApiBaseUrl()}/auth/check-email`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email })
-    });
-    const data = await response.json();
-    return data.isUnique;
+    const response = await axios.post('/auth/check-email', { email });
+    return response.data.isUnique;
   } catch (error) {
     console.error('Email check failed:', error);
-    return true; // Assume unique on error to not block user
+    return true;
   }
 };
 
 export const checkPhoneUnique = async (phone) => {
   try {
-    const response = await fetch(`${getApiBaseUrl()}/auth/check-phone`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone })
-    });
-    const data = await response.json();
-    return data.isUnique;
+    const response = await axios.post('/auth/check-phone', { phone });
+    return response.data.isUnique;
   } catch (error) {
     console.error('Phone check failed:', error);
-    return true; // Assume unique on error to not block user
+    return true;
   }
 };
 

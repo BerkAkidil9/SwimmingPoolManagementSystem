@@ -145,8 +145,8 @@ router.post("/verify-qr-code", async (req, res) => {
       if (err.verifiedAt) body.details = { verifiedAt: err.verifiedAt };
       return res.status(err.statusCode).json(body);
     }
-    console.error("QR verification error:", err.message);
-    res.status(500).json({ error: `Server error during verification: ${err.message}` });
+    console.error("QR verification error:", err);
+    res.status(500).json({ error: "An internal error occurred during verification." });
   }
 });
 
