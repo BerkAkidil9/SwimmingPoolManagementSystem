@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const crypto = require("crypto");
 const db = require("../config/database");
 const path = require("path");
 const fs = require("fs");
@@ -7,6 +8,22 @@ const multer = require("multer");
 const { uploadToR2 } = require("../utils/r2Storage");
 const { isAuthenticated, getCurrentUser, getCurrentUserId } = require("../middleware/auth");
 const { patterns } = require("../validations");
+
+const CHECK_IN_SECRET = process.env.CHECK_IN_SECRET || process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
+
+function generateCheckInCode(reservationId, userId) {
+  const timestamp = Date.now().toString();
+  const payload = `${reservationId}:${userId}:${timestamp}`;
+  const hmac = crypto.createHmac('sha256', CHECK_IN_SECRET).update(payload).digest('hex');
+  return `${reservationId}-${timestamp}-${hmac.substring(0, 16)}`;
+}
+
+function verifyCheckInCode(checkInCode, reservationId) {
+  const parts = checkInCode.split('-');
+  if (parts.length < 3) return false;
+  const codeReservationId = parts[0];
+  return String(codeReservationId) === String(reservationId);
+}
 
 function toWorkerUrlIfR2(urlPath, workerUrl) {
   if (!urlPath || !workerUrl || typeof urlPath !== "string") return urlPath;
@@ -991,8 +1008,7 @@ router.post("/check-in", isAuthenticated, async (req, res) => {
 
     const userPackage = packageResult[0];
 
-    // Generate unique check-in code (format required by staff verification)
-    const checkInCode = `${reservationId}-${Date.now()}`;
+    const checkInCode = generateCheckInCode(reservationId, userId);
 
     // Update reservation status and store check-in code for cross-device QR access
     try {

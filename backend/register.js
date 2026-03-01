@@ -10,6 +10,7 @@ const fs = require("fs");
 const crypto = require("crypto");
 const { sendEmail } = require("./utils/sendEmail");
 const { hashToken, validatePasswordStrength } = require("./utils/security");
+const { isAuthenticated, getCurrentUserId } = require("./middleware/auth");
 
 const generateVerificationToken = () => {
   return crypto.randomBytes(32).toString("hex");
@@ -358,14 +359,28 @@ router.post(
       } else if (socialUser?.profile_picture) {
         debug(8, "Fetching social profile pic...");
         try {
-          const response = await fetch(socialUser.profile_picture);
-          const buffer = Buffer.from(await response.arrayBuffer());
-          const fileName = `social_${Date.now()}.jpg`;
-          if (useR2) {
-            profilePhotoPath = await uploadToR2(buffer, `profile_photos/${fileName}`, 'image/jpeg');
+          const ALLOWED_PROFILE_HOSTS = new Set([
+            'lh3.googleusercontent.com',
+            'lh4.googleusercontent.com',
+            'lh5.googleusercontent.com',
+            'lh6.googleusercontent.com',
+            'platform-lookaside.fbsbx.com',
+            'avatars.githubusercontent.com',
+            'graph.facebook.com',
+          ]);
+          const picUrl = new URL(socialUser.profile_picture);
+          if (picUrl.protocol !== 'https:' || !ALLOWED_PROFILE_HOSTS.has(picUrl.hostname)) {
+            console.warn('Blocked untrusted profile picture URL:', picUrl.hostname);
           } else {
-            await fs.promises.writeFile(path.join(__dirname, 'uploads', 'profile_photos', fileName), buffer);
-            profilePhotoPath = `profile_photos/${fileName}`;
+            const response = await fetch(picUrl.toString());
+            const buffer = Buffer.from(await response.arrayBuffer());
+            const fileName = `social_${Date.now()}.jpg`;
+            if (useR2) {
+              profilePhotoPath = await uploadToR2(buffer, `profile_photos/${fileName}`, 'image/jpeg');
+            } else {
+              await fs.promises.writeFile(path.join(__dirname, 'uploads', 'profile_photos', fileName), buffer);
+              profilePhotoPath = `profile_photos/${fileName}`;
+            }
           }
         } catch (error) {
           console.error('Error saving social profile photo:', error);
@@ -696,13 +711,10 @@ router.get(
 );
 
 // Updated file upload routes with error handling
-router.post("/upload-id-card", upload.single("idCard"), async (req, res) => {
+router.post("/upload-id-card", isAuthenticated, upload.single("idCard"), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: "No file uploaded" });
-    }
-    if (!req.user) {
-      return res.status(401).json({ error: "User not authenticated" });
     }
 
     let filePath;
@@ -714,7 +726,8 @@ router.post("/upload-id-card", upload.single("idCard"), async (req, res) => {
       filePath = req.file.path.replace(/^.*[\\\/]uploads[\\\/]/, '');
     }
 
-    await db.promise().query("UPDATE users SET id_card_path = ? WHERE id = ?", [filePath, req.user.id]);
+    const userId = getCurrentUserId(req);
+    await db.promise().query("UPDATE users SET id_card_path = ? WHERE id = ?", [filePath, userId]);
 
     res.json({ message: "ID Card uploaded successfully", filePath });
   } catch (error) {
@@ -724,14 +737,10 @@ router.post("/upload-id-card", upload.single("idCard"), async (req, res) => {
   }
 });
 
-router.post("/upload-profile-photo", upload.single("profilePhoto"), async (req, res) => {
+router.post("/upload-profile-photo", isAuthenticated, upload.single("profilePhoto"), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: "No file uploaded" });
-    }
-    if (!req.user) {
-      if (req.file?.path) fs.unlink(req.file.path, (err) => { if (err) console.error("Error deleting file:", err); });
-      return res.status(401).json({ error: "User not authenticated" });
     }
 
     let filePath;
@@ -743,7 +752,8 @@ router.post("/upload-profile-photo", upload.single("profilePhoto"), async (req, 
       filePath = req.file.path.replace(/^.*[\\\/]uploads[\\\/]/, '');
     }
 
-    await db.promise().query("UPDATE users SET profile_photo_path = ? WHERE id = ?", [filePath, req.user.id]);
+    const userId = getCurrentUserId(req);
+    await db.promise().query("UPDATE users SET profile_photo_path = ? WHERE id = ?", [filePath, userId]);
 
     res.json({ message: "Profile photo uploaded successfully", filePath });
   } catch (error) {
@@ -867,8 +877,8 @@ router.post("/resend-verification", async (req, res) => {
   }
 });
 
-// Enhanced logout route with cache clearing
-router.get("/clear-session", (req, res) => {
+// Enhanced logout route with cache clearing (POST to prevent Logout CSRF via img/link tags)
+router.post("/clear-session", (req, res) => {
   req.logout(function (err) {
     if (err) {
       console.error("Logout error:", err);

@@ -193,7 +193,7 @@ const CheckInPage = () => {
       const response = await axios.post('/api/member/check-in', { reservationId: reservation.id });
       
       if (response.data.success) {
-        const checkInCode = response.data.checkInCode || `${reservation.id}-${Date.now()}`;
+        const checkInCode = response.data.checkInCode;
         const checkedInAt = response.data.checkedInAt || new Date().toISOString();
         
         // Get actual user ID from multiple sources
@@ -552,7 +552,7 @@ const CheckInPage = () => {
                         poolName: selectedQRCode.poolName || '',
                         date: selectedQRCode.session_date ? new Date(selectedQRCode.session_date).toLocaleDateString() : '',
                         time: selectedQRCode.start_time ? `${selectedQRCode.start_time} - ${selectedQRCode.end_time}` : '',
-                        checkInCode: selectedQRCode.checkInCode || selectedQRCode.check_in_code || `${selectedQRCode.id || ''}-${Date.now()}`
+                        checkInCode: selectedQRCode.checkInCode || selectedQRCode.check_in_code || ''
                       })}
                       size={200}
                       level={"M"}
@@ -623,7 +623,7 @@ const CheckInPage = () => {
                           poolName: checkInResult.poolName || '',
                           date: checkInResult.session_date ? new Date(checkInResult.session_date).toLocaleDateString() : '',
                           time: checkInResult.start_time ? `${checkInResult.start_time} - ${checkInResult.end_time}` : '',
-                          checkInCode: checkInResult.checkInCode || checkInResult.check_in_code || `${checkInResult.id || ''}-${Date.now()}`
+                          checkInCode: checkInResult.checkInCode || checkInResult.check_in_code || ''
                         })}
                         size={200}
                         level={"M"}

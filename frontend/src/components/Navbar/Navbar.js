@@ -59,7 +59,7 @@ const Navbar = () => {
   const handleLogout = async () => {
     try {
       // Use the correct logout endpoint
-      await axios.get('/auth/clear-session', { withCredentials: true });
+      await axios.post('/auth/clear-session', {}, { withCredentials: true });
       sessionStorage.removeItem('user');
       navigate('/login');
     } catch (error) {

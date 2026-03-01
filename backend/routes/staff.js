@@ -67,7 +67,7 @@ router.post("/verify-qr-code", async (req, res) => {
       }
       
       const [reservations] = await trx.query(
-        `SELECT r.*, s.session_date, s.start_time, s.end_time, s.type, p.name as pool_name,
+        `SELECT r.*, r.check_in_code, s.session_date, s.start_time, s.end_time, s.type, p.name as pool_name,
          u.name as user_name, u.surname as user_surname
          FROM reservations r
          JOIN sessions s ON r.session_id = s.id
@@ -85,9 +85,8 @@ router.post("/verify-qr-code", async (req, res) => {
       
       const reservation = reservations[0];
       
-      const isValidCheckInCode = checkInCode.startsWith(`${reservationId}-`);
-      if (!isValidCheckInCode) {
-        const err = new Error("Invalid check-in code format");
+      if (!reservation.check_in_code || reservation.check_in_code !== checkInCode) {
+        const err = new Error("Invalid or tampered check-in code");
         err.statusCode = 400;
         throw err;
       }
