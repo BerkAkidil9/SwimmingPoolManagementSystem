@@ -711,8 +711,14 @@ const MemberDashboard = () => {
                         <FaCalendarAlt />
                         {new Date(session.session_date).toLocaleDateString()}
                       </div>
+                      {session.type && (
+                        <div className="session-type">
+                          {session.type === 'education' ? <FaGraduationCap /> : <FaSwimmer />}
+                          <span>{session.type === 'education' ? 'Education' : 'Free Swimming'}</span>
+                        </div>
+                      )}
                       <div className="session-spots">
-                        Available Spots: {session.available_spots}
+                        Available Spots: {session.available_spots != null ? session.available_spots : '—'}
                       </div>
                     </div>
                     <button 

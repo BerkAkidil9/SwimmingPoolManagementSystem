@@ -705,8 +705,8 @@ router.get("/pools/:poolId/sessions/count", isAuthenticated, async (req, res) =>
       return res.status(400).json({ error: "Invalid session type" });
     }
 
-    // Parameterized type filter (no string interpolation)
-    const [result] = await db.promise().query(
+    // Aynı mantık: sadece henüz başlamamış oturumlar (View Sessions ile aynı koşul)
+    const [rows] = await db.promise().query(
       `SELECT COUNT(*) as count
        FROM sessions s
        WHERE s.pool_id = ?
@@ -715,8 +715,9 @@ router.get("/pools/:poolId/sessions/count", isAuthenticated, async (req, res) =>
       [poolId, type || null, type || null]
     );
 
-    console.log(`Session count for pool ${poolId}, type ${type || 'all'}: ${result[0].count}`);
-    res.json({ count: result[0].count });
+    const count = rows && rows[0] ? Number(rows[0].count) : 0;
+    console.log(`Session count for pool ${poolId}, type ${type || 'all'}: ${count}`);
+    res.json({ count });
   } catch (error) {
     console.error("Error fetching session counts:", error);
     res.status(500).json({ error: "Error fetching session counts" });
