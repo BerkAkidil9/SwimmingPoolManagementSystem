@@ -211,9 +211,21 @@ function App() {
             />
 
             {/* Health Report Upload - requires login; email links may use /upload-health-report or /upload-health-report/:userId */}
-            <Route path="/health-report-upload" element={<HealthReportUpload />} />
-            <Route path="/upload-health-report" element={<HealthReportUpload />} />
-            <Route path="/upload-health-report/:userId" element={<HealthReportUpload />} />
+            <Route path="/health-report-upload" element={
+              <ProtectedRoute>
+                <HealthReportUpload />
+              </ProtectedRoute>
+            } />
+            <Route path="/upload-health-report" element={
+              <ProtectedRoute>
+                <HealthReportUpload />
+              </ProtectedRoute>
+            } />
+            <Route path="/upload-health-report/:userId" element={
+              <ProtectedRoute>
+                <HealthReportUpload />
+              </ProtectedRoute>
+            } />
             {/* Coach Dashboard Route */}
             <Route 
               path="/coach/dashboard" 
@@ -223,13 +235,7 @@ function App() {
                 </ProtectedRoute>
               } 
             />
-            {/* Direct Coach Dashboard (for testing) */}
-            <Route 
-              path="/direct-coach-dashboard" 
-              element={
-                <CoachDashboard />
-              } 
-            />
+            {/* Coach Dashboard (direct access removed - use /coach/dashboard with auth) */}
             {/* Member Dashboard */}
             <Route 
               path="/member/dashboard" 
@@ -271,10 +277,18 @@ function App() {
             />
 
             {/* Education Package */}
-            <Route path="/education-package" element={<EducationPackage />} />
+            <Route path="/education-package" element={
+              <ProtectedRoute>
+                <EducationPackage />
+              </ProtectedRoute>
+            } />
 
             {/* Free Swimming Package */}
-            <Route path="/free-swimming-package" element={<FreeSwimmingPackage />} />
+            <Route path="/free-swimming-package" element={
+              <ProtectedRoute>
+                <FreeSwimmingPackage />
+              </ProtectedRoute>
+            } />
             
             {/* Reset password: token in hash (secure) or in path (legacy) */}
             <Route path="/reset-password" element={<ResetPassword />} />

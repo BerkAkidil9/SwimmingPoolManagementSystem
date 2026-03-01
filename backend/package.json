@@ -34,6 +34,7 @@
     "express-session": "^1.18.1",
     "gmail-nodemailer-transport": "^3.0.2",
     "googleapis": "^171.4.0",
+    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
     "node-cron": "^3.0.3",

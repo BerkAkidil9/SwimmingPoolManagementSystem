@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const helmet = require("helmet");
 const session = require("express-session");
 const pgSession = require("connect-pg-simple")(session);
 const passport = require("passport");
@@ -29,6 +30,24 @@ const port = process.env.PORT || 3001;
 
 // Trust proxy (Render puts app behind reverse proxy - needed for correct secure cookies)
 app.set('trust proxy', 1);
+
+// Security headers
+const frontendOrigin = process.env.FRONTEND_URL || 'http://localhost:3000';
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "https://js.stripe.com"],
+      frameSrc: ["'self'", "https://js.stripe.com"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", frontendOrigin, "https://api.stripe.com"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      fontSrc: ["'self'", "data:"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+}));
 
 // Upload directories setup
 const idCardsDir = path.join(__dirname, "uploads", "id_cards");
@@ -111,18 +130,21 @@ app.use("/uploads", (req, res, next) => {
     return res.status(403).send('Forbidden');
   }
   if (fs.existsSync(fullPath)) {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+
     if (req.query.download === 'true') {
       const filename = path.basename(fullPath);
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     }
     
+    const SAFE_CONTENT_TYPES = { '.pdf': 'application/pdf', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.gif': 'image/gif', '.webp': 'image/webp' };
     const ext = path.extname(fullPath).toLowerCase();
-    if (ext === '.pdf') {
-      res.setHeader('Content-Type', 'application/pdf');
-    } else if (ext === '.jpg' || ext === '.jpeg') {
-      res.setHeader('Content-Type', 'image/jpeg');
-    } else if (ext === '.png') {
-      res.setHeader('Content-Type', 'image/png');
+    const contentType = SAFE_CONTENT_TYPES[ext];
+    if (contentType) {
+      res.setHeader('Content-Type', contentType);
+    } else {
+      res.setHeader('Content-Type', 'application/octet-stream');
+      res.setHeader('Content-Disposition', `attachment; filename="${path.basename(fullPath)}"`);
     }
     
     res.sendFile(fullPath);
@@ -145,19 +167,22 @@ app.get("/api/csrf-token", (req, res) => {
   res.json({ csrfToken: token });
 });
 
-const csrfSafeRoutes = [
-  '/auth/google', '/auth/google/callback',
+// Routes exempt from CSRF: OAuth redirects (browser-initiated, no JS) and
+// token-gated operations that already carry their own one-time secret.
+const csrfSafeRoutes = new Set([
+  '/auth/google',
+  '/auth/google/callback',
   '/auth/verify-email',
-  '/auth/check-email', '/auth/check-phone',
-  '/auth/reset-password', '/auth/validate-reset-token',
   '/auth/reset-password-request',
-];
+  '/auth/validate-reset-token',
+  '/auth/reset-password',
+]);
 
 function csrfProtection(req, res, next) {
   if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') {
     return next();
   }
-  if (csrfSafeRoutes.some(route => req.originalUrl.startsWith(route))) {
+  if (csrfSafeRoutes.has(req.path)) {
     return next();
   }
   const token = req.headers['x-csrf-token'] || req.body?._csrf;

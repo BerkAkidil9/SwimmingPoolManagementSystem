@@ -12,12 +12,15 @@ const isCoach = (req, res, next) => {
   next();
 };
 
-// Get list of members with their swimming knowledge status
+// Get list of approved members with their swimming knowledge status
 router.get("/members", isCoach, async (req, res) => {
   try {
     const [users] = await db.promise().query(`
-      SELECT id, name, surname, email, phone, swimming_ability
+      SELECT id, name, surname, swimming_ability
       FROM users
+      WHERE role = 'user'
+        AND verification_status = 'approved'
+        AND health_status = 'approved'
       ORDER BY surname ASC, name ASC
     `);
 

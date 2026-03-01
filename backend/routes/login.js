@@ -64,14 +64,13 @@ router.post("/login", loginLimiter, async (req, res) => {
         .json({ error: "Your health assessment has been rejected. You are unable to participate in swimming activities. Access is no longer available." });
     }
     
-    // Debug logs for doctor role issue
-    console.log("LOGIN BACKEND - User found:", {
-      id: user.id,
-      email: user.email, 
-      role: user.role,
-      roleType: typeof user.role,
-      verification: user.verification_status
-    });
+    if (process.env.NODE_ENV !== 'production') {
+      console.log("LOGIN BACKEND - User found:", {
+        id: user.id,
+        role: user.role,
+        verification: user.verification_status
+      });
+    }
     
     // Regenerate session to prevent session fixation attacks
     const userData = { 
@@ -93,7 +92,9 @@ router.post("/login", loginLimiter, async (req, res) => {
           console.error("Session save error:", saveErr);
           return res.status(500).json({ error: "Session error. Please try again." });
         }
-        console.log("LOGIN BACKEND - Session created:", req.session.user);
+        if (process.env.NODE_ENV !== 'production') {
+          console.log("LOGIN BACKEND - Session created for user:", req.session.user?.id);
+        }
         res.json({ 
           isAuthenticated: true, 
           user: { 

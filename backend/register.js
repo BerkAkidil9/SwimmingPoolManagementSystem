@@ -59,34 +59,38 @@ const storage = useR2
       },
     });
 
-// Configure multer with file type validation
+const ALLOWED_IMAGE_MIMES = new Set(['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
+const ALLOWED_IMAGE_EXTS = new Set(['.jpg', '.jpeg', '.png', '.gif', '.webp']);
+
 const upload = multer({
   storage,
   fileFilter: (req, file, cb) => {
     if (file.fieldname === "idCard") {
-      if (file.mimetype === "application/pdf") {
-        cb(null, true);
-      } else {
-        cb(new Error("Only PDF files are allowed for ID Card!"), false);
+      const ext = path.extname(file.originalname).toLowerCase();
+      if (file.mimetype !== "application/pdf" || ext !== '.pdf') {
+        return cb(new Error("Only PDF files are allowed for ID Card!"), false);
       }
+      cb(null, true);
     } else if (file.fieldname === "profilePhoto") {
-      if (file.mimetype.startsWith("image/")) {
-        cb(null, true);
-      } else {
-        cb(new Error("Only image files are allowed for Profile Photo!"), false);
+      const ext = path.extname(file.originalname).toLowerCase();
+      if (!ALLOWED_IMAGE_MIMES.has(file.mimetype) || !ALLOWED_IMAGE_EXTS.has(ext)) {
+        return cb(new Error("Only image files (jpg, png, gif, webp) are allowed for Profile Photo!"), false);
       }
+      cb(null, true);
     } else {
       cb(new Error("Unexpected field"), false);
     }
   },
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
+    fileSize: 5 * 1024 * 1024,
   },
 });
 
+const _isDev = process.env.NODE_ENV !== 'production';
+
 // Passport serialization
 passport.serializeUser((user, done) => {
-  console.log("Serializing user:", user.id || 'temp user');
+  if (_isDev) console.log("Serializing user:", user.id || 'temp user');
   // If it's a temporary user from social auth, serialize the whole object
   if (user.isTemp) {
     done(null, { isTemp: true, ...user });
@@ -98,7 +102,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (serializedUser, done) => {
   try {
-    console.log("Deserializing user:", serializedUser.id || 'temp user');
+    if (_isDev) console.log("Deserializing user:", serializedUser.id || 'temp user');
     // If it's a temporary user, return the whole object
     if (serializedUser.isTemp) {
       done(null, serializedUser);
@@ -109,7 +113,7 @@ passport.deserializeUser(async (serializedUser, done) => {
         .query("SELECT * FROM users WHERE id = ?", [serializedUser.id]);
       
       if (rows.length === 0) {
-        console.log("No user found with ID:", serializedUser.id);
+        if (_isDev) console.log("No user found with ID:", serializedUser.id);
         return done(null, false);
       }
       
@@ -137,7 +141,7 @@ passport.use(
     },
     async function (accessToken, refreshToken, profile, done) {
       try {
-        console.log("Google OAuth Profile:", profile);
+        if (_isDev) console.log("Google OAuth Profile:", profile.id);
 
         // Check if user already exists with this email
         const [existingUsers] = await db
@@ -145,12 +149,11 @@ passport.use(
           .query("SELECT * FROM users WHERE email = ?", [profile.emails[0].value]);
 
         if (existingUsers.length > 0) {
-          // Set isTemp:false explicitly for existing users
           const existingUser = {
             ...existingUsers[0],
-            isTemp: false  // Explicitly mark as not temporary
+            isTemp: false
           };
-          console.log("Found existing user with this email:", existingUser.id);
+          if (_isDev) console.log("Found existing user:", existingUser.id);
           return done(null, existingUser);
         }
 
@@ -186,34 +189,48 @@ passport.use(
 // Rate limiter for uniqueness checks (prevents user enumeration at scale)
 const checkUniquenessLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 15,
+  max: 5,
   message: { error: "Too many requests. Please try again later." },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
-// Check email uniqueness
+// Check email uniqueness (constant-time response to prevent timing enumeration)
 router.post('/check-email', checkUniquenessLimiter, async (req, res) => {
+    const start = Date.now();
     try {
         const { email } = req.body;
+        if (!email || typeof email !== 'string' || !email.includes('@')) {
+            return res.status(400).json({ error: 'Invalid email' });
+        }
         const [rows] = await db.promise().query(
             'SELECT COUNT(*) as count FROM users WHERE email = ?',
             [email]
         );
-        res.json({ isUnique: Number(rows[0].count) === 0 });
+        const elapsed = Date.now() - start;
+        const delay = Math.max(0, 200 - elapsed);
+        setTimeout(() => res.json({ isUnique: Number(rows[0].count) === 0 }), delay);
     } catch (error) {
         console.error('Email check error:', error);
         res.status(500).json({ error: 'Server error' });
     }
 });
 
-// Check phone uniqueness
+// Check phone uniqueness (constant-time response to prevent timing enumeration)
 router.post('/check-phone', checkUniquenessLimiter, async (req, res) => {
+    const start = Date.now();
     try {
         const { phone } = req.body;
+        if (!phone || typeof phone !== 'string') {
+            return res.status(400).json({ error: 'Invalid phone' });
+        }
         const [rows] = await db.promise().query(
             'SELECT COUNT(*) as count FROM users WHERE phone = ?',
             [phone]
         );
-        res.json({ isUnique: Number(rows[0].count) === 0 });
+        const elapsed = Date.now() - start;
+        const delay = Math.max(0, 200 - elapsed);
+        setTimeout(() => res.json({ isUnique: Number(rows[0].count) === 0 }), delay);
     } catch (error) {
         console.error('Phone check error:', error);
         res.status(500).json({ error: 'Server error' });
@@ -510,8 +527,10 @@ router.get("/verify-email", async (req, res) => {
   } catch (_) {}
   token = token.trim();
 
-  console.log("=== Email Verification (GET) ===");
-  console.log("Token length:", token.length, "First 10 chars:", token.substring(0, 10));
+  if (_isDev) {
+    console.log("=== Email Verification (GET) ===");
+    console.log("Token length:", token.length);
+  }
 
   if (!token) {
     return res.redirect(`${redirectBase}/verify-result?status=error&message=invalid`);
@@ -531,7 +550,7 @@ router.get("/verify-email", async (req, res) => {
     }
 
     if (users.length === 0) {
-      console.log("No user found for verification token hash");
+      if (_isDev) console.log("No user found for verification token hash");
       return res.redirect(`${redirectBase}/verify-result?status=error&message=expired`);
     }
 
@@ -549,7 +568,7 @@ router.get("/verify-email", async (req, res) => {
         [user.id]
       );
 
-    console.log("User verified successfully:", user.id);
+    if (_isDev) console.log("User verified successfully:", user.id);
     return res.redirect(`${redirectBase}/verify-result?status=success`);
   } catch (error) {
     console.error("Verification error:", error);
@@ -559,12 +578,11 @@ router.get("/verify-email", async (req, res) => {
 
 // POST - Fallback for programmatic verification
 router.post(["/verify-email", "/verify-email/:token"], async (req, res) => {
-  console.log("=== Email Verification Debug ===");
   let token = (req.body?.token || req.params?.token || "").trim();
   try {
     token = decodeURIComponent(token);
   } catch (_) {}
-  console.log("Received token length:", token.length);
+  if (_isDev) console.log("Email Verification POST - token length:", token.length);
 
   if (!token) {
     return res.status(400).json({ message: "Verification link is invalid or has expired." });
@@ -581,7 +599,7 @@ router.post(["/verify-email", "/verify-email/:token"], async (req, res) => {
       );
 
     if (users.length === 0) {
-      console.log("No user found with this token");
+      if (_isDev) console.log("No user found with this token");
       return res.status(400).json({ message: "Verification link is invalid or has expired." });
     }
 
@@ -620,16 +638,14 @@ router.get(
   "/google/callback",
   passport.authenticate("google", { failureRedirect: "/login" }),
   (req, res) => {
-    console.log("Google callback - user object:", JSON.stringify(req.user, null, 2));
+    if (_isDev) console.log("Google callback - user id:", req.user?.id, "isTemp:", req.user?.isTemp);
     
-    // If user is not temporary (i.e., it's an existing user), check email verification
     if (!req.user.isTemp) {
       if (!req.user.email_verified) {
         req.session.destroy(() => {});
         return res.redirect(`${process.env.FRONTEND_URL}/login?error=verify_email`);
       }
-      console.log("Redirecting existing user to dashboard");
-      console.log("User role is:", req.user.role);
+      if (_isDev) console.log("Redirecting existing user to dashboard, role:", req.user.role);
       
       // Regenerate session to prevent session fixation attacks
       const oauthUserData = {
@@ -644,6 +660,7 @@ router.get(
       req.session.regenerate(regenerateErr => {
         if (regenerateErr) {
           console.error("Session regeneration error:", regenerateErr);
+          return res.redirect(`${process.env.FRONTEND_URL}/login?error=session_error`);
         }
         req.session.user = oauthUserData;
         req.session.passport = { user: { isTemp: false, id: oauthUserData.id } };
@@ -651,9 +668,10 @@ router.get(
         req.session.save(err => {
           if (err) {
             console.error("Session save error:", err);
+            return res.redirect(`${process.env.FRONTEND_URL}/login?error=session_error`);
           }
           
-          console.log(`Redirecting user with role ${oauthUserRole} to appropriate dashboard`);
+          if (_isDev) console.log(`Redirecting user with role ${oauthUserRole}`);
           
           if (oauthUserRole === 'admin') {
             return res.redirect(`${process.env.FRONTEND_URL}/admin`);
@@ -663,8 +681,7 @@ router.get(
         });
       });
     } else {
-      // New user logic...
-      console.log("Redirecting new user to social registration");
+      if (_isDev) console.log("Redirecting new user to social registration");
       req.session.socialData = req.user.socialData;
       
       // Save the session before redirecting
@@ -739,16 +756,17 @@ router.post("/upload-profile-photo", upload.single("profilePhoto"), async (req, 
 // Check authentication status - update this route
 router.get("/check-auth", (req, res) => {
   try {
-    console.log("Check Auth - Session:", JSON.stringify(req.session));
-    console.log("Check Auth - Is Authenticated:", req.isAuthenticated());
-    console.log("Check Auth - User:", req.user ? JSON.stringify(req.user) : "No user");
+    if (_isDev) {
+      console.log("Check Auth - Is Authenticated:", req.isAuthenticated());
+      console.log("Check Auth - User ID:", req.session?.user?.id || req.user?.id || "none");
+    }
     
     let user = null;
     let isAuthenticated = false;
     
     // First check session.user (our custom session)
     if (req.session && req.session.user) {
-      console.log("Using session.user with role:", req.session.user.role);
+      if (_isDev) console.log("Using session.user with role:", req.session.user.role);
       isAuthenticated = true;
       user = {
         id: req.session.user.id,
@@ -760,7 +778,7 @@ router.get("/check-auth", (req, res) => {
     } 
     // Then check passport user
     else if (req.isAuthenticated() && req.user) {
-      console.log("Using passport user with role:", req.user.role);
+      if (_isDev) console.log("Using passport user with role:", req.user.role);
       isAuthenticated = true;
       user = {
         id: req.user.id,
@@ -783,13 +801,13 @@ router.get("/check-auth", (req, res) => {
         user.role = 'user'; // Default to user if invalid role
       }
       
-      console.log("Returning authenticated user with role:", user.role);
+      if (_isDev) console.log("Returning authenticated user with role:", user.role);
       return res.json({
         isAuthenticated: true,
         user: user
       });
     } else {
-      console.log("No authenticated user found");
+      if (_isDev) console.log("No authenticated user found");
       res.json({
         isAuthenticated: false,
         user: null
