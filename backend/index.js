@@ -84,7 +84,7 @@ app.use(
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
-    exposedHeaders: ['X-New-CSRF-Token']
+    exposedHeaders: []
   })
 );
 
@@ -203,6 +203,10 @@ const csrfSafeRoutes = new Set([
   '/auth/google',
   '/auth/google/callback',
   '/auth/verify-email',
+  '/auth/login',
+  '/auth/register',
+  '/auth/reset-password-request',
+  '/auth/reset-password',
 ]);
 
 function csrfProtection(req, res, next) {
@@ -216,10 +220,6 @@ function csrfProtection(req, res, next) {
   if (!token || !req.session?.csrfToken || token !== req.session.csrfToken) {
     return res.status(403).json({ error: "Invalid or missing CSRF token" });
   }
-  // Rotate token after successful validation to prevent reuse
-  const newToken = generateCsrfToken();
-  req.session.csrfToken = newToken;
-  res.setHeader('X-New-CSRF-Token', newToken);
   next();
 }
 
