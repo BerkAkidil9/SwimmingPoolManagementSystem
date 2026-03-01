@@ -174,8 +174,6 @@ const csrfSafeRoutes = new Set([
   '/auth/google/callback',
   '/auth/verify-email',
   '/auth/reset-password-request',
-  '/auth/validate-reset-token',
-  '/auth/reset-password',
 ]);
 
 function csrfProtection(req, res, next) {

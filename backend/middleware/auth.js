@@ -1,37 +1,54 @@
+/**
+ * Centralized auth middleware.
+ * All route files MUST use these helpers instead of defining their own.
+ */
+
+function getCurrentUser(req) {
+  return req.session?.user || (req.isAuthenticated?.() && req.user) || null;
+}
+
+function getCurrentUserId(req) {
+  const user = getCurrentUser(req);
+  return user?.id ?? null;
+}
+
 const isAuthenticated = (req, res, next) => {
-  const user = req.session?.user || (req.isAuthenticated?.() && req.user) || null;
-  if (!user) {
+  if (!getCurrentUser(req)) {
     return res.status(401).json({ error: 'Authentication required' });
   }
   next();
 };
 
 const isAdmin = (req, res, next) => {
-  if (!req.session.user || req.session.user.role !== 'admin') {
+  const user = getCurrentUser(req);
+  if (!user || user.role !== 'admin') {
     return res.status(403).json({ error: 'Admin access required' });
   }
   next();
 };
 
 const isDoctor = (req, res, next) => {
-  if (!req.session.user || req.session.user.role !== 'doctor') {
+  const user = getCurrentUser(req);
+  if (!user || user.role !== 'doctor') {
     return res.status(403).json({ error: 'Doctor access required' });
   }
   next();
 };
 
 const isCoach = (req, res, next) => {
-  if (!req.session.user || req.session.user.role !== 'coach') {
+  const user = getCurrentUser(req);
+  if (!user || user.role !== 'coach') {
     return res.status(403).json({ error: 'Coach access required' });
   }
   next();
 };
 
 const isStaff = (req, res, next) => {
-  if (!req.session.user || req.session.user.role !== 'staff') {
+  const user = getCurrentUser(req);
+  if (!user || user.role !== 'staff') {
     return res.status(403).json({ error: 'Staff access required' });
   }
   next();
 };
 
-module.exports = { isAuthenticated, isAdmin, isDoctor, isCoach, isStaff };
+module.exports = { getCurrentUser, getCurrentUserId, isAuthenticated, isAdmin, isDoctor, isCoach, isStaff };

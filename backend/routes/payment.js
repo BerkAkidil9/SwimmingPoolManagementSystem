@@ -1,17 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../config/database");
+const { isAuthenticated, getCurrentUser, getCurrentUserId } = require("../middleware/auth");
 
 // Import Stripe with secret key from environment
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-
-// Middleware to check if user is authenticated
-const isAuthenticated = (req, res, next) => {
-  if (!req.session.user) {
-    return res.status(401).json({ error: "Unauthorized access" });
-  }
-  next();
-};
 
 // Helper function to get or create a Stripe customer for a user
 const getOrCreateStripeCustomer = async (userId, email) => {
@@ -57,10 +50,13 @@ router.post("/create-payment-intent", isAuthenticated, async (req, res) => {
       return res.status(400).json({ error: "Package type is required" });
     }
 
+    const userId = getCurrentUserId(req);
+    const userEmail = getCurrentUser(req)?.email;
+
     // Check for active packages only (both remaining sessions > 0 AND not expired)
     const [existingPackage] = await db.promise().query(
       "SELECT * FROM packages WHERE user_id = ? AND remaining_sessions > 0 AND expiry_date >= CURRENT_DATE",
-      [req.session.user.id]
+      [userId]
     );
 
     if (existingPackage.length) {
@@ -72,7 +68,7 @@ router.post("/create-payment-intent", isAuthenticated, async (req, res) => {
     const sessions = type === 'education' ? 12 : 18;
 
     // Get or create a Stripe customer for this user
-    const customerId = await getOrCreateStripeCustomer(req.session.user.id, req.session.user.email);
+    const customerId = await getOrCreateStripeCustomer(userId, userEmail);
 
     // Create a payment intent with the customer ID
     const paymentIntent = await stripe.paymentIntents.create({
@@ -80,7 +76,7 @@ router.post("/create-payment-intent", isAuthenticated, async (req, res) => {
       currency: "usd",
       customer: customerId,
       metadata: {
-        user_id: req.session.user.id,
+        user_id: userId,
         package_type: type,
         sessions: sessions
       },
@@ -113,13 +109,16 @@ router.post("/payment-success", isAuthenticated, async (req, res) => {
       return res.status(400).json({ error: "Payment has not been completed" });
     }
 
-    // Check the metadata matches our user
-    if (paymentIntent.metadata.user_id != req.session.user.id) {
+    const userId = getCurrentUserId(req);
+    const userEmail = getCurrentUser(req)?.email;
+
+    // Strict type-safe comparison (Stripe metadata values are always strings)
+    if (String(paymentIntent.metadata.user_id) !== String(userId)) {
       return res.status(403).json({ error: "Invalid payment" });
     }
 
     // Get or create Stripe customer
-    const customerId = await getOrCreateStripeCustomer(req.session.user.id, req.session.user.email);
+    const customerId = await getOrCreateStripeCustomer(userId, userEmail);
 
     // Create the package in the database
     const sessions = packageType === 'education' ? 12 : 18;
@@ -134,13 +133,13 @@ router.post("/payment-success", isAuthenticated, async (req, res) => {
       // Insert the package
       await trx.query(
         "INSERT INTO packages (user_id, type, price, remaining_sessions, expiry_date) VALUES (?, ?, ?, ?, ?)",
-        [req.session.user.id, packageType, price, sessions, expiryDate]
+        [userId, packageType, price, sessions, expiryDate]
       );
 
       // Create a payment record
       await trx.query(
         "INSERT INTO payments (user_id, package_type, amount, payment_intent_id, status) VALUES (?, ?, ?, ?, ?)",
-        [req.session.user.id, packageType, price, paymentIntentId, "completed"]
+        [userId, packageType, price, paymentIntentId, "completed"]
       );
 
       // If the user chose to save the card and we have the payment method ID
@@ -155,7 +154,6 @@ router.post("/payment-success", isAuthenticated, async (req, res) => {
               customer: customerId,
             });
           } catch (attachError) {
-            // If this fails because it's already attached, that's okay
             if (process.env.NODE_ENV !== 'production') {
               console.log("Error attaching payment method - may already be attached:", attachError.message);
             }
@@ -166,7 +164,7 @@ router.post("/payment-success", isAuthenticated, async (req, res) => {
             const [existingCard] = await trx.query(
               "SELECT * FROM payment_methods WHERE user_id = ? AND last4 = ? AND exp_month = ? AND exp_year = ?",
               [
-                req.session.user.id, 
+                userId, 
                 paymentMethod.card.last4,
                 paymentMethod.card.exp_month,
                 paymentMethod.card.exp_year
@@ -178,17 +176,16 @@ router.post("/payment-success", isAuthenticated, async (req, res) => {
               // Get count of existing payment methods for this user
               const [cardCount] = await trx.query(
                 "SELECT COUNT(*) AS count FROM payment_methods WHERE user_id = ?",
-                [req.session.user.id]
+                [userId]
               );
               
               // Set as default if this is the first card
               const isDefault = cardCount[0].count === 0 ? true : false;
               
-              // Save the card details (do not log card/payment method IDs or metadata)
               await trx.query(
                 "INSERT INTO payment_methods (user_id, payment_method_id, card_brand, last4, exp_month, exp_year, is_default) VALUES (?, ?, ?, ?, ?, ?, ?)",
                 [
-                  req.session.user.id,
+                  userId,
                   paymentMethodId,
                   paymentMethod.card.brand,
                   paymentMethod.card.last4,
@@ -203,8 +200,6 @@ router.post("/payment-success", isAuthenticated, async (req, res) => {
           }
         } catch (pmError) {
           console.error("Error processing payment method:", pmError);
-          // Continue with transaction - don't fail the whole payment just because 
-          // we couldn't save the payment method
         }
       }
     });
@@ -221,7 +216,7 @@ router.get("/payment-methods", isAuthenticated, async (req, res) => {
   try {
     const [paymentMethods] = await db.promise().query(
       "SELECT * FROM payment_methods WHERE user_id = ? ORDER BY is_default DESC, created_at DESC",
-      [req.session.user.id]
+      [getCurrentUserId(req)]
     );
     
     res.json({ payment_methods: paymentMethods });
@@ -236,10 +231,11 @@ router.put("/payment-methods/:id/default", isAuthenticated, async (req, res) => 
   try {
     const paymentMethodId = req.params.id;
     
+    const uid = getCurrentUserId(req);
     // First, check if the payment method belongs to the user
     const [paymentMethod] = await db.promise().query(
       "SELECT * FROM payment_methods WHERE id = ? AND user_id = ?",
-      [paymentMethodId, req.session.user.id]
+      [paymentMethodId, uid]
     );
     
     if (paymentMethod.length === 0) {
@@ -249,7 +245,7 @@ router.put("/payment-methods/:id/default", isAuthenticated, async (req, res) => 
     await db.transaction(async (trx) => {
       await trx.query(
         "UPDATE payment_methods SET is_default = false WHERE user_id = ?",
-        [req.session.user.id]
+        [uid]
       );
       await trx.query(
         "UPDATE payment_methods SET is_default = true WHERE id = ?",
@@ -269,10 +265,11 @@ router.delete("/payment-methods/:id", isAuthenticated, async (req, res) => {
   try {
     const paymentMethodId = req.params.id;
     
+    const uid = getCurrentUserId(req);
     // First, check if the payment method belongs to the user
     const [paymentMethod] = await db.promise().query(
       "SELECT * FROM payment_methods WHERE id = ? AND user_id = ?",
-      [paymentMethodId, req.session.user.id]
+      [paymentMethodId, uid]
     );
     
     if (paymentMethod.length === 0) {
@@ -289,7 +286,7 @@ router.delete("/payment-methods/:id", isAuthenticated, async (req, res) => {
     if (paymentMethod[0].is_default) {
       const [remainingPaymentMethods] = await db.promise().query(
         "SELECT * FROM payment_methods WHERE user_id = ? ORDER BY created_at DESC LIMIT 1",
-        [req.session.user.id]
+        [uid]
       );
       
       if (remainingPaymentMethods.length > 0) {

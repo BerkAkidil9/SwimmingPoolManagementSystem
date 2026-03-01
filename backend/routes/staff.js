@@ -1,25 +1,21 @@
 const express = require("express");
 const db = require("../config/database");
+const { isStaff, getCurrentUser, getCurrentUserId } = require("../middleware/auth");
 const router = express.Router();
 
 // Staff route middleware - protects all staff routes
-router.use((req, res, next) => {
-  if (!req.session.user || req.session.user.role !== 'staff') {
-    return res.status(403).json({ error: "Access denied. Staff authorization required." });
-  }
-  next();
-});
+router.use(isStaff);
 
 // Get staff dashboard data (can be expanded later with staff-specific functionality)
 router.get("/dashboard", async (req, res) => {
   try {
-    // Return basic staff info
+    const user = getCurrentUser(req);
     res.json({
       success: true,
       staffInfo: {
-        id: req.session.user.id,
-        name: req.session.user.name,
-        email: req.session.user.email
+        id: user?.id,
+        name: user?.name,
+        email: user?.email
       }
     });
   } catch (err) {
@@ -113,7 +109,7 @@ router.post("/verify-qr-code", async (req, res) => {
         throw err;
       }
       
-      const staffId = req.session.user.id;
+      const staffId = getCurrentUserId(req);
       
       await trx.query(
         "INSERT INTO qr_code_verifications (reservation_id, check_in_code, verified_by) VALUES (?, ?, ?)",

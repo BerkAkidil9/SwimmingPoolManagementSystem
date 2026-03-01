@@ -5,6 +5,8 @@ const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
 const { uploadToR2 } = require("../utils/r2Storage");
+const { isAuthenticated, getCurrentUser, getCurrentUserId } = require("../middleware/auth");
+const { patterns } = require("../validations");
 
 function toWorkerUrlIfR2(urlPath, workerUrl) {
   if (!urlPath || !workerUrl || typeof urlPath !== "string") return urlPath;
@@ -66,24 +68,7 @@ async function getHealthReportPath(req, userId) {
   return `health_reports/${filename}`;
 }
 
-// Helper to get current user (supports both session and Passport)
-function getCurrentUser(req) {
-  return req.session?.user || (req.isAuthenticated?.() && req.user) || null;
-}
-
-// Helper to get current user ID
-function getCurrentUserId(req) {
-  const user = getCurrentUser(req);
-  return user?.id ?? null;
-}
-
-// Middleware to check if user is authenticated
-const isAuthenticated = (req, res, next) => {
-  if (!getCurrentUser(req)) {
-    return res.status(401).json({ error: "Unauthorized access" });
-  }
-  next();
-};
+// Auth middleware and helpers imported from ../middleware/auth
 
 // Havuz listesi + sayılar (View Sessions ile aynı mantık: sadece henüz başlamamış oturumlar)
 router.get("/pools", isAuthenticated, async (req, res) => {
@@ -625,11 +610,16 @@ router.post("/feedback", isAuthenticated, async (req, res) => {
   try {
     const { subject, message } = req.body;
     
-    // Validate input
     if (!subject || !message) {
       return res.status(400).json({ error: "Subject and message are required" });
     }
-    
+    if (typeof subject !== 'string' || subject.length > 200) {
+      return res.status(400).json({ error: "Subject must be at most 200 characters" });
+    }
+    if (typeof message !== 'string' || message.length > 5000) {
+      return res.status(400).json({ error: "Message must be at most 5000 characters" });
+    }
+
     // Insert into database
     const result = await db.promise().query(
       "INSERT INTO feedback (user_id, subject, message) VALUES (?, ?, ?)",
@@ -805,8 +795,23 @@ router.post("/resubmit-verification", isAuthenticated, upload.fields([
       });
     }
     
-    // Get personal information from the request body
     const { name, surname, dateOfBirth, phone, gender } = req.body;
+
+    if (name && (!patterns.name.test(name) || name.length < 2 || name.length > 100)) {
+      return res.status(400).json({ error: "Invalid name format" });
+    }
+    if (surname && (!patterns.name.test(surname) || surname.length < 2 || surname.length > 100)) {
+      return res.status(400).json({ error: "Invalid surname format" });
+    }
+    if (phone && !patterns.phone.test(phone)) {
+      return res.status(400).json({ error: "Invalid phone format (05XX-XXX-XX-XX)" });
+    }
+    if (dateOfBirth) {
+      const d = new Date(dateOfBirth);
+      if (isNaN(d.getTime()) || d > new Date()) {
+        return res.status(400).json({ error: "Invalid date of birth" });
+      }
+    }
 
     let idCardPath = null;
     let profilePhotoPath = null;
@@ -1054,6 +1059,23 @@ router.post("/update-profile", isAuthenticated, async (req, res) => {
     // Validate required fields (gender can be "Prefer not to say" - we map it to Other)
     if (!name || !surname || !email || !phone || !date_of_birth || !gender) {
       return res.status(400).json({ error: "All fields are required" });
+    }
+
+    if (!patterns.name.test(name) || name.length < 2 || name.length > 100) {
+      return res.status(400).json({ error: "Invalid name format" });
+    }
+    if (!patterns.name.test(surname) || surname.length < 2 || surname.length > 100) {
+      return res.status(400).json({ error: "Invalid surname format" });
+    }
+    if (!patterns.email.test(email)) {
+      return res.status(400).json({ error: "Invalid email format" });
+    }
+    if (!patterns.phone.test(phone)) {
+      return res.status(400).json({ error: "Invalid phone format (05XX-XXX-XX-XX)" });
+    }
+    const birthDate = new Date(date_of_birth);
+    if (isNaN(birthDate.getTime()) || birthDate > new Date()) {
+      return res.status(400).json({ error: "Invalid date of birth" });
     }
 
     // If email is being changed, check it's not already used by another user

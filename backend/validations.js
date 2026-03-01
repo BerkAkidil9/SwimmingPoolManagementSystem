@@ -280,6 +280,7 @@ const validateTerms = (values, errors) => {
 };
 
 module.exports = {
+    patterns,
     validateRegistration,
     validateFiles,
     validatePersonalInfo,

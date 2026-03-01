@@ -3,14 +3,7 @@ const router = express.Router();
 const db = require("../config/database");
 const path = require("path");
 const fs = require("fs");
-
-// Middleware to check if user is coach
-const isCoach = (req, res, next) => {
-  if (!req.session.user || req.session.user.role !== "coach") {
-    return res.status(403).json({ error: "Unauthorized access" });
-  }
-  next();
-};
+const { isCoach } = require("../middleware/auth");
 
 // Get list of approved members with their swimming knowledge status
 router.get("/members", isCoach, async (req, res) => {

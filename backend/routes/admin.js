@@ -3,14 +3,7 @@ const router = express.Router();
 const db = require("../config/database");
 const { sendEmail } = require("../utils/sendEmail");
 const { escapeHtml } = require("../utils/security");
-
-// Middleware to check if user is admin
-const isAdmin = (req, res, next) => {
-  if (!req.session.user || req.session.user.role !== 'admin') {
-    return res.status(403).json({ error: "Unauthorized access" });
-  }
-  next();
-};
+const { isAdmin } = require("../middleware/auth");
 
 // Get current date/time in Turkey (Europe/Istanbul) for session validation
 const getTurkeyNow = () => {

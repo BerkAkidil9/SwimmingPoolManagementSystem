@@ -49,16 +49,16 @@ const sendHealthReportReminderEmail = async (email, firstName, lastName, reason,
   }
 };
 
-// Custom middleware to allow both doctors and admins to access this endpoint
+const { getCurrentUser } = require("../middleware/auth");
+
 const isDoctorOrAdmin = (req, res, next) => {
-  if (!req.session.user) {
+  const user = getCurrentUser(req);
+  if (!user) {
     return res.status(401).json({ error: "You must be logged in to access this resource" });
   }
-  
-  if (req.session.user.role === 'doctor' || req.session.user.role === 'admin') {
+  if (user.role === 'doctor' || user.role === 'admin') {
     return next();
   }
-  
   return res.status(403).json({ error: "You must be a doctor or admin to access this resource" });
 };
 

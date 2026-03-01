@@ -10,13 +10,7 @@ const axios = require("axios");
 const { uploadToR2 } = require("../utils/r2Storage");
 
 const useR2 = process.env.USE_R2 === 'true';
-
-const isDoctor = (req, res, next) => {
-  if (!req.session.user || req.session.user.role !== 'doctor') {
-    return res.status(403).json({ error: "Unauthorized access" });
-  }
-  next();
-};
+const { isDoctor } = require("../middleware/auth");
 
 const storage = useR2
   ? multer.memoryStorage()
