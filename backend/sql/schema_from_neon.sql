@@ -383,6 +383,9 @@ ALTER TABLE ONLY public.payment_methods
 ALTER TABLE ONLY public.payments
     ADD CONSTRAINT payments_pkey PRIMARY KEY (id);
 
+ALTER TABLE ONLY public.payments
+    ADD CONSTRAINT payments_payment_intent_id_key UNIQUE (payment_intent_id);
+
 ALTER TABLE ONLY public.qr_code_verifications
     ADD CONSTRAINT qr_code_verifications_check_in_code_key UNIQUE (check_in_code);
 

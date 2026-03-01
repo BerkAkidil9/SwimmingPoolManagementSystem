@@ -130,6 +130,28 @@ router.post("/payment-success", isAuthenticated, async (req, res) => {
 
     // Create a transaction to ensure data consistency (PostgreSQL: db.transaction)
     await db.transaction(async (trx) => {
+      // Prevent duplicate payment processing (race condition guard)
+      const [existingPayment] = await trx.query(
+        "SELECT id FROM payments WHERE payment_intent_id = ?",
+        [paymentIntentId]
+      );
+      if (existingPayment.length > 0) {
+        const err = new Error("Payment already processed");
+        err.statusCode = 400;
+        throw err;
+      }
+
+      // Prevent duplicate active packages (row-level lock)
+      const [existingPackage] = await trx.query(
+        "SELECT id FROM packages WHERE user_id = ? AND remaining_sessions > 0 AND expiry_date >= CURRENT_DATE FOR UPDATE",
+        [userId]
+      );
+      if (existingPackage.length > 0) {
+        const err = new Error("You already have an active package");
+        err.statusCode = 400;
+        throw err;
+      }
+
       // Insert the package
       await trx.query(
         "INSERT INTO packages (user_id, type, price, remaining_sessions, expiry_date) VALUES (?, ?, ?, ?, ?)",
@@ -206,6 +228,9 @@ router.post("/payment-success", isAuthenticated, async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({ error: error.message });
+    }
     console.error("Error processing payment:", error);
     res.status(500).json({ error: "Failed to process payment" });
   }

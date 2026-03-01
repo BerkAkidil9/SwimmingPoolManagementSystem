@@ -109,7 +109,7 @@ app.use(
       secure: process.env.NODE_ENV === 'production',
       maxAge: 24 * 60 * 60 * 1000,
       httpOnly: true,
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax',
     },
   })
 );
@@ -203,7 +203,6 @@ const csrfSafeRoutes = new Set([
   '/auth/google',
   '/auth/google/callback',
   '/auth/verify-email',
-  '/auth/reset-password-request',
 ]);
 
 function csrfProtection(req, res, next) {

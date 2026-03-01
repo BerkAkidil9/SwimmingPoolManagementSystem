@@ -205,32 +205,39 @@ router.get("/package", isAuthenticated, async (req, res) => {
 // Purchase a package
 router.post("/packages", isAuthenticated, async (req, res) => {
   const { type } = req.body;
-  
+  const userId = getCurrentUserId(req);
+
   try {
-    // Check for active packages only (both remaining sessions > 0 AND not expired)
-    const [existingPackage] = await db.promise().query(
-      "SELECT * FROM packages WHERE user_id = ? AND remaining_sessions > 0 AND expiry_date >= CURRENT_DATE",
-      [getCurrentUserId(req)]
-    );
+    const result = await db.transaction(async (trx) => {
+      const [existingPackage] = await trx.query(
+        "SELECT id FROM packages WHERE user_id = ? AND remaining_sessions > 0 AND expiry_date >= CURRENT_DATE FOR UPDATE",
+        [userId]
+      );
 
-    if (existingPackage.length) {
-      return res.status(400).json({ error: "You already have an active package" });
-    }
+      if (existingPackage.length) {
+        const err = new Error("You already have an active package");
+        err.statusCode = 400;
+        throw err;
+      }
 
-    const sessions = type === 'education' ? 12 : 18;
-    const expiryDate = new Date();
-    expiryDate.setMonth(expiryDate.getMonth() + 3);
+      const sessions = type === 'education' ? 12 : 18;
+      const expiryDate = new Date();
+      expiryDate.setMonth(expiryDate.getMonth() + 3);
+      const price = type === 'education' ? 100.00 : 150.00;
 
-    // Calculate price based on package type
-    const price = type === 'education' ? 100.00 : 150.00;
+      await trx.query(
+        "INSERT INTO packages (user_id, type, price, remaining_sessions, expiry_date) VALUES (?, ?, ?, ?, ?)",
+        [userId, type, price, sessions, expiryDate]
+      );
 
-    await db.promise().query(
-      "INSERT INTO packages (user_id, type, price, remaining_sessions, expiry_date) VALUES (?, ?, ?, ?, ?)",
-      [getCurrentUserId(req), type, price, sessions, expiryDate]
-    );
+      return { success: true };
+    });
 
-    res.json({ success: true });
+    res.json(result);
   } catch (error) {
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({ error: error.message });
+    }
     console.error("Error purchasing package:", error);
     res.status(500).json({ error: "Error purchasing package" });
   }

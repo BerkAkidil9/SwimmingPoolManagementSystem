@@ -324,6 +324,7 @@ ALTER TABLE ONLY public.health_reports ADD CONSTRAINT health_reports_pkey PRIMAR
 ALTER TABLE ONLY public.packages ADD CONSTRAINT packages_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY public.payment_methods ADD CONSTRAINT payment_methods_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY public.payments ADD CONSTRAINT payments_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.payments ADD CONSTRAINT payments_payment_intent_id_key UNIQUE (payment_intent_id);
 ALTER TABLE ONLY public.qr_code_verifications ADD CONSTRAINT qr_code_verifications_check_in_code_key UNIQUE (check_in_code);
 ALTER TABLE ONLY public.qr_code_verifications ADD CONSTRAINT qr_code_verifications_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY public.reservations ADD CONSTRAINT reservations_pkey PRIMARY KEY (id);
