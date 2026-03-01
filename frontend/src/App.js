@@ -60,7 +60,14 @@ axios.interceptors.request.use(async (config) => {
 });
 
 axios.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Pick up rotated CSRF token from successful state-changing requests
+    const newToken = response.headers['x-new-csrf-token'];
+    if (newToken) {
+      csrfToken = newToken;
+    }
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
     if (error.response?.status === 403 && error.response?.data?.error?.includes('CSRF') && !originalRequest._csrfRetry) {

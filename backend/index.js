@@ -83,7 +83,8 @@ app.use(
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
+    exposedHeaders: ['X-New-CSRF-Token']
   })
 );
 
@@ -116,8 +117,8 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Custom file serving middleware (path traversal protection + authentication)
-app.use("/uploads", (req, res, next) => {
+// Custom file serving middleware (path traversal protection + authentication + authorization)
+app.use("/uploads", async (req, res, next) => {
   const user = req.session?.user || (req.isAuthenticated?.() && req.user);
   if (!user) {
     return res.status(401).json({ error: "Authentication required" });
@@ -129,6 +130,33 @@ app.use("/uploads", (req, res, next) => {
   if (!fullPath.startsWith(uploadsDir + path.sep) && fullPath !== uploadsDir) {
     return res.status(403).send('Forbidden');
   }
+
+  // Authorization: restrict file access based on role and ownership
+  const userRole = (user.role || 'user').toLowerCase();
+  const userId = user.id;
+
+  if (userRole !== 'admin') {
+    if (userRole === 'doctor' && filePath.startsWith('health_reports/')) {
+      // Doctors can access health reports
+    } else {
+      // Regular users / staff / coach: only own files
+      try {
+        const [owned] = await db.promise().query(
+          `SELECT id FROM users WHERE id = ? AND (id_card_path = ? OR profile_photo_path = ?)
+           UNION
+           SELECT user_id AS id FROM health_reports WHERE user_id = ? AND report_path = ?`,
+          [userId, filePath, filePath, userId, filePath]
+        );
+        if (owned.length === 0) {
+          return res.status(403).json({ error: "Access denied" });
+        }
+      } catch (err) {
+        console.error("Upload authorization check error:", err);
+        return res.status(500).json({ error: "Server error" });
+      }
+    }
+  }
+
   if (fs.existsSync(fullPath)) {
     res.setHeader('X-Content-Type-Options', 'nosniff');
 
@@ -187,6 +215,10 @@ function csrfProtection(req, res, next) {
   if (!token || !req.session?.csrfToken || token !== req.session.csrfToken) {
     return res.status(403).json({ error: "Invalid or missing CSRF token" });
   }
+  // Rotate token after successful validation to prevent reuse
+  const newToken = generateCsrfToken();
+  req.session.csrfToken = newToken;
+  res.setHeader('X-New-CSRF-Token', newToken);
   next();
 }
 
