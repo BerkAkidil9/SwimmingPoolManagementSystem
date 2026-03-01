@@ -14,10 +14,14 @@ router.post("/login", loginLimiter, async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Check if the user exists
     const [users] = await db
       .promise()
-      .query("SELECT * FROM users WHERE email = ?", [email]);
+      .query(
+        `SELECT id, name, email, password, role, verification_status,
+                email_verified, health_status, rejection_count
+         FROM users WHERE email = ?`,
+        [email]
+      );
     const user = users[0];
 
     if (!user) {

@@ -18,11 +18,27 @@ function generateCheckInCode(reservationId, userId) {
   return `${reservationId}-${timestamp}-${hmac.substring(0, 16)}`;
 }
 
-function verifyCheckInCode(checkInCode, reservationId) {
+function verifyCheckInCode(checkInCode, reservationId, userId) {
   const parts = checkInCode.split('-');
   if (parts.length < 3) return false;
   const codeReservationId = parts[0];
-  return String(codeReservationId) === String(reservationId);
+  const timestamp = parts[1];
+  const providedHmac = parts.slice(2).join('-');
+
+  if (String(codeReservationId) !== String(reservationId)) return false;
+
+  const payload = `${reservationId}:${userId}:${timestamp}`;
+  const expectedHmac = crypto.createHmac('sha256', CHECK_IN_SECRET)
+    .update(payload).digest('hex').substring(0, 16);
+
+  try {
+    return crypto.timingSafeEqual(
+      Buffer.from(providedHmac, 'utf8'),
+      Buffer.from(expectedHmac, 'utf8')
+    );
+  } catch {
+    return false;
+  }
 }
 
 function toWorkerUrlIfR2(urlPath, workerUrl) {
@@ -51,9 +67,29 @@ const storage = useR2
       }
     });
 
+const ALLOWED_IMAGE_MIMES = new Set(['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
+const ALLOWED_IMAGE_EXTS = new Set(['.jpg', '.jpeg', '.png', '.gif', '.webp']);
+
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (file.fieldname === 'idCard') {
+      const ext = path.extname(file.originalname).toLowerCase();
+      if (file.mimetype !== 'application/pdf' || ext !== '.pdf') {
+        return cb(new Error('Only PDF files are allowed for ID Card'), false);
+      }
+      cb(null, true);
+    } else if (file.fieldname === 'profilePhoto') {
+      const ext = path.extname(file.originalname).toLowerCase();
+      if (!ALLOWED_IMAGE_MIMES.has(file.mimetype) || !ALLOWED_IMAGE_EXTS.has(ext)) {
+        return cb(new Error('Only image files (jpg, png, gif, webp) are allowed for Profile Photo'), false);
+      }
+      cb(null, true);
+    } else {
+      cb(new Error('Unexpected field'), false);
+    }
+  }
 });
 
 // Health report upload: memory storage (userId from session in route), 10MB, pdf/jpg/png

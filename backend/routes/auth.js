@@ -16,7 +16,7 @@ router.get('/google/callback',
         try {
             // Check if email already exists
             const [existingUser] = await pool.query(
-                'SELECT * FROM users WHERE email = ?',
+                'SELECT id, email FROM users WHERE email = ?',
                 [req.user.emails[0].value]
             );
 

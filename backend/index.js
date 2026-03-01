@@ -160,8 +160,10 @@ app.use("/uploads", async (req, res, next) => {
   if (fs.existsSync(fullPath)) {
     res.setHeader('X-Content-Type-Options', 'nosniff');
 
+    const sanitizeFilename = (name) => name.replace(/[^\w.\-]/g, '_');
+
     if (req.query.download === 'true') {
-      const filename = path.basename(fullPath);
+      const filename = sanitizeFilename(path.basename(fullPath));
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     }
     
@@ -172,7 +174,7 @@ app.use("/uploads", async (req, res, next) => {
       res.setHeader('Content-Type', contentType);
     } else {
       res.setHeader('Content-Type', 'application/octet-stream');
-      res.setHeader('Content-Disposition', `attachment; filename="${path.basename(fullPath)}"`);
+      res.setHeader('Content-Disposition', `attachment; filename="${sanitizeFilename(path.basename(fullPath))}"`);
     }
     
     res.sendFile(fullPath);

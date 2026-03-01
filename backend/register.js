@@ -104,21 +104,23 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser(async (serializedUser, done) => {
   try {
     if (_isDev) console.log("Deserializing user:", serializedUser.id || 'temp user');
-    // If it's a temporary user, return the whole object
     if (serializedUser.isTemp) {
       done(null, serializedUser);
     } else {
-      // For regular users, fetch from database
       const [rows] = await db
         .promise()
-        .query("SELECT * FROM users WHERE id = ?", [serializedUser.id]);
+        .query(
+          `SELECT id, name, surname, email, role, verification_status,
+                  email_verified, health_status, profile_photo_path
+           FROM users WHERE id = ?`,
+          [serializedUser.id]
+        );
       
       if (rows.length === 0) {
         if (_isDev) console.log("No user found with ID:", serializedUser.id);
         return done(null, false);
       }
       
-      // Explicitly mark regular users as not temporary
       const user = {
         ...rows[0],
         isTemp: false
@@ -144,10 +146,14 @@ passport.use(
       try {
         if (_isDev) console.log("Google OAuth Profile:", profile.id);
 
-        // Check if user already exists with this email
         const [existingUsers] = await db
           .promise()
-          .query("SELECT * FROM users WHERE email = ?", [profile.emails[0].value]);
+          .query(
+            `SELECT id, name, surname, email, role, verification_status,
+                    email_verified, health_status, profile_photo_path
+             FROM users WHERE email = ?`,
+            [profile.emails[0].value]
+          );
 
         if (existingUsers.length > 0) {
           const existingUser = {
@@ -556,12 +562,12 @@ router.get("/verify-email", async (req, res) => {
     const hashedIncomingToken = hashToken(token);
     let [users] = await db
       .promise()
-      .query("SELECT * FROM users WHERE verification_token = ?", [hashedIncomingToken]);
+      .query("SELECT id, verification_token_expires FROM users WHERE verification_token = ?", [hashedIncomingToken]);
 
     if (users.length === 0) {
       [users] = await db
         .promise()
-        .query("SELECT * FROM users WHERE TRIM(verification_token) = ?", [hashedIncomingToken]);
+        .query("SELECT id, verification_token_expires FROM users WHERE TRIM(verification_token) = ?", [hashedIncomingToken]);
     }
 
     if (users.length === 0) {
@@ -609,7 +615,7 @@ router.post(["/verify-email", "/verify-email/:token"], async (req, res) => {
     const [users] = await db
       .promise()
       .query(
-        "SELECT * FROM users WHERE verification_token = ?",
+        "SELECT id, verification_token_expires FROM users WHERE verification_token = ?",
         [hashedIncomingToken]
       );
 
@@ -697,14 +703,20 @@ router.get(
       });
     } else {
       if (_isDev) console.log("Redirecting new user to social registration");
-      req.session.socialData = req.user.socialData;
-      
-      // Save the session before redirecting
-      req.session.save(err => {
-        if (err) {
-          console.error("Session save error:", err);
+      const socialData = req.user.socialData;
+
+      req.session.regenerate((regenerateErr) => {
+        if (regenerateErr) {
+          console.error("Session regeneration error:", regenerateErr);
+          return res.redirect(`${process.env.FRONTEND_URL}/login?error=session_error`);
         }
-        return res.redirect(`${process.env.FRONTEND_URL}/register/social`);
+        req.session.socialData = socialData;
+        req.session.save(err => {
+          if (err) {
+            console.error("Session save error:", err);
+          }
+          return res.redirect(`${process.env.FRONTEND_URL}/register/social`);
+        });
       });
     }
   }
@@ -932,7 +944,7 @@ router.post('/reset-password-request', resetRequestLimiter, async (req, res) => 
     const { email } = req.body;
     
     const [users] = await db.promise().query(
-      'SELECT * FROM users WHERE email = ?',
+      'SELECT id, email FROM users WHERE email = ?',
       [email]
     );
     
@@ -1032,7 +1044,7 @@ router.post('/reset-password', resetSubmitLimiter, async (req, res) => {
     // Hash the incoming token and compare against stored hash
     const hashedIncoming = hashToken(token);
     const [users] = await db.promise().query(
-      'SELECT * FROM users WHERE password_reset_token = ? AND password_reset_expires > NOW()',
+      'SELECT id FROM users WHERE password_reset_token = ? AND password_reset_expires > NOW()',
       [hashedIncoming]
     );
     
