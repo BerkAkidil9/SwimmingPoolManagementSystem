@@ -34,29 +34,28 @@ router.post("/verify-qr-code", async (req, res) => {
     console.log("QR Verification API - Request body:", req.body);
     const { qrData } = req.body;
     
-    if (!qrData) {
-      console.log("QR Verification API - Error: QR code data is missing");
-      return res.status(400).json({ error: "QR code data is required" });
+    const MAX_QR_LENGTH = 2000;
+    if (typeof qrData !== 'string' || qrData.length > MAX_QR_LENGTH) {
+      return res.status(400).json({ error: "Invalid QR code data" });
     }
-    
-    // Parse the QR data
     let parsedData;
     try {
-      parsedData = typeof qrData === 'string' ? JSON.parse(qrData) : qrData;
-      console.log("QR Verification API - Parsed data:", parsedData);
+      parsedData = JSON.parse(qrData);
     } catch (err) {
-      console.log("QR Verification API - Error parsing QR data:", err.message);
       return res.status(400).json({ error: "Invalid QR code format" });
     }
-    
-    // Extract needed information from QR code
-    const { id: reservationId, checkInCode, membershipId, date, time } = parsedData;
-    console.log("QR Verification API - Extracted fields:", { reservationId, checkInCode, membershipId, date, time });
-    
-    if (!reservationId || !checkInCode) {
-      console.log("QR Verification API - Error: Missing required fields");
-      return res.status(400).json({ error: "Missing required QR code information" });
+    if (parsedData === null || typeof parsedData !== 'object' || Array.isArray(parsedData)) {
+      return res.status(400).json({ error: "Invalid QR code structure" });
     }
+    const reservationId = parsedData.id != null ? Number(parsedData.id) : NaN;
+    const checkInCode = typeof parsedData.checkInCode === 'string' ? parsedData.checkInCode.trim() : '';
+    if (!Number.isInteger(reservationId) || reservationId <= 0 || !checkInCode || checkInCode.length > 200) {
+      return res.status(400).json({ error: "Missing or invalid required QR code information" });
+    }
+    const membershipId = parsedData.membershipId;
+    const date = parsedData.date;
+    const time = parsedData.time;
+    console.log("QR Verification API - Extracted fields:", { reservationId, checkInCode, membershipId, date, time });
     
     const result = await db.transaction(async (trx) => {
       const [existingVerifications] = await trx.query(

@@ -43,10 +43,20 @@ export default {
       });
     }
 
-    const key = request.headers.get("X-R2-Key");
+    const rawKey = request.headers.get("X-R2-Key");
     const contentType = request.headers.get("X-Content-Type") || "application/octet-stream";
-    if (!key) {
+    if (!rawKey) {
       return new Response(JSON.stringify({ error: "Missing X-R2-Key header" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    const key = rawKey.replace(/\/+/g, "/").trim();
+    const allowedPrefixes = ["id_cards/", "profile_photos/", "health_reports/"];
+    const hasValidPrefix = allowedPrefixes.some((p) => key.startsWith(p));
+    const safeKey = /^[a-zA-Z0-9/_.-]+$/.test(key) && !key.includes("..");
+    if (!hasValidPrefix || !safeKey || key.length > 500) {
+      return new Response(JSON.stringify({ error: "Invalid X-R2-Key" }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
       });

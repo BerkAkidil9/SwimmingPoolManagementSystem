@@ -81,7 +81,7 @@ const StaffVerification = () => {
     try {
       // Make API call to backend for QR verification with anti-reuse protection
       const response = await axios.post('/api/staff/verify-qr-code', {
-        qrData: dataForVerification
+        qrData: typeof dataForVerification === 'string' ? dataForVerification : JSON.stringify(dataForVerification)
       }, {
         withCredentials: true
       });
