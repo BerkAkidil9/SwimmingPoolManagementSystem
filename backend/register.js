@@ -1062,6 +1062,12 @@ router.post('/reset-password', resetSubmitLimiter, async (req, res) => {
       'UPDATE users SET password = ?, password_reset_token = NULL, password_reset_expires = NULL WHERE id = ?',
       [hashedPassword, user.id]
     );
+
+    // Invalidate all active sessions for this user (prevents session hijacking after password reset)
+    await db.pool.query(
+      "DELETE FROM user_sessions WHERE sess::jsonb -> 'user' ->> 'id' = $1",
+      [String(user.id)]
+    );
     
     res.status(200).json({ message: 'Password has been reset successfully' });
   } catch (error) {
