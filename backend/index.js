@@ -7,7 +7,6 @@ const pgSession = require("connect-pg-simple")(session);
 const passport = require("passport");
 const path = require("path");
 const fs = require("fs");
-const crypto = require("crypto");
 const axios = require("axios");
 const cron = require("node-cron");
 require("dotenv").config();
@@ -83,8 +82,7 @@ app.use(
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
-    exposedHeaders: []
+    allowedHeaders: ['Content-Type', 'Authorization']
   })
 );
 
@@ -182,48 +180,6 @@ app.use("/uploads", async (req, res, next) => {
     res.status(404).send('File not found');
   }
 });
-
-// --- CSRF Protection (Synchronizer Token Pattern) ---
-function generateCsrfToken() {
-  return crypto.randomBytes(32).toString('hex');
-}
-
-app.get("/api/csrf-token", (req, res) => {
-  if (!req.session) {
-    return res.status(500).json({ error: "Session not available" });
-  }
-  const token = generateCsrfToken();
-  req.session.csrfToken = token;
-  res.json({ csrfToken: token });
-});
-
-// Routes exempt from CSRF: OAuth redirects (browser-initiated, no JS) and
-// token-gated operations that already carry their own one-time secret.
-const csrfSafeRoutes = new Set([
-  '/auth/google',
-  '/auth/google/callback',
-  '/auth/verify-email',
-  '/auth/login',
-  '/auth/register',
-  '/auth/reset-password-request',
-  '/auth/reset-password',
-]);
-
-function csrfProtection(req, res, next) {
-  if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') {
-    return next();
-  }
-  if (csrfSafeRoutes.has(req.path)) {
-    return next();
-  }
-  const token = req.headers['x-csrf-token'] || req.body?._csrf;
-  if (!token || !req.session?.csrfToken || token !== req.session.csrfToken) {
-    return res.status(403).json({ error: "Invalid or missing CSRF token" });
-  }
-  next();
-}
-
-app.use(csrfProtection);
 
 // Debugging middleware - only in non-production to avoid leaking session/user to logs
 if (process.env.NODE_ENV !== 'production') {

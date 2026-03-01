@@ -76,8 +76,7 @@ router.post("/login", loginLimiter, async (req, res) => {
       });
     }
     
-    // Regenerate session to prevent session fixation attacks
-    const userData = { 
+    req.session.user = { 
       id: user.id, 
       email: user.email,
       role: user.role || 'user',
@@ -85,30 +84,14 @@ router.post("/login", loginLimiter, async (req, res) => {
       verificationStatus: user.verification_status
     };
 
-    req.session.regenerate((regenerateErr) => {
-      if (regenerateErr) {
-        console.error("Session regeneration error:", regenerateErr);
-        return res.status(500).json({ error: "Session error. Please try again." });
+    res.json({ 
+      isAuthenticated: true, 
+      user: { 
+        id: user.id, 
+        name: user.name,
+        role: user.role || 'user',
+        verificationStatus: user.verification_status
       }
-      req.session.user = userData;
-      req.session.save((saveErr) => {
-        if (saveErr) {
-          console.error("Session save error:", saveErr);
-          return res.status(500).json({ error: "Session error. Please try again." });
-        }
-        if (process.env.NODE_ENV !== 'production') {
-          console.log("LOGIN BACKEND - Session created for user:", req.session.user?.id);
-        }
-        res.json({ 
-          isAuthenticated: true, 
-          user: { 
-            id: user.id, 
-            name: user.name,
-            role: user.role || 'user',
-            verificationStatus: user.verification_status
-          }
-        });
-      });
     });
   } catch (err) {
     console.error("LOGIN ERROR:", err);
