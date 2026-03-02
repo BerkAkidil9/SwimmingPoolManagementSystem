@@ -82,65 +82,65 @@ SwimmingPoolManagementSystem/
 ## Features
 
 ### Landing Page
-- About us, package overview, pool locations (Leaflet map)
-- Two package types – Education (12 sessions, 7 AM–6 PM) and Free Swimming (18 sessions, 7 AM–12 AM)
+- **Overview** – About the swim center, packages, and pool locations (Leaflet map)
+- **Packages** – Education (12 sessions, 7 AM–6 PM) and Free Swimming (18 sessions, 7 AM–12 AM)
 
 ### Register
-- Multi-step registration – Personal info, health info, emergency contact, terms acceptance, privacy policy (`/privacy-policy`)
-- Social registration – Google OAuth (`/register/social`)
+- **Multi-step registration** – Personal info, health info, emergency contact, terms acceptance, privacy policy
+- **Social registration** – Register with Google OAuth
 
 ### Login
-- Social login – Google OAuth
-- Regular login
-- Forgot password (`/forgot-password`)
+- **Social login** – Sign in with Google OAuth
+- **Regular login** – Sign in with email + password
+- **Forgot password** – Password reset flow via email
 
 ### Others
 *(Features that don't have a dedicated section)*
-- **Email verification** – Token-based verification flow; verify result (`/verify-result`)
+- **Email verification** – Token-based verification flow; verify result
 
 ### Home Page (`/home`)
-- Role-based landing for logged-in users (Admin Panel, Doctor Dashboard, Coach Dashboard, Staff Verification, Member Dashboard cards)
+- **Role-based home** – Cards that route users to their dashboards (Admin, Doctor, Coach, Staff, Member)
 
 ### Shared Navbar (logged-in users)
-- Role-based dashboard link (Admin Panel, Doctor Dashboard, Coach Dashboard, Staff Verification, Member Dashboard)
-- Admin/Doctor/Coach/Staff: extra Member Dashboard link
-- Billing
-- Edit Profile (profile and health info management)
-- Logout
+- **Role-based dashboard link** – Quick navigation to the user’s main dashboard
+- **Cross-role access** – Admin/Doctor/Coach/Staff can also open Member Dashboard
+- **Billing** – View billing and payment methods
+- **Edit Profile** – Update profile and health information
+- **Logout** – End session
 
 *Landing Page uses its own layout.*
 
 ### Member Dashboard
-- View and purchase packages
-- Resubmit verification (if rejected)
-- Create and cancel session reservations
-- QR code for check-in
-- Transaction history
-- Feedback submission
+- **Packages** – View and purchase packages
+- **Resubmit verification** – Re-upload documents if verification is rejected
+- **Reservations** – Create and cancel session reservations
+- **QR check-in** – Generate QR code for staff verification
+- **History** – View transaction history
+- **Feedback** – Submit feedback
 
 ### Admin Dashboard
-- Pool CRUD with map picker
-- User verification queue (approve/reject)
-- Session management (create, edit, delete)
-- Feedback management
-- Email notifications to users
+- **Pools** – CRUD pools with map picker
+- **User verification** – Review queue and approve/reject users
+- **Sessions** – Create, edit, and delete sessions
+- **Feedback management** – Review and archive feedback
+- **Email notifications** – Send emails to users (verification, reminders, etc.)
 
 ### Doctor Dashboard
 - **Health review queue** – Users awaiting health assessment; approve, reject, or request additional health report
 - **Approve / reject / request health report** – Approve or reject user health status; or request additional documentation (member receives email link to upload)
 - **Review uploaded reports** – View, download, approve or reject health reports uploaded by members
 - **Invalid document notification** – Mark reports as invalid; member receives notification to resubmit
-- **Health report upload (by members)** – When doctor requests a report, members upload at `/health-report-upload?userId=` or `/upload-health-report/:userId`
+- **Health report upload (by members)** – When doctor requests a report, members upload via the email link
 - **Send health report reminders** – Send reminder emails to members who haven't uploaded requested reports
 - **View pending reminders** – See users needing reminders and reminder history
 
 ### Staff Portal
-- QR code verification for check-in
-- One-time use verification codes
+- **QR verification** – Verify member check-ins via QR code
+- **One-time codes** – Single-use verification codes for check-in
 
 ### Coach Dashboard
-- View members
-- Update swimming ability status
+- **Members** – View approved members
+- **Swimming ability** – Update member swimming ability status
 
 
 ---
