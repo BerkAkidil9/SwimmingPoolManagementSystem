@@ -9,7 +9,7 @@ const { isCoach } = require("../middleware/auth");
 router.get("/members", isCoach, async (req, res) => {
   try {
     const [users] = await db.promise().query(`
-      SELECT id, name, surname, swimming_ability
+      SELECT id, name, surname, email, swimming_ability
       FROM users
       WHERE role = 'user'
         AND verification_status = 'approved'

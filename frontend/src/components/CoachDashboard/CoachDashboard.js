@@ -66,6 +66,7 @@ const CoachDashboard = () => {
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Email</th>
                 <th>Swimming Ability</th>
                 <th>Actions</th>
               </tr>
@@ -74,6 +75,7 @@ const CoachDashboard = () => {
               {users.map(user => (
                 <tr key={user.id}>
                   <td>{user.name} {user.surname}</td>
+                  <td>{user.email || '—'}</td>
                   <td>
                     <select
                       className="coach-select"
