@@ -38,6 +38,7 @@ const EducationPackage = () => {
         </ul>
         <div className="package-actions">
           <Link to="/" className="package-button secondary">Back to Homepage</Link>
+          <Link to="/login" className="package-button secondary">Login</Link>
           <Link to="/register" className="package-button">Register Now</Link>
         </div>
       </section>

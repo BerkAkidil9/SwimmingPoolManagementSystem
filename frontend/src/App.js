@@ -234,19 +234,11 @@ function App() {
               } 
             />
 
-            {/* Education Package */}
-            <Route path="/education-package" element={
-              <ProtectedRoute>
-                <EducationPackage />
-              </ProtectedRoute>
-            } />
+            {/* Education Package - public so "Learn more" from landing shows details */}
+            <Route path="/education-package" element={<EducationPackage />} />
 
-            {/* Free Swimming Package */}
-            <Route path="/free-swimming-package" element={
-              <ProtectedRoute>
-                <FreeSwimmingPackage />
-              </ProtectedRoute>
-            } />
+            {/* Free Swimming Package - public so "Learn more" from landing shows details */}
+            <Route path="/free-swimming-package" element={<FreeSwimmingPackage />} />
             
             {/* Reset password: token in hash (secure) or in path (legacy) */}
             <Route path="/reset-password" element={<ResetPassword />} />
