@@ -54,9 +54,10 @@ dist/
 .cache/
 
 # === UNNECESSARY FILES ===
-# All .md except README
+# All .md except README and docs/
 *.md
 !README.md
+!docs/*.md
 
 *.bak
 *.tmp
