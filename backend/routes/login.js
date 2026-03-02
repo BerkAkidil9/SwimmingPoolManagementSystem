@@ -11,6 +11,8 @@ const loginLimiter = rateLimit({
 });
 
 router.post("/login", loginLimiter, async (req, res) => {
+  console.log("[LOGIN] POST /auth/login received");
+
   const { email, password } = req.body;
 
   try {
