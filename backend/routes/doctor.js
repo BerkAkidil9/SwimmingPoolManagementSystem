@@ -263,10 +263,14 @@ router.get("/health-reports/:userId", isDoctor, async (req, res) => {
   try {
     const { userId } = req.params;
     
-    const [reports] = await db.promise().query(
-      "SELECT * FROM health_reports WHERE user_id = ? ORDER BY created_at DESC",
-      [userId]
-    );
+    const [reports] = await db.promise().query(`
+      SELECT 
+        hr.id, hr.user_id, hr.report_path, hr.created_at, hr.status, hr.rejected_reason,
+        to_char(hr.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Istanbul', 'YYYY-MM-DD HH24:MI:SS') AS created_at_formatted
+      FROM health_reports hr
+      WHERE hr.user_id = ?
+      ORDER BY hr.created_at DESC
+    `, [userId]);
 
     const workerUrl = process.env.R2_WORKER_URL;
     const transformed = reports.map(r => ({
@@ -581,31 +585,5 @@ router.get("/pending-health-report-reminders", isDoctor, async (req, res) => {
   }
 });
 
-// Get health reports for a specific user
-router.get("/health-reports/:userId", isDoctor, async (req, res) => {
-  try {
-    const userId = req.params.userId;
-    
-    // Get all health reports for this user
-    const [reports] = await db.promise().query(`
-      SELECT 
-        hr.id, 
-        hr.user_id, 
-        hr.report_path, 
-        hr.created_at,
-        hr.status,
-        hr.rejected_reason,
-        to_char(hr.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Istanbul', 'YYYY-MM-DD HH24:MI:SS') AS created_at_formatted
-      FROM health_reports hr
-      WHERE hr.user_id = ?
-      ORDER BY hr.created_at DESC
-    `, [userId]);
-    
-    res.json(reports);
-  } catch (error) {
-    console.error("Error fetching health reports:", error);
-    res.status(500).json({ error: "Server error" });
-  }
-});
 
 module.exports = router;

@@ -10,7 +10,7 @@ const fs = require("fs");
 const crypto = require("crypto");
 const { sendEmail } = require("./utils/sendEmail");
 const { hashToken, validatePasswordStrength } = require("./utils/security");
-const { isAuthenticated, getCurrentUserId } = require("./middleware/auth");
+const { isAuthenticated, getCurrentUser, getCurrentUserId } = require("./middleware/auth");
 
 const generateVerificationToken = () => {
   return crypto.randomBytes(32).toString("hex");
@@ -661,63 +661,32 @@ router.get(
   (req, res) => {
     if (_isDev) console.log("Google callback - user id:", req.user?.id, "isTemp:", req.user?.isTemp);
     
+    const feUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+
     if (!req.user.isTemp) {
       if (!req.user.email_verified) {
         req.session.destroy(() => {});
-        return res.redirect(`${process.env.FRONTEND_URL}/login?error=verify_email`);
+        return res.redirect(`${feUrl}/login?error=verify_email`);
       }
       if (_isDev) console.log("Redirecting existing user to dashboard, role:", req.user.role);
       
-      // Regenerate session to prevent session fixation attacks
-      const oauthUserData = {
+      req.session.user = {
         id: req.user.id,
         email: req.user.email,
         role: req.user.role || 'user',
         name: req.user.name,
         verificationStatus: req.user.verification_status
       };
-      const oauthUserRole = req.user.role;
-      
-      req.session.regenerate(regenerateErr => {
-        if (regenerateErr) {
-          console.error("Session regeneration error:", regenerateErr);
-          return res.redirect(`${process.env.FRONTEND_URL}/login?error=session_error`);
-        }
-        req.session.user = oauthUserData;
-        req.session.passport = { user: { isTemp: false, id: oauthUserData.id } };
-        
-        req.session.save(err => {
-          if (err) {
-            console.error("Session save error:", err);
-            return res.redirect(`${process.env.FRONTEND_URL}/login?error=session_error`);
-          }
-          
-          if (_isDev) console.log(`Redirecting user with role ${oauthUserRole}`);
-          
-          if (oauthUserRole === 'admin') {
-            return res.redirect(`${process.env.FRONTEND_URL}/admin`);
-          } else {
-            return res.redirect(`${process.env.FRONTEND_URL}/member/dashboard`);
-          }
-        });
-      });
+
+      if (req.user.role === 'admin') {
+        return res.redirect(`${feUrl}/admin`);
+      } else {
+        return res.redirect(`${feUrl}/member/dashboard`);
+      }
     } else {
       if (_isDev) console.log("Redirecting new user to social registration");
-      const socialData = req.user.socialData;
-
-      req.session.regenerate((regenerateErr) => {
-        if (regenerateErr) {
-          console.error("Session regeneration error:", regenerateErr);
-          return res.redirect(`${process.env.FRONTEND_URL}/login?error=session_error`);
-        }
-        req.session.socialData = socialData;
-        req.session.save(err => {
-          if (err) {
-            console.error("Session save error:", err);
-          }
-          return res.redirect(`${process.env.FRONTEND_URL}/register/social`);
-        });
-      });
+      req.session.socialData = req.user.socialData;
+      return res.redirect(`${feUrl}/register/social`);
     }
   }
 );
@@ -843,17 +812,18 @@ router.get("/check-auth", (req, res) => {
 
 router.get("/check-verification", async (req, res) => {
   try {
-    if (!req.user) {
+    const currentUser = getCurrentUser(req);
+    if (!currentUser) {
       return res.status(401).json({ error: "Not authenticated" });
     }
 
     const [user] = await db
       .promise()
-      .query("SELECT email_verified FROM users WHERE id = ?", [req.user.id]);
+      .query("SELECT email_verified FROM users WHERE id = ?", [currentUser.id]);
 
     res.json({
       isVerified: !!user[0]?.email_verified,
-      email: req.user.email,
+      email: currentUser.email,
     });
   } catch (error) {
     console.error("Verification check error:", error);
@@ -863,7 +833,8 @@ router.get("/check-verification", async (req, res) => {
 
 router.post("/resend-verification", async (req, res) => {
   try {
-    if (!req.user) {
+    const currentUser = getCurrentUser(req);
+    if (!currentUser) {
       return res.status(401).json({ error: "Not authenticated" });
     }
 
@@ -877,10 +848,10 @@ router.post("/resend-verification", async (req, res) => {
              SET verification_token = ?, 
                  verification_token_expires = ? 
              WHERE id = ?`,
-      [hashedVerificationToken, tokenExpires, req.user.id]
+      [hashedVerificationToken, tokenExpires, currentUser.id]
     );
 
-    await sendVerificationEmail(req.user.email, verificationToken);
+    await sendVerificationEmail(currentUser.email, verificationToken);
 
     res.json({ message: "Verification email resent successfully" });
   } catch (error) {
