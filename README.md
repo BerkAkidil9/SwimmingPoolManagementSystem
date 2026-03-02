@@ -229,28 +229,28 @@ Copy from `backend/.env.example` and fill in:
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `DATABASE_URL` | **Required** | PostgreSQL connection string (preferred) |
-| `DB_HOST` / `DB_USER` / `DB_PASSWORD` / `DB_NAME` | **Required** | Alternative to DATABASE_URL |
-| `SESSION_SECRET` | **Required** | Use a strong random string (auto-generated on Render) |
-| `FRONTEND_URL` | **Required** | Frontend URL (default: http://localhost:3000) |
-| `BACKEND_URL` | **Required** | Backend base URL for OAuth callback (e.g. http://localhost:3001) |
-| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Optional | Google OAuth login/registration (see [docs/google-oauth-setup.md](docs/google-oauth-setup.md)) |
-| `STRIPE_SECRET_KEY` | Optional | Stripe secret key for payments |
-| `STRIPE_PUBLISHABLE_KEY` | Optional | Stripe publishable key |
-| `USE_R2` | Optional | Set to `true` for Cloudflare R2 file storage |
-| `R2_WORKER_URL` / `R2_WORKER_SECRET` | Optional | Cloudflare Worker proxy for R2 (see [docs/cloudflare-worker.md](docs/cloudflare-worker.md)) |
-| `R2_ACCOUNT_ID` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` | Optional | Direct R2 access (local dev only) |
-| `R2_BUCKET_NAME` / `R2_PUBLIC_URL` | Optional | R2 bucket config (see [docs/r2-setup.md](docs/r2-setup.md)) |
-| `GMAIL_USER` / `GMAIL_REFRESH_TOKEN` | Optional | Gmail API email – preferred on Render (see [docs/gmail-api-setup.md](docs/gmail-api-setup.md)) |
-| `RESEND_API_KEY` / `EMAIL_FROM` | Optional | Resend email – alternative (requires domain verification) |
-| `EMAIL_USER` / `EMAIL_PASSWORD` | Optional | SMTP email – local fallback only |
+| `DATABASE_URL` | Yes ✓ | PostgreSQL connection string (e.g., Neon pooled URL with `?sslmode=require`). |
+| `DB_HOST` / `DB_USER` / `DB_PASSWORD` / `DB_NAME` | Yes ✓ | Alternative to DATABASE_URL. |
+| `SESSION_SECRET` | Yes ✓ | Random string (Render can auto-generate). |
+| `FRONTEND_URL` | Yes ✓ | Frontend URL (default: http://localhost:3000). |
+| `BACKEND_URL` | Yes ✓ | Backend base URL for OAuth callback (e.g., http://localhost:3001). |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Optional | Google OAuth login/registration. See [docs/google-oauth-setup.md](docs/google-oauth-setup.md). |
+| `STRIPE_SECRET_KEY` | Optional | Stripe secret key for payments. |
+| `STRIPE_PUBLISHABLE_KEY` | Optional | Stripe publishable key. |
+| `USE_R2` | Optional | Set to `true` for Cloudflare R2 file storage. |
+| `R2_WORKER_URL` / `R2_WORKER_SECRET` | Optional | Cloudflare Worker proxy for R2. See [docs/cloudflare-worker.md](docs/cloudflare-worker.md). |
+| `R2_ACCOUNT_ID` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` | Optional | Direct R2 access (local dev only). |
+| `R2_BUCKET_NAME` / `R2_PUBLIC_URL` | Optional | R2 bucket config. See [docs/r2-setup.md](docs/r2-setup.md). |
+| `GMAIL_USER` / `GMAIL_REFRESH_TOKEN` | Optional | Gmail API email – preferred on Render. See [docs/gmail-api-setup.md](docs/gmail-api-setup.md). |
+| `RESEND_API_KEY` / `EMAIL_FROM` | Optional | Resend email – alternative (requires domain verification). |
+| `EMAIL_USER` / `EMAIL_PASSWORD` | Optional | SMTP email – local fallback only. |
 
 ### Frontend (`frontend/.env`)
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `REACT_APP_API_URL` | Optional | Backend API URL (default: http://localhost:3001) |
-| `REACT_APP_STRIPE_PUBLISHABLE_KEY` | Optional | Stripe publishable key (required if using payments) |
+| `REACT_APP_API_URL` | Optional | Backend API URL (default: http://localhost:3001). |
+| `REACT_APP_STRIPE_PUBLISHABLE_KEY` | Optional | Stripe publishable key (required if using payments). |
 
 ---
 
@@ -302,14 +302,14 @@ Integration tests require a local PostgreSQL database `swimcenter_test`. To set 
 2. Fill in your PostgreSQL password
 3. The test database schema is created automatically by `npm run db:test:setup`
 
-| Variable | Description |
-|----------|-------------|
-| `TEST_DATABASE_URL` | Test DB connection string (alternative) |
-| `TEST_DB_HOST` | Default: localhost |
-| `TEST_DB_PORT` | Default: 5432 |
-| `TEST_DB_USER` | Default: postgres |
-| `TEST_DB_PASSWORD` | Your PostgreSQL password |
-| `TEST_DB_NAME` | Default: swimcenter_test |
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `TEST_DATABASE_URL` | Optional | Test DB connection string (alternative). |
+| `TEST_DB_HOST` | Optional | Default: localhost. |
+| `TEST_DB_PORT` | Optional | Default: 5432. |
+| `TEST_DB_USER` | Optional | Default: postgres. |
+| `TEST_DB_PASSWORD` | Yes ✓ | Your PostgreSQL password. |
+| `TEST_DB_NAME` | Optional | Default: swimcenter_test. |
 
 E2E tests use Playwright; frontend should be running at `localhost:3000`.
 
