@@ -149,7 +149,7 @@ passport.use(
         const [existingUsers] = await db
           .promise()
           .query(
-            `SELECT id, name, surname, email, role, verification_status,
+            `SELECT id, name, surname, email, role, verification_status, rejection_count,
                     email_verified, health_status, profile_photo_path
              FROM users WHERE email = ?`,
             [profile.emails[0].value]
@@ -667,6 +667,14 @@ router.get(
       if (!req.user.email_verified) {
         req.session.destroy(() => {});
         return res.redirect(`${feUrl}/login?error=verify_email`);
+      }
+      if (req.user.verification_status === 'rejected' && (req.user.rejection_count || 0) >= 3) {
+        req.session.destroy(() => {});
+        return res.redirect(`${feUrl}/login?error=verification_banned`);
+      }
+      if (req.user.health_status === 'rejected') {
+        req.session.destroy(() => {});
+        return res.redirect(`${feUrl}/login?error=health_rejected`);
       }
       if (_isDev) console.log("Redirecting existing user to dashboard, role:", req.user.role);
       

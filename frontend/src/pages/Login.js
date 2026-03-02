@@ -50,6 +50,10 @@ const LoginPage = () => {
     const err = searchParams.get("error");
     if (err === "verify_email") {
       setError("Please verify your email address. Click the link we sent you and then try logging in again.");
+    } else if (err === "health_rejected") {
+      setError("Your health assessment has been rejected. You are unable to participate in swimming activities. Access is no longer available.");
+    } else if (err === "verification_banned") {
+      setError("Your account has reached the maximum number of verification attempts. Access is no longer available. Please contact support or create a new account.");
     }
   }, [searchParams]);
 
