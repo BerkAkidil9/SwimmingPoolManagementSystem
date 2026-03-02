@@ -38,6 +38,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -57,45 +58,42 @@ const LoginPage = () => {
     window.location.href = `${apiUrl}/auth/${provider}`;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, isRetry = false) => {
     e.preventDefault();
     setError("");
+    setIsSubmitting(true);
 
     try {
       const response = await axios.post(
         "/auth/login",
         { email, password },
-        { withCredentials: true }
+        { withCredentials: true, timeout: 60000 }
       );
 
       if (response.data.isAuthenticated) {
         const user = response.data.user;
-        console.log("LOGIN - User data from server:", user);
-        console.log("LOGIN - User role:", user.role);
-        console.log("LOGIN - Role type:", typeof user.role);
-        console.log("LOGIN - Role stringified:", JSON.stringify(user.role));
-        console.log("LOGIN - Role character codes:", [...String(user.role)].map(c => c.charCodeAt(0)));
-        
-        // Ensure role is stored correctly
-        const normalizedRole = String(user.role || '').toLowerCase().trim();
-        console.log("LOGIN - Normalized role:", normalizedRole);
-        user.role = normalizedRole; // Make sure we store normalized role
-
+        if (user?.role) user.role = String(user.role).toLowerCase().trim();
         sessionStorage.setItem("user", JSON.stringify(user));
-        console.log(
-          "LOGIN - Stored in session:",
-          JSON.parse(sessionStorage.getItem("user"))
-        );
-
-        // Redirect to homepage - logged-in users land here first
         navigate("/home");
       } else {
         setError("Invalid email or password.");
       }
     } catch (err) {
-      setError(
-        err.response?.data?.error || "An error occurred. Please try again."
-      );
+      if (!isRetry && (err.code === "ECONNABORTED" || err.message?.includes("timeout") || !err.response)) {
+        try {
+          const retryRes = await axios.post("/auth/login", { email, password }, { withCredentials: true, timeout: 60000 });
+          if (retryRes.data.isAuthenticated) {
+            const user = retryRes.data.user;
+            if (user?.role) user.role = String(user.role).toLowerCase().trim();
+            sessionStorage.setItem("user", JSON.stringify(user));
+            navigate("/home");
+            return;
+          }
+        } catch (_) {}
+      }
+      setError(err.response?.data?.error || "Sunucu yanıt vermedi. Birkaç saniye sonra tekrar deneyin.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -154,7 +152,9 @@ const LoginPage = () => {
             </button>
           </div>
           {error && <p className="error-message">{error}</p>}
-          <button type="submit">Sign In</button>
+          <button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Giriş yapılıyor..." : "Sign In"}
+          </button>
         </form>
         <Link to="/forgot-password" className="forgot-password">
           Forgot your password?

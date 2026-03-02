@@ -56,20 +56,25 @@ function App() {
       });
     };
 
-    const checkAuth = async () => {
+    const checkAuth = async (retry = false) => {
       try {
-        const response = await axios.get('/auth/check-auth', { withCredentials: true });
+        const response = await axios.get('/auth/check-auth', {
+          withCredentials: true,
+          timeout: 60000, // 60s for Render cold start
+        });
         setIsAuthenticated(response.data.isAuthenticated);
-        
         if (response.data.isAuthenticated && response.data.user) {
           sessionStorage.setItem('user', JSON.stringify(response.data.user));
         }
       } catch (error) {
+        if (!retry && (error.code === 'ECONNABORTED' || error.message?.includes('timeout') || !error.response)) {
+          await checkAuth(true); // single retry on timeout/network (cold start)
+          return;
+        }
         console.error('Auth check error:', error);
         setIsAuthenticated(false);
       }
     };
-    
     checkAuth();
   }, []);
 

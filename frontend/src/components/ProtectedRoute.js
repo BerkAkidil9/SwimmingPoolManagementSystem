@@ -10,33 +10,29 @@ const ProtectedRoute = ({ children, isAdmin, isDoctor, isStaff, isCoach, allowed
   const location = useLocation();
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const checkAuth = async (retry = false) => {
       try {
         setIsLoading(true);
-        const response = await axios.get('/auth/check-auth', { withCredentials: true });
-        console.log('Auth check response:', response.data);
-        
+        const response = await axios.get('/auth/check-auth', {
+          withCredentials: true,
+          timeout: 60000, // 60s for Render cold start
+        });
         if (response.data.isAuthenticated && response.data.user) {
           setIsAuthenticated(true);
           const userData = response.data.user;
-          console.log('ProtectedRoute - Original user data:', userData);
-          console.log('ProtectedRoute - User role before setting:', userData.role);
-          console.log('ProtectedRoute - Role type:', typeof userData.role);
-          
-          // Ensure role is normalized
-          if (userData && userData.role) {
-            const normalizedRole = String(userData.role).toLowerCase().trim();
-            console.log('ProtectedRoute - Normalized role:', normalizedRole);
-            userData.role = normalizedRole;
+          if (userData?.role) {
+            userData.role = String(userData.role).toLowerCase().trim();
           }
-          
           setUser(userData);
-          // Update session storage
           sessionStorage.setItem('user', JSON.stringify(userData));
         } else {
           setIsAuthenticated(false);
         }
       } catch (error) {
+        if (!retry && (error.code === 'ECONNABORTED' || error.message?.includes('timeout') || !error.response)) {
+          await checkAuth(true);
+          return;
+        }
         console.error('Auth check error:', error);
         setIsAuthenticated(false);
       } finally {
