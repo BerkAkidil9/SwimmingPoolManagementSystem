@@ -229,11 +229,11 @@ Copy from `backend/.env.example` and fill in:
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `DATABASE_URL` | Yes ✓ | PostgreSQL connection string (e.g., Neon pooled URL with `?sslmode=require`). |
-| `DB_HOST` / `DB_USER` / `DB_PASSWORD` / `DB_NAME` | Yes ✓ | Alternative to DATABASE_URL. |
-| `SESSION_SECRET` | Yes ✓ | Random string (Render can auto-generate). |
-| `FRONTEND_URL` | Yes ✓ | Frontend URL (default: http://localhost:3000). |
-| `BACKEND_URL` | Yes ✓ | Backend base URL for OAuth callback (e.g., http://localhost:3001). |
+| `DATABASE_URL` | Yes ✅ | PostgreSQL connection string (e.g., Neon pooled URL with `?sslmode=require`). |
+| `DB_HOST` / `DB_USER` / `DB_PASSWORD` / `DB_NAME` | Yes ✅ | Alternative to DATABASE_URL. |
+| `SESSION_SECRET` | Yes ✅ | Random string (Render can auto-generate). |
+| `FRONTEND_URL` | Yes ✅ | Frontend URL (default: http://localhost:3000). |
+| `BACKEND_URL` | Yes ✅ | Backend base URL for OAuth callback (e.g., http://localhost:3001). |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Optional | Google OAuth login/registration. See [docs/google-oauth-setup.md](docs/google-oauth-setup.md). |
 | `STRIPE_SECRET_KEY` | Optional | Stripe secret key for payments. |
 | `STRIPE_PUBLISHABLE_KEY` | Optional | Stripe publishable key. |
@@ -308,7 +308,7 @@ Integration tests require a local PostgreSQL database `swimcenter_test`. To set 
 | `TEST_DB_HOST` | Optional | Default: localhost. |
 | `TEST_DB_PORT` | Optional | Default: 5432. |
 | `TEST_DB_USER` | Optional | Default: postgres. |
-| `TEST_DB_PASSWORD` | Yes ✓ | Your PostgreSQL password. |
+| `TEST_DB_PASSWORD` | Yes ✅ | Your PostgreSQL password. |
 | `TEST_DB_NAME` | Optional | Default: swimcenter_test. |
 
 E2E tests use Playwright; frontend should be running at `localhost:3000`.
