@@ -94,7 +94,7 @@ const LandingPage = () => {
       {/* Footer */}
       <footer className="footer">
         <a href="#hero-section" className="footer-logo">Swim Center</a>
-        <p>&copy; 2025 Swimming Center. All rights reserved.</p>
+        <p>&copy; 2026 Swimming Center. All rights reserved.</p>
       </footer>
     </div>
   );
