@@ -1,0 +1,108 @@
+{
+  "startedAt": "2026-09-30T14:49:30.888Z",
+  "phase": "all",
+  "stages": {
+    "backend-unit": {
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "durationSeconds": 2.6902611660000004,
+      "command": [
+        "/opt/homebrew/Cellar/node/26.5.0/bin/node",
+        "<repository>/backend/node_modules/jest/bin/jest.js",
+        "--runInBand",
+        "--silent",
+        "--coverage",
+        "--coverageReporters=json-summary",
+        "--coverageReporters=json",
+        "--coverageReporters=text",
+        "--coverageDirectory=<repository>/docs/cv-metrics-evidence/local-measurements/backend-unit-coverage",
+        "--json",
+        "--outputFile=<repository>/docs/cv-metrics-evidence/local-measurements/backend-unit.json"
+      ],
+      "cwd": "backend"
+    },
+    "backend-integration": {
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "durationSeconds": 3.3292384170000004,
+      "command": [
+        "/opt/homebrew/Cellar/node/26.5.0/bin/node",
+        "<repository>/backend/node_modules/jest/bin/jest.js",
+        "--config=jest.integration.config.js",
+        "--runInBand",
+        "--forceExit",
+        "--silent",
+        "--coverage",
+        "--collectCoverageFrom=routes/**/*.js",
+        "--collectCoverageFrom=middleware/**/*.js",
+        "--collectCoverageFrom=utils/**/*.js",
+        "--collectCoverageFrom=config/**/*.js",
+        "--collectCoverageFrom=register.js",
+        "--collectCoverageFrom=validations.js",
+        "--collectCoverageFrom=index.js",
+        "--coverageReporters=json-summary",
+        "--coverageReporters=json",
+        "--coverageReporters=text",
+        "--coverageDirectory=<repository>/docs/cv-metrics-evidence/local-measurements/backend-integration-coverage",
+        "--json",
+        "--outputFile=<repository>/docs/cv-metrics-evidence/local-measurements/backend-integration.json"
+      ],
+      "cwd": "backend"
+    },
+    "frontend-tests": {
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "durationSeconds": 8.412371708999999,
+      "command": [
+        "/opt/homebrew/Cellar/node/26.5.0/bin/node",
+        "node_modules/react-scripts/bin/react-scripts.js",
+        "test",
+        "--watchAll=false",
+        "--runInBand",
+        "--forceExit",
+        "--silent",
+        "--coverage",
+        "--collectCoverageFrom=src/**/*.{js,jsx}",
+        "--collectCoverageFrom=!src/**/*.test.{js,jsx}",
+        "--collectCoverageFrom=!src/setupTests.js",
+        "--collectCoverageFrom=!src/**/__tests__/**",
+        "--coverageReporters=json-summary",
+        "--coverageReporters=json",
+        "--coverageReporters=text",
+        "--coverageDirectory=<repository>/docs/cv-metrics-evidence/local-measurements/frontend-coverage",
+        "--json",
+        "--outputFile=<repository>/docs/cv-metrics-evidence/local-measurements/frontend-tests.json"
+      ],
+      "cwd": "frontend"
+    },
+    "frontend-build": {
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "durationSeconds": 6.450606875000001,
+      "command": [
+        "/opt/homebrew/Cellar/node/26.5.0/bin/node",
+        "node_modules/react-scripts/bin/react-scripts.js",
+        "build"
+      ],
+      "cwd": "frontend"
+    },
+    "e2e": {
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "durationSeconds": 9.816648083,
+      "command": [
+        "/opt/homebrew/Cellar/node/26.5.0/bin/node",
+        "node_modules/@playwright/test/cli.js",
+        "test",
+        "--config=measurement.config.cjs"
+      ],
+      "cwd": "tests/e2e"
+    }
+  },
+  "finishedAt": "2026-09-30T14:54:27.512Z"
+}

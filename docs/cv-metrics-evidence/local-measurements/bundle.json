@@ -1,0 +1,122 @@
+{
+  "note": "Compressed sizes calculated locally, not network transfer measurements. Source maps excluded from runtime totals.",
+  "entrypoints": [
+    "static/css/main.07ddda78.css",
+    "static/js/main.410fb796.js"
+  ],
+  "assets": [
+    {
+      "path": "asset-manifest.json",
+      "bytes": 763,
+      "gzipBytes": 282,
+      "brotliBytes": 249
+    },
+    {
+      "path": "favicon.ico",
+      "bytes": 3870,
+      "gzipBytes": 3461,
+      "brotliBytes": 3592
+    },
+    {
+      "path": "index.html",
+      "bytes": 770,
+      "gzipBytes": 447,
+      "brotliBytes": 272
+    },
+    {
+      "path": "logo192.png",
+      "bytes": 5347,
+      "gzipBytes": 5332,
+      "brotliBytes": 5289
+    },
+    {
+      "path": "logo512.png",
+      "bytes": 9664,
+      "gzipBytes": 9660,
+      "brotliBytes": 9607
+    },
+    {
+      "path": "manifest.json",
+      "bytes": 492,
+      "gzipBytes": 250,
+      "brotliBytes": 201
+    },
+    {
+      "path": "robots.txt",
+      "bytes": 67,
+      "gzipBytes": 78,
+      "brotliBytes": 55
+    },
+    {
+      "path": "static/css/main.07ddda78.css",
+      "bytes": 166124,
+      "gzipBytes": 33445,
+      "brotliBytes": 27786
+    },
+    {
+      "path": "static/css/main.07ddda78.css.map",
+      "bytes": 330731,
+      "gzipBytes": 58536,
+      "brotliBytes": 47257
+    },
+    {
+      "path": "static/js/453.2a82e7ac.chunk.js",
+      "bytes": 4518,
+      "gzipBytes": 1780,
+      "brotliBytes": 1600
+    },
+    {
+      "path": "static/js/453.2a82e7ac.chunk.js.map",
+      "bytes": 10597,
+      "gzipBytes": 3717,
+      "brotliBytes": 3413
+    },
+    {
+      "path": "static/js/main.410fb796.js",
+      "bytes": 1277678,
+      "gzipBytes": 344738,
+      "brotliBytes": 266629
+    },
+    {
+      "path": "static/js/main.410fb796.js.LICENSE.txt",
+      "bytes": 2088,
+      "gzipBytes": 521,
+      "brotliBytes": 431
+    },
+    {
+      "path": "static/js/main.410fb796.js.map",
+      "bytes": 4928854,
+      "gzipBytes": 1332763,
+      "brotliBytes": 1074571
+    },
+    {
+      "path": "static/media/ozu_havuz_0.efd54596fc67b419bf80.jpg",
+      "bytes": 192914,
+      "gzipBytes": 192949,
+      "brotliBytes": 192919
+    },
+    {
+      "path": "static/media/pool.83ee6ae995154c725c94.jpg",
+      "bytes": 486971,
+      "gzipBytes": 485787,
+      "brotliBytes": 486976
+    },
+    {
+      "path": "static/media/poool.c58e25ec69eebb08f95a.avif",
+      "bytes": 81803,
+      "gzipBytes": 81814,
+      "brotliBytes": 81808
+    },
+    {
+      "path": "swimming pool.ico",
+      "bytes": 4286,
+      "gzipBytes": 2227,
+      "brotliBytes": 1880
+    }
+  ],
+  "runtimeTotals": {
+    "bytes": 2237355,
+    "gzipBytes": 1162771,
+    "brotliBytes": 1079294
+  }
+}

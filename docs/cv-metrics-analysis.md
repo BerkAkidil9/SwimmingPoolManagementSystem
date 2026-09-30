@@ -2,19 +2,20 @@
 
 Bu doküman, projeyi CV, portfolyo ve teknik mülakatlarda anlatırken kullanılabilecek repository kanıtlarını bir araya getirir. Türkçe değerlendirmeler, İngilizce CV bullet önerileri ve sayıların dayandığı kaynaklar içerir.
 
-En güçlü dayanaklar **5 kullanıcı rolü**, **11 uygulama tablosu**, **6 işlemde PostgreSQL transaction kullanımı** ve **5 adımlı kayıt akışıdır**. Kaynakta **165 test bildirimi** bulunur; incelemede çalıştırılan **52 backend unit testinin tamamı geçmiştir**. Kullanıcı artışı, hızlanma veya zaman tasarrufu gibi ölçülmüş ürün etkileri bulunmamıştır.
+En güçlü dayanaklar **5 kullanıcı rolü**, **11 uygulama tablosu**, **6 işlemde PostgreSQL transaction kullanımı** ve **5 adımlı kayıt akışıdır**. Kaynakta **165 test bildirimi** bulunur; yeni izole çalıştırmada **165 testin tamamı geçmiştir**. Backend birleşik line coverage **%21,83**, frontend line coverage **%31,43** olarak ölçülmüştür. Lighthouse, bundle, accessibility ve yerel API yük sonuçları da artık [ölçüm raporunda](local-measurements.md) mevcuttur. Kullanıcı artışı, hızlanma veya zaman tasarrufu gibi ölçülmüş ürün etkileri bulunmamıştır.
 
 ## İnceleme kapsamı ve güncellik
 
 | Bilgi | Değer |
 |---|---|
 | Analiz tarihi | 30 Eylül 2026 |
-| İncelenen commit | `a03f094fccb646c0558aa2d4503e28b6b771adc7` |
+| İlk statik analiz commit’i | `a03f094fccb646c0558aa2d4503e28b6b771adc7` |
+| Yeni ölçümlerin kaynak commit’i | `98c6c7e7cd5d7fee764b0ccf9b6475241180d2e6` |
 | Test ortamı | macOS / Darwin arm64, Node.js v26.5.0 |
-| Çalıştırılan test grubu | Backend unit, Jest, tek süreçte `--runInBand` |
+| Çalıştırılan test grupları | Backend unit, PostgreSQL integration, frontend unit/component ve Playwright smoke |
 | Kaynak kapsamı | Backend, frontend, testler, SQL, README, docs, deployment ve mevcut yerel raporlar |
 
-Bu doküman belirtilen tarihteki kaynak incelemesinin anlık görüntüsüdür. Sonraki kod değişiklikleri sayımları ve satır referanslarını geçersiz kılabilir. Dokümanın oluşturulması yeni bir test çalıştırması değildir. Render yapılandırmasındaki Node 20 ile yerel test ortamı aynı değildir.
+Bu doküman belirtilen tarihteki kaynak incelemesinin anlık görüntüsüdür. Sonraki kod değişiklikleri sayımları ve satır referanslarını geçersiz kılabilir. İlk rapordan sonra test ve benchmark altyapısı kurularak yeni ölçümler üretildi. Bu güncelleme yeni çalıştırma sonuçlarını içerir. Render yapılandırmasındaki Node 20 ile yerel test ortamı aynı değildir.
 
 **Scope**, uygulanan mühendislik kapsamını; **Impact**, ölçülmüş sonuç veya iyileşmeyi ifade eder. Kapsam sayıları üretim kullanımını, kullanıcı memnuniyetini veya performans başarısını kanıtlamaz. Repository, bireysel katkı sahipliğini tek başına belirlemez; aşağıdaki “Built” ve “Implemented” fiilleri yalnızca kişinin kendi katkıları için kullanılmalıdır.
 
@@ -22,7 +23,9 @@ Kalıcı kanıt dosyaları:
 
 - [Kaynak sayım envanteri](cv-metrics-evidence/inventory.json): HTTP method/path listesi, test bildirimleri, frontend route ve JSX dosya envanteri.
 - [Validation kural envanteri](cv-metrics-evidence/validation-rules.json): Alan, kural ve kaynak satırı.
-- [Backend unit test sonucu](cv-metrics-evidence/backend-unit-results.json): 30 Eylül 2026 tarihli Jest çıktısı; makineye özel repository yolları taşınabilirlik için göreli yollara çevrilmiştir.
+- [İlk backend unit test sonucu](cv-metrics-evidence/backend-unit-results.json): İlk analizin tarihsel kanıtı.
+- [Yeni ölçüm özeti](cv-metrics-evidence/local-measurements/summary.json): Bütün test grupları, coverage, bundle, Lighthouse, accessibility ve load sonuçları.
+- [Yöntem ve ayrıntılı ölçüm raporu](local-measurements.md): Ortam, kapsam, sınırlamalar ve tekrar çalıştırma talimatları.
 
 ## A En güçlü measurable results
 
@@ -33,7 +36,7 @@ Kalıcı kanıt dosyaları:
 | Transaction kullanılan işlemler | 6 | Birden fazla veritabanı işlemini aynı transaction içinde yürütür | [Transaction helper](../backend/config/database.js#L35), aşağıdaki çağrı listesi | Scope | Yüksek; endpoint sayısından daha somut bir mühendislik ayrıntısıdır. |
 | Kayıt akışı | 5 adım ve 7 sağlık sorusu | Kişisel bilgiler, sağlık değerlendirmesi, acil durum kişisi ve onaylar | [Adımlar](../frontend/src/components/MultiStepForm/MultiStepForm.js#L67), [sağlık soruları](../backend/validations.js#L237) | Scope | Yüksek; özellikle frontend katkısını anlaşılır biçimde sayısallaştırır. |
 | Test envanteri | 86 dosyada 165 test bildirimi | Backend unit, frontend, integration ve tarayıcı testlerinin kaynak kapsamı | [Sayım envanteri](cv-metrics-evidence/inventory.json) | Scope | Orta; test pratiğini gösterir, assertion kalitesi nedeniyle tek başına kalite garantisi değildir. |
-| Yerel doğrulama | 15 suite ve 52 test geçti | Mevcut backend unit testlerinin analiz tarihindeki sonucu | [Jest sonucu](cv-metrics-evidence/backend-unit-results.json), [config](../backend/jest.config.js#L1) | Yerel ölçüm; ürün impact'i değil | Destekleyici; tüm sistemin doğruluğu veya geçmiş proje başarısı olarak sunulmamalı. |
+| Yerel doğrulama | 4 test grubunda 165/165 test geçti | Unit, integration, frontend ve browser smoke çalıştırması | [Yeni sonuçlar](cv-metrics-evidence/local-measurements/summary.json) | Yerel ölçüm; ürün impact'i değil | High; tekrarlanabilir doğrulama, ancak test kalitesi sınırları devam eder. |
 
 ### Roller ve veri modeli
 
@@ -61,14 +64,14 @@ Transaction kullanımı, eşzamanlılık sorunlarının tamamen çözüldüğü 
 | Test grubu | Dosya | Bildirim | Analiz tarihindeki çalıştırma |
 |---|---:|---:|---|
 | Backend unit | 15 | 52 | 52 geçti |
-| Frontend unit ve component | 50 | 71 | Çalıştırılmadı; frontend bağımlılıkları kurulu değildi |
-| Integration | 9 | 29 | Çalıştırılmadı; izole test veritabanı hazırlanmadı |
-| Playwright E2E | 12 | 13 | Çalıştırılmadı; bağımlılıklar ve çalışan frontend hazırlanmadı |
-| Toplam | 86 | 165 | Yalnızca 52 test için başarılı çalıştırma kanıtı var |
+| Frontend unit ve component | 50 | 71 | 71 geçti |
+| Integration | 9 | 29 | 29 geçti; izole PostgreSQL |
+| Playwright E2E | 12 | 13 | 13 geçti; Chrome, production frontend build |
+| Toplam | 86 | 165 | 165 geçti; başarısız veya atlanan test yok |
 
-Sayım JavaScript AST'sindeki `it(...)` ve `test(...)` bildirimlerinden yapıldı. Atlanmış, yalnızca seçilmiş veya parametrik test bildirimi bulunmadı. README ve test dokümanı backend unit sayısını 51, toplamı 164 olarak veriyor; kaynakta bunlar 52 ve 165. [Eski doküman sayımı](testing.md#L5)
+Sayım JavaScript AST'sindeki `it(...)` ve `test(...)` bildirimlerinden yapıldı. Atlanmış, yalnızca seçilmiş veya parametrik test bildirimi bulunmadı. İlk incelemede README ve test dokümanı backend unit sayısını 51, toplamı 164 olarak veriyordu. Yeni ölçümlerle bu belgeler de 52 ve 165 olarak güncellendi. [Güncel test dokümanı](testing.md#L5)
 
-Backend unit testleri, backend dizininde aşağıdaki komutla çalıştırıldı. Başlangıç ortam değişkenleri temizlendi; veritabanı ve dış servis kimlik bilgileri aktarılmadı. Supertest'in geçici yerel port açması ilk denemede sandbox tarafından engellendi; izin verilen tekrar başarılı oldu.
+İlk backend doğrulamasında aşağıdaki komut kullanılmıştı. Yeni bütünleşik ölçüm çalışması için [measurement runner](../tests/measurements/run.mjs) kullanıldı; uygulama ve test kaynakları değiştirilmeden geçici kopya, sentetik veriler ve izole PostgreSQL hazırlandı. Gerçek dış servis kimlik bilgileri aktarılmadı.
 
 ```sh
 env -i PATH="$PATH" NODE_ENV=test CI=true node node_modules/jest/bin/jest.js --runInBand --silent --json --outputFile=/tmp/swim-cv-unit-results.json
@@ -97,7 +100,13 @@ Assertion kalitesinin sınırları:
 | Rate limit politikaları | 5 limiter nesnesi | Login, uniqueness, register, reset request, reset submit | [Login](../backend/routes/login.js#L7), [register](../backend/register.js#L197), [reset](../backend/register.js#L909) | Scope ve config | Düşük; saldırı engelleme oranı değildir. |
 | Zamanlanmış görev | 1 saatlik cron | Sağlık raporu hatırlatma adaylarını saat başında kontrol eder | [Cron](../backend/index.js#L332) | Scope ve config | Orta; otomasyon kapsamı, ölçülmüş zaman tasarrufu değil. |
 | Deployment tanımları | 2 Render servisi ve 1 Cloudflare Worker | Backend, statik frontend ve R2 proxy | [Render](../render.yaml#L5), [Worker](../cloudflare-worker/wrangler.toml#L1) | Scope ve config | Orta; canlılık veya uptime kanıtı değildir. |
-| Tarayıcı test hedefi | 1 Chromium projesi | Playwright'ta yapılandırılmış proje | [Playwright config](../tests/e2e/playwright.config.js#L14) | Scope ve config | Düşük; çalıştırılmış uyumluluk sonucu değil. |
+| Tarayıcı test hedefi | 1 Chromium motoru | Mevcut 13 test Google Chrome ile çalıştırıldı; axe için 2 viewport kullanıldı | [Tarayıcı ölçümleri](local-measurements.md) | Yerel ölçüm ve Scope | Medium; diğer tarayıcılar veya gerçek cihazlar için kanıt değil. |
+| Backend line coverage | %21,83 | Unit ve integration sayaç birleşimi; 488/2.235 instrument edilmiş satır | [Birleşik coverage](cv-metrics-evidence/local-measurements/backend-combined-coverage.json) | Yerel ölçüm; iyileşme değil | Low; yüksek coverage iddiasını desteklemiyor. |
+| Frontend line coverage | %31,43 | Test dışı src JS/JSX; 1.021/3.248 satır | [Coverage](cv-metrics-evidence/local-measurements/frontend-coverage/coverage-summary.json) | Yerel ölçüm; iyileşme değil | Low; geliştirme alanını gösteriyor. |
+| Ana JS gzip boyutu | 344.738 byte | Production build asset'inin yerel sıkıştırılmış boyutu | [Bundle](cv-metrics-evidence/local-measurements/bundle.json) | Yerel ölçüm | Low; küçülme veya optimizasyon iddiası değil. |
+| Mobil Lighthouse performance | 3 route için 75, 74, 75 medyan | Route başına üç koşu; dış servisler engellendi | [Lighthouse](local-measurements.md) | Yerel benchmark | Low; canlı site skoru olarak kullanılmamalı. |
+| API yük ölçümü | 2 endpoint, 18 koşu, 389.483 istek | 1/10/50 bağlantı seviyeleri; gözlenen dört hata sayacı 0 | [Load sonuçları](cv-metrics-evidence/local-measurements/load-results.json) | Yerel benchmark | Medium; yalnızca ortam ve fixture sınırlarıyla kullanılabilir. |
+| Accessibility taraması | 6 route × 2 viewport | 12 taramada 2 farklı ihlal kuralı; tüm taramalarda ihlal var | [Axe sonuçları](cv-metrics-evidence/local-measurements/accessibility.json) | Yerel ölçüm | Low; uygunluk başarısı olarak sunulamaz. |
 
 ### Backend HTTP envanteri
 
@@ -171,9 +180,9 @@ Cron saat başında çalışacak şekilde tanımlıdır; başlangıçtaki tek se
 
 | İddia | Neden kullanılmamalı |
 |---|---|
-| “164 tests” | Doküman eski; kaynakta 165 bildirim var. |
-| “165 passing tests” | Yalnızca 52 backend unit testi çalıştırıldı. |
-| “Full coverage” veya “100% coverage” | Coverage raporu yok; script ve doküman ifadesi yüzde kanıtı değil. |
+| “164 tests” | Eski doküman sayımıydı; kaynak ve yeni çalıştırma 165 gösteriyor. |
+| “165 fully verified business workflows” | Artık 165 test geçtiği doğrulandı; fakat bunlar 165 tamamlanmış iş akışı değil. |
+| “Full coverage” veya “100% coverage” | Ölçülen line coverage backend %21,83, frontend %31,43; bu iddiaları desteklemiyor. |
 | “13 end-to-end business workflows” | Tarayıcı testleri sayfa yükleme ve URL kontrolü düzeyinde. |
 | “82 fully functional REST APIs” | Alias, OAuth yönlendirmesi ve 410 döndüren uç dâhil; çalışma başarısı ölçülmedi. |
 | “28 screens” veya “48 reusable components” | Route, ekran, dosya ve bileşen farklı birimler; alias ve kullanılmayan kod var. |
@@ -181,7 +190,7 @@ Cron saat başında çalışacak şekilde tanımlıdır; başlangıçtaki tek se
 | “Eliminated double bookings” veya “eliminated race conditions” | Transaction varlığı yeterli değil; eşzamanlılık testi yok. |
 | “Reduced registration time by X%” veya “saved X hours” | Öncesi ve sonrası ölçümü ya da kullanıcı araştırması yok. |
 | “Supports X concurrent users” | Havuz kapasitesi, request ve upload limitleri yük testi sonucu değil. |
-| “Cross-browser tested” | Tek Playwright hedefi Chromium; bu incelemede çalıştırılmadı. |
+| “Cross-browser tested” | Chrome/Chromium çalıştırıldı; Firefox, WebKit veya gerçek cihaz testi yapılmadı. |
 | “Automated CI/CD pipeline” | İncelenen çalışma ağacında CI workflow/job tanımı bulunmadı; Render Blueprint testli CI pipeline kanıtı değil. |
 | “Production-grade security” veya “GDPR/HIPAA compliant” | Denetim, uygunluk veya güvenlik testi kanıtı yok. |
 
@@ -199,7 +208,7 @@ Analiz sırasında mevcut CV bullet'ları paylaşılmadığı için birebir düz
 | PostgreSQL ve veri tutarlılığı | “…using database transactions across 6 operations spanning bookings, packages, payments, and QR verification.” |
 | Kayıt formu ve frontend | “…through a 5-step registration flow with a 7-question health questionnaire.” |
 | Stripe entegrasyonu | “…for 2 swimming package types, with payment verification and saved payment methods.” |
-| Test geliştirme | “…with 52 backend unit, 71 frontend, 29 integration, and 13 browser smoke test cases.” |
+| Test doğrulama | “…validated with 165 passing tests across backend unit, PostgreSQL integration, frontend component, and browser smoke suites.” |
 
 Test sayılarının tamamını tek bullet'a yığmak yerine başvurunun odağına göre seçmek daha okunabilirdir. Test yazarlığı doğrulanmadan “authored” iddiası kullanılmamalıdır.
 
@@ -237,21 +246,27 @@ Kanıt: [R2 upload yolları](../backend/utils/r2Storage.js#L38), [Worker kategor
 
 Software Engineer / Full-Stack başvurularında platform, transaction ve ödeme bullet'ları önceliklidir. Frontend ağırlığında kayıt deneyimi; backend ve deployment ağırlığında belge depolama daha değerlidir. Aynı projede beşini birden kullanmak yerine ilgili üç veya dört bullet seçilebilir.
 
-## F Bulunamayan metrikler
+### Yeni ölçümlere dayalı test alternatifi
+
+> Validated a React and Express application with 165 passing tests across backend unit, PostgreSQL integration, frontend component, and browser smoke suites in an isolated local environment.
+
+Kanıt: [yeni test özeti](cv-metrics-evidence/local-measurements/summary.json), [ölçüm yöntemi](local-measurements.md). Bu ifade test yazarlığını veya 165 tam iş akışını iddia etmez. Test altyapısı vurgulanacaksa belge depolama bullet'ının yerine seçilebilir. Düşük coverage yüzdeleri ve yerel Lighthouse skorları ana başarı bullet'ına eklenmemelidir.
+
+## F Hâlâ doğrulanamayan metrikler
 
 | Alan | Güvenilir ölçüm çıktısı bulunmayan bilgiler |
 |---|---|
-| Coverage | Statement, branch, function ve line coverage yüzdeleri |
-| Performans | API p50/p95/p99 gecikmesi, sorgu süresi, Lighthouse skoru, ölçülmüş hızlanma |
-| Frontend boyutu | Üretim build çıktısı, gzip/Brotli bundle boyutu, önce ve sonra karşılaştırması |
-| Yük ve ölçek | Eşzamanlı kullanıcı, requests/second, stres ve kapasite testleri |
-| Accessibility | Axe/Lighthouse accessibility raporu, WCAG değerlendirmesi, tamamlanmış klavye ve ekran okuyucu testi |
+| Coverage sınırı | Worker coverage, E2E ile instrument edilmiş coverage ve önceki sürüme göre artış ölçülmedi; backend/frontend yüzdeleri artık mevcut |
+| Üretim performansı | Yerel API p50/p99 ve Lighthouse artık mevcut; canlı trafik gecikmesi, bağımsız sorgu benchmark'ı ve ölçülmüş iyileşme yok |
+| Bundle iyileşmesi | Production build ve gzip/Brotli boyutları artık mevcut; önce ve sonra karşılaştırması yok |
+| Üretim ölçeği | Sınırlı yerel load testi mevcut; gerçek eşzamanlı kullanıcı kapasitesi, uzun süreli soak/stress ve maksimum kapasite doğrulanmadı |
+| Accessibility uygunluğu | Public ekranlar için axe/Lighthouse mevcut; tüm ekranlar, manuel klavye/ekran okuyucu ve WCAG uygunluk denetimi yok |
 | Üretim kullanımı | Gerçek kullanıcı, aktif üye, rezervasyon, ödeme hacmi, gelir, dönüşüm oranı |
 | Operasyon | Uptime, hata oranı, deployment sıklığı, MTTR, CI başarı geçmişi |
 | İş etkisi | Kayıt süresinde azalma, personel zaman tasarrufu, no-show azalması, kullanıcı memnuniyeti |
 | Tam akış doğrulaması | Gerçek ödeme, OAuth, kayıt, rezervasyon ve QR akışlarının tamamlandığını gösteren çalıştırma raporları |
 
-Web Vitals için konsola ölçüm gönderme kodu vardır; saklanmış sonuç bulunmamıştır. Coverage script'leri ve saatlik hatırlatma/deployment tanımları da ölçüm çıktısı yerine geçmez. [Web Vitals çağrısı](../frontend/src/index.js#L41), [Web Vitals helper](../frontend/src/reportWebVitals.js)
+Web Vitals için konsola ölçüm gönderme kodu vardır; gerçek kullanıcı ölçümleri saklanmış değildir. Yeni Lighthouse sonuçları laboratuvar ölçümüdür, gerçek kullanıcı verisi yerine geçmez. Coverage artık script varlığına değil, saklanan çalıştırma raporlarına dayanır. [Web Vitals çağrısı](../frontend/src/index.js#L41), [Web Vitals helper](../frontend/src/reportWebVitals.js)
 
 ## Gelecekte güncelleme yöntemi
 

@@ -1,0 +1,28 @@
+{
+  "measuredAt": "2026-09-30T14:49:30.888Z",
+  "sourceCommit": "98c6c7e7cd5d7fee764b0ccf9b6475241180d2e6",
+  "node": "v26.5.0",
+  "platform": "darwin",
+  "release": "27.0.0",
+  "arch": "arm64",
+  "cpu": "Apple M5",
+  "logicalCpus": 10,
+  "memoryBytes": 17179869184,
+  "timezone": "Europe/Istanbul",
+  "tools": {
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.63.0",
+    "autocannon": "8.0.0",
+    "chrome-launcher": "1.2.2",
+    "lighthouse": "13.5.0"
+  },
+  "backendJest": "29.7.0",
+  "isolated": true,
+  "limitations": [
+    "local host client/server/database; no production traffic",
+    "synthetic fixtures",
+    "outgoing application sockets restricted to loopback",
+    "browser external services blocked",
+    "no measured historical improvement"
+  ]
+}

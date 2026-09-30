@@ -313,7 +313,7 @@ Integration tests require a local PostgreSQL database `swimcenter_test`. To set 
 
 E2E tests use Playwright; frontend should be running at `localhost:3000`.
 
-See [docs/testing.md](docs/testing.md) for detailed structure, coverage (Backend unit 51, Frontend unit 71, Integration 29, E2E 13), and setup.
+See [docs/testing.md](docs/testing.md) for detailed structure, coverage (Backend unit 52, Frontend unit 71, Integration 29, E2E 13), and setup.
 
 ---
 
@@ -377,6 +377,7 @@ Additional guides are available in the [`docs/`](docs/) folder:
 | [docs/cloudflare-worker.md](docs/cloudflare-worker.md) | Cloudflare Worker proxy for R2 uploads |
 | [docs/testing.md](docs/testing.md) | Detailed test structure, coverage, and setup |
 | [docs/cv-metrics-analysis.md](docs/cv-metrics-analysis.md) | Repository-backed CV metrics, evidence, limitations, and English bullet suggestions (Turkish report) |
+| [docs/local-measurements.md](docs/local-measurements.md) | Measured test, coverage, build, Lighthouse, accessibility, and local API load results with reproducible tooling |
 
 ---
 

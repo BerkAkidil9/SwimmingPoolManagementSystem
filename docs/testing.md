@@ -1,16 +1,16 @@
 # Test Documentation
 
-Module-based test structure with full coverage.
+Module-based test structure. Coverage is measured separately; passing tests do not imply full coverage.
 
 ## Test Summary
 
 | Type | Test Count | Requirement |
 |------|------------|-------------|
-| Backend unit | 51 | - |
+| Backend unit | 52 | - |
 | Frontend unit | 71 | - |
 | Integration | 29 | PostgreSQL (port 5432) |
 | E2E | 13 | Frontend localhost:3000 |
-| **Total** | **164** | |
+| **Total** | **165** | |
 
 ## Folder Structure
 
@@ -64,3 +64,12 @@ cd tests/e2e && npm test   # Frontend must be running on localhost:3000
 ```
 
 **E2E note:** Current E2E tests check page loading and auth redirects; backend is optional. For full-flow tests, backend (localhost:3001) should also be running.
+
+
+## Recorded local measurements
+
+On 30 September 2026, all 165 existing tests passed in an isolated local run: 52 backend unit, 71 frontend, 29 PostgreSQL integration, and 13 browser smoke tests. No application code or existing assertions were changed. The browser tests remain page/auth smoke checks, not completed business workflows.
+
+Combined backend unit/integration line coverage was **21.83%** with entrypoint, middleware, database and utility files included; frontend source line coverage was **31.43%**. Backend unit coverage under the narrower existing config was **19.71%**. These scopes have different denominators and must not be compared as coverage improvements.
+
+See [the measurement report](local-measurements.md) for environment, exact coverage scopes, build and browser findings, local load results, raw artifacts and rerun instructions. The tools live in [tests/measurements](../tests/measurements/). These results are a dated local baseline, not a production guarantee.

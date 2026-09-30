@@ -1,0 +1,16 @@
+PASS tests/integration/admin/admin.integration.test.js
+PASS tests/integration/member/member.integration.test.js
+PASS tests/integration/staff/staff.integration.test.js
+PASS tests/integration/auth/login.integration.test.js
+PASS tests/integration/doctor/doctor.integration.test.js
+PASS tests/integration/reminders/reminders.integration.test.js
+PASS tests/integration/auth/register.integration.test.js
+PASS tests/integration/payment/payment.integration.test.js
+PASS tests/integration/landingPage/landingPage.integration.test.js
+
+Test Suites: 9 passed, 9 total
+Tests:       29 passed, 29 total
+Snapshots:   0 total
+Time:        3.2 s
+Test results written to: ../../../../../../../..<repository>/docs/cv-metrics-evidence/local-measurements/backend-integration.json
+Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?

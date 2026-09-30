@@ -1,0 +1,863 @@
+{
+  "environment": {
+    "measuredAt": "2026-09-30T14:49:30.888Z",
+    "sourceCommit": "98c6c7e7cd5d7fee764b0ccf9b6475241180d2e6",
+    "node": "v26.5.0",
+    "platform": "darwin",
+    "release": "27.0.0",
+    "arch": "arm64",
+    "cpu": "Apple M5",
+    "logicalCpus": 10,
+    "memoryBytes": 17179869184,
+    "timezone": "Europe/Istanbul",
+    "tools": {
+      "@axe-core/playwright": "4.13.0",
+      "@playwright/test": "1.63.0",
+      "autocannon": "8.0.0",
+      "chrome-launcher": "1.2.2",
+      "lighthouse": "13.5.0"
+    },
+    "backendJest": "29.7.0",
+    "isolated": true,
+    "limitations": [
+      "local host client/server/database; no production traffic",
+      "synthetic fixtures",
+      "outgoing application sockets restricted to loopback",
+      "browser external services blocked",
+      "no measured historical improvement"
+    ]
+  },
+  "tests": {
+    "backend-unit": {
+      "passed": 52,
+      "failed": 0,
+      "pending": 0,
+      "suites": 15,
+      "passedSuites": 15,
+      "success": true
+    },
+    "backend-integration": {
+      "passed": 29,
+      "failed": 0,
+      "pending": 0,
+      "suites": 9,
+      "passedSuites": 9,
+      "success": true
+    },
+    "frontend-tests": {
+      "passed": 71,
+      "failed": 0,
+      "pending": 0,
+      "suites": 50,
+      "passedSuites": 50,
+      "success": true
+    },
+    "e2e": {
+      "startTime": "2026-09-30T14:50:00.547Z",
+      "duration": 9079.146999999999,
+      "expected": 13,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    }
+  },
+  "coverage": {
+    "backend-unit": {
+      "lines": {
+        "total": 1912,
+        "covered": 377,
+        "skipped": 0,
+        "pct": 19.71
+      },
+      "statements": {
+        "total": 1990,
+        "covered": 380,
+        "skipped": 0,
+        "pct": 19.09
+      },
+      "functions": {
+        "total": 168,
+        "covered": 17,
+        "skipped": 0,
+        "pct": 10.11
+      },
+      "branches": {
+        "total": 1283,
+        "covered": 111,
+        "skipped": 0,
+        "pct": 8.65
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "backend-integration": {
+      "lines": {
+        "total": 2235,
+        "covered": 365,
+        "skipped": 0,
+        "pct": 16.33
+      },
+      "statements": {
+        "total": 2322,
+        "covered": 368,
+        "skipped": 0,
+        "pct": 15.84
+      },
+      "functions": {
+        "total": 217,
+        "covered": 30,
+        "skipped": 0,
+        "pct": 13.82
+      },
+      "branches": {
+        "total": 1499,
+        "covered": 85,
+        "skipped": 0,
+        "pct": 5.67
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "frontend": {
+      "lines": {
+        "total": 3248,
+        "covered": 1021,
+        "skipped": 0,
+        "pct": 31.43
+      },
+      "statements": {
+        "total": 3349,
+        "covered": 1032,
+        "skipped": 0,
+        "pct": 30.81
+      },
+      "functions": {
+        "total": 653,
+        "covered": 148,
+        "skipped": 0,
+        "pct": 22.66
+      },
+      "branches": {
+        "total": 2906,
+        "covered": 362,
+        "skipped": 0,
+        "pct": 12.45
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "backend-combined": {
+      "lines": {
+        "total": 2235,
+        "covered": 488,
+        "skipped": 0,
+        "pct": 21.83
+      },
+      "statements": {
+        "total": 2322,
+        "covered": 492,
+        "skipped": 0,
+        "pct": 21.18
+      },
+      "functions": {
+        "total": 217,
+        "covered": 39,
+        "skipped": 0,
+        "pct": 17.97
+      },
+      "branches": {
+        "total": 1499,
+        "covered": 167,
+        "skipped": 0,
+        "pct": 11.14
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": "Unknown"
+      }
+    }
+  },
+  "bundle": {
+    "entrypoints": [
+      {
+        "path": "static/css/main.07ddda78.css",
+        "bytes": 166124,
+        "gzipBytes": 33445,
+        "brotliBytes": 27786
+      },
+      {
+        "path": "static/js/main.410fb796.js",
+        "bytes": 1277678,
+        "gzipBytes": 344738,
+        "brotliBytes": 266629
+      }
+    ],
+    "totalJs": {
+      "bytes": 1282196,
+      "gzipBytes": 346518,
+      "brotliBytes": 268229
+    },
+    "allAssetsExcludingSourceMaps": {
+      "bytes": 2237355,
+      "gzipBytes": 1162771,
+      "brotliBytes": 1079294
+    }
+  },
+  "accessibility": {
+    "scanCount": 12,
+    "routes": [
+      "/",
+      "/login",
+      "/register",
+      "/forgot-password",
+      "/education-package",
+      "/free-swimming-package"
+    ],
+    "uniqueViolationRules": [
+      "color-contrast",
+      "button-name"
+    ],
+    "scans": [
+      {
+        "route": "/",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "finalUrl": "http://localhost:3300/",
+        "errors": [
+          "Failed to load Stripe.js"
+        ],
+        "horizontalOverflow": false,
+        "scrollWidth": 1440,
+        "violations": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "affectedNodes": 14
+          }
+        ],
+        "incompleteRules": 1,
+        "passedRules": 12
+      },
+      {
+        "route": "/login",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "finalUrl": "http://localhost:3300/login",
+        "errors": [
+          "Failed to load Stripe.js"
+        ],
+        "horizontalOverflow": false,
+        "scrollWidth": 1440,
+        "violations": [
+          {
+            "id": "button-name",
+            "impact": "critical",
+            "affectedNodes": 1
+          }
+        ],
+        "incompleteRules": 1,
+        "passedRules": 14
+      },
+      {
+        "route": "/register",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "finalUrl": "http://localhost:3300/register",
+        "errors": [
+          "Failed to load Stripe.js"
+        ],
+        "horizontalOverflow": true,
+        "scrollWidth": 1472,
+        "violations": [
+          {
+            "id": "button-name",
+            "impact": "critical",
+            "affectedNodes": 2
+          },
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "affectedNodes": 6
+          }
+        ],
+        "incompleteRules": 1,
+        "passedRules": 21
+      },
+      {
+        "route": "/forgot-password",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "finalUrl": "http://localhost:3300/forgot-password",
+        "errors": [
+          "Failed to load Stripe.js"
+        ],
+        "horizontalOverflow": false,
+        "scrollWidth": 1440,
+        "violations": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "affectedNodes": 1
+          }
+        ],
+        "incompleteRules": 1,
+        "passedRules": 10
+      },
+      {
+        "route": "/education-package",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "finalUrl": "http://localhost:3300/education-package",
+        "errors": [
+          "Failed to load Stripe.js"
+        ],
+        "horizontalOverflow": false,
+        "scrollWidth": 1440,
+        "violations": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "affectedNodes": 1
+          }
+        ],
+        "incompleteRules": 0,
+        "passedRules": 10
+      },
+      {
+        "route": "/free-swimming-package",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "finalUrl": "http://localhost:3300/free-swimming-package",
+        "errors": [
+          "Failed to load Stripe.js"
+        ],
+        "horizontalOverflow": false,
+        "scrollWidth": 1440,
+        "violations": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "affectedNodes": 1
+          }
+        ],
+        "incompleteRules": 0,
+        "passedRules": 10
+      },
+      {
+        "route": "/",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "finalUrl": "http://localhost:3300/",
+        "errors": [
+          "Failed to load Stripe.js"
+        ],
+        "horizontalOverflow": false,
+        "scrollWidth": 390,
+        "violations": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "affectedNodes": 14
+          }
+        ],
+        "incompleteRules": 1,
+        "passedRules": 12
+      },
+      {
+        "route": "/login",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "finalUrl": "http://localhost:3300/login",
+        "errors": [
+          "Failed to load Stripe.js"
+        ],
+        "horizontalOverflow": true,
+        "scrollWidth": 401,
+        "violations": [
+          {
+            "id": "button-name",
+            "impact": "critical",
+            "affectedNodes": 1
+          }
+        ],
+        "incompleteRules": 1,
+        "passedRules": 14
+      },
+      {
+        "route": "/register",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "finalUrl": "http://localhost:3300/register",
+        "errors": [
+          "Failed to load Stripe.js"
+        ],
+        "horizontalOverflow": true,
+        "scrollWidth": 549,
+        "violations": [
+          {
+            "id": "button-name",
+            "impact": "critical",
+            "affectedNodes": 2
+          },
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "affectedNodes": 6
+          }
+        ],
+        "incompleteRules": 1,
+        "passedRules": 21
+      },
+      {
+        "route": "/forgot-password",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "finalUrl": "http://localhost:3300/forgot-password",
+        "errors": [
+          "Failed to load Stripe.js"
+        ],
+        "horizontalOverflow": false,
+        "scrollWidth": 390,
+        "violations": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "affectedNodes": 1
+          }
+        ],
+        "incompleteRules": 1,
+        "passedRules": 10
+      },
+      {
+        "route": "/education-package",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "finalUrl": "http://localhost:3300/education-package",
+        "errors": [
+          "Failed to load Stripe.js"
+        ],
+        "horizontalOverflow": true,
+        "scrollWidth": 451,
+        "violations": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "affectedNodes": 1
+          }
+        ],
+        "incompleteRules": 0,
+        "passedRules": 10
+      },
+      {
+        "route": "/free-swimming-package",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "finalUrl": "http://localhost:3300/free-swimming-package",
+        "errors": [
+          "Failed to load Stripe.js"
+        ],
+        "horizontalOverflow": true,
+        "scrollWidth": 451,
+        "violations": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "affectedNodes": 1
+          }
+        ],
+        "incompleteRules": 0,
+        "passedRules": 10
+      }
+    ]
+  },
+  "lighthouse": [
+    {
+      "route": "/",
+      "attempted": 3,
+      "valid": 3,
+      "scores": {
+        "performance": {
+          "median": 75,
+          "min": 74,
+          "max": 75
+        },
+        "accessibility": {
+          "median": 89,
+          "min": 89,
+          "max": 89
+        },
+        "best-practices": {
+          "median": 96,
+          "min": 96,
+          "max": 96
+        },
+        "seo": {
+          "median": 92,
+          "min": 92,
+          "max": 92
+        }
+      },
+      "metrics": {
+        "first-contentful-paint": {
+          "median": 1651.7768,
+          "min": 1651.6887000000002,
+          "max": 1652.0014
+        },
+        "largest-contentful-paint": {
+          "median": 9123.7768,
+          "min": 9122.001400000001,
+          "max": 9752.533049999996
+        },
+        "speed-index": {
+          "median": 1651.7768,
+          "min": 1651.6887000000002,
+          "max": 1652.0014
+        },
+        "total-blocking-time": {
+          "median": 40,
+          "min": 39,
+          "max": 42
+        },
+        "cumulative-layout-shift": {
+          "median": 0,
+          "min": 0,
+          "max": 0.05519991023564619
+        }
+      }
+    },
+    {
+      "route": "/login",
+      "attempted": 3,
+      "valid": 3,
+      "scores": {
+        "performance": {
+          "median": 74,
+          "min": 74,
+          "max": 74
+        },
+        "accessibility": {
+          "median": 79,
+          "min": 79,
+          "max": 79
+        },
+        "best-practices": {
+          "median": 96,
+          "min": 96,
+          "max": 96
+        },
+        "seo": {
+          "median": 100,
+          "min": 100,
+          "max": 100
+        }
+      },
+      "metrics": {
+        "first-contentful-paint": {
+          "median": 1651.4965000000002,
+          "min": 1651.3683999999998,
+          "max": 1651.6620000000003
+        },
+        "largest-contentful-paint": {
+          "median": 11668.496500000001,
+          "min": 11667.662,
+          "max": 11669.3684
+        },
+        "speed-index": {
+          "median": 1651.4965000000002,
+          "min": 1651.3683999999998,
+          "max": 1651.6620000000003
+        },
+        "total-blocking-time": {
+          "median": 37,
+          "min": 36,
+          "max": 38
+        },
+        "cumulative-layout-shift": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      }
+    },
+    {
+      "route": "/register",
+      "attempted": 3,
+      "valid": 3,
+      "scores": {
+        "performance": {
+          "median": 75,
+          "min": 75,
+          "max": 75
+        },
+        "accessibility": {
+          "median": 87,
+          "min": 87,
+          "max": 87
+        },
+        "best-practices": {
+          "median": 96,
+          "min": 96,
+          "max": 96
+        },
+        "seo": {
+          "median": 100,
+          "min": 100,
+          "max": 100
+        }
+      },
+      "metrics": {
+        "first-contentful-paint": {
+          "median": 1651.4168,
+          "min": 1651.3856,
+          "max": 1651.4929000000002
+        },
+        "largest-contentful-paint": {
+          "median": 9120.385600000001,
+          "min": 9118.492900000003,
+          "max": 9121.416799999999
+        },
+        "speed-index": {
+          "median": 1651.4168,
+          "min": 1651.3856,
+          "max": 1651.4929000000002
+        },
+        "total-blocking-time": {
+          "median": 39,
+          "min": 37,
+          "max": 40
+        },
+        "cumulative-layout-shift": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      }
+    }
+  ],
+  "load": [
+    {
+      "endpoint": "/pools",
+      "connections": 1,
+      "runs": 3,
+      "recordsPerResponse": 10,
+      "requestsPerSecond": {
+        "median": 1116.3,
+        "min": 1112.91,
+        "max": 1126.2
+      },
+      "latencyP50Ms": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "latencyP99Ms": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "totalRequests": 34667,
+      "errors": 0,
+      "timeouts": 0,
+      "non2xx": 0,
+      "mismatches": 0,
+      "durations": [
+        11,
+        10,
+        10
+      ]
+    },
+    {
+      "endpoint": "/pools",
+      "connections": 10,
+      "runs": 3,
+      "recordsPerResponse": 10,
+      "requestsPerSecond": {
+        "median": 4813.2,
+        "min": 4754.11,
+        "max": 4840.19
+      },
+      "latencyP50Ms": {
+        "median": 1,
+        "min": 1,
+        "max": 2
+      },
+      "latencyP99Ms": {
+        "median": 4,
+        "min": 4,
+        "max": 5
+      },
+      "totalRequests": 148904,
+      "errors": 0,
+      "timeouts": 0,
+      "non2xx": 0,
+      "mismatches": 0,
+      "durations": [
+        10,
+        11,
+        10
+      ]
+    },
+    {
+      "endpoint": "/pools",
+      "connections": 50,
+      "runs": 3,
+      "recordsPerResponse": 10,
+      "requestsPerSecond": {
+        "median": 5002.37,
+        "min": 4760.19,
+        "max": 5087.1
+      },
+      "latencyP50Ms": {
+        "median": 9,
+        "min": 9,
+        "max": 10
+      },
+      "latencyP99Ms": {
+        "median": 17,
+        "min": 16,
+        "max": 18
+      },
+      "totalRequests": 163328,
+      "errors": 0,
+      "timeouts": 0,
+      "non2xx": 0,
+      "mismatches": 0,
+      "durations": [
+        11,
+        11.02,
+        11.01
+      ]
+    },
+    {
+      "endpoint": "/api/member/sessions",
+      "connections": 1,
+      "runs": 3,
+      "recordsPerResponse": 1000,
+      "requestsPerSecond": {
+        "median": 440,
+        "min": 438.7,
+        "max": 451.8
+      },
+      "latencyP50Ms": {
+        "median": 2,
+        "min": 2,
+        "max": 2
+      },
+      "latencyP99Ms": {
+        "median": 4,
+        "min": 3,
+        "max": 4
+      },
+      "totalRequests": 13305,
+      "errors": 0,
+      "timeouts": 0,
+      "non2xx": 0,
+      "mismatches": 0,
+      "durations": [
+        10,
+        10,
+        10
+      ]
+    },
+    {
+      "endpoint": "/api/member/sessions",
+      "connections": 10,
+      "runs": 3,
+      "recordsPerResponse": 1000,
+      "requestsPerSecond": {
+        "median": 489,
+        "min": 487.9,
+        "max": 499
+      },
+      "latencyP50Ms": {
+        "median": 20,
+        "min": 20,
+        "max": 20
+      },
+      "latencyP99Ms": {
+        "median": 34,
+        "min": 32,
+        "max": 34
+      },
+      "totalRequests": 14759,
+      "errors": 0,
+      "timeouts": 0,
+      "non2xx": 0,
+      "mismatches": 0,
+      "durations": [
+        10,
+        10.01,
+        10.01
+      ]
+    },
+    {
+      "endpoint": "/api/member/sessions",
+      "connections": 50,
+      "runs": 3,
+      "recordsPerResponse": 1000,
+      "requestsPerSecond": {
+        "median": 484.8,
+        "min": 472.9,
+        "max": 494.3
+      },
+      "latencyP50Ms": {
+        "median": 100,
+        "min": 98,
+        "max": 101
+      },
+      "latencyP99Ms": {
+        "median": 153,
+        "min": 149,
+        "max": 230
+      },
+      "totalRequests": 14520,
+      "errors": 0,
+      "timeouts": 0,
+      "non2xx": 0,
+      "mismatches": 0,
+      "durations": [
+        10.01,
+        10,
+        10
+      ]
+    }
+  ]
+}

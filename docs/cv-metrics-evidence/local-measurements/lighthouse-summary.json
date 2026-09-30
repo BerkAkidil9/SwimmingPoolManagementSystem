@@ -1,0 +1,164 @@
+[
+  {
+    "route": "/",
+    "repeat": 1,
+    "report": "lighthouse-landing-1.json",
+    "scores": {
+      "performance": 0.75,
+      "accessibility": 0.89,
+      "best-practices": 0.96,
+      "seo": 0.92
+    },
+    "metrics": {
+      "first-contentful-paint": 1652.0014,
+      "largest-contentful-paint": 9122.001400000001,
+      "speed-index": 1652.0014,
+      "total-blocking-time": 40,
+      "cumulative-layout-shift": 0
+    }
+  },
+  {
+    "route": "/",
+    "repeat": 2,
+    "report": "lighthouse-landing-2.json",
+    "scores": {
+      "performance": 0.74,
+      "accessibility": 0.89,
+      "best-practices": 0.96,
+      "seo": 0.92
+    },
+    "metrics": {
+      "first-contentful-paint": 1651.6887000000002,
+      "largest-contentful-paint": 9752.533049999996,
+      "speed-index": 1651.6887000000002,
+      "total-blocking-time": 39,
+      "cumulative-layout-shift": 0.05519991023564619
+    }
+  },
+  {
+    "route": "/",
+    "repeat": 3,
+    "report": "lighthouse-landing-3.json",
+    "scores": {
+      "performance": 0.75,
+      "accessibility": 0.89,
+      "best-practices": 0.96,
+      "seo": 0.92
+    },
+    "metrics": {
+      "first-contentful-paint": 1651.7768,
+      "largest-contentful-paint": 9123.7768,
+      "speed-index": 1651.7768,
+      "total-blocking-time": 42,
+      "cumulative-layout-shift": 0
+    }
+  },
+  {
+    "route": "/login",
+    "repeat": 1,
+    "report": "lighthouse-login-1.json",
+    "scores": {
+      "performance": 0.74,
+      "accessibility": 0.79,
+      "best-practices": 0.96,
+      "seo": 1
+    },
+    "metrics": {
+      "first-contentful-paint": 1651.6620000000003,
+      "largest-contentful-paint": 11667.662,
+      "speed-index": 1651.6620000000003,
+      "total-blocking-time": 36,
+      "cumulative-layout-shift": 0
+    }
+  },
+  {
+    "route": "/login",
+    "repeat": 2,
+    "report": "lighthouse-login-2.json",
+    "scores": {
+      "performance": 0.74,
+      "accessibility": 0.79,
+      "best-practices": 0.96,
+      "seo": 1
+    },
+    "metrics": {
+      "first-contentful-paint": 1651.3683999999998,
+      "largest-contentful-paint": 11669.3684,
+      "speed-index": 1651.3683999999998,
+      "total-blocking-time": 38,
+      "cumulative-layout-shift": 0
+    }
+  },
+  {
+    "route": "/login",
+    "repeat": 3,
+    "report": "lighthouse-login-3.json",
+    "scores": {
+      "performance": 0.74,
+      "accessibility": 0.79,
+      "best-practices": 0.96,
+      "seo": 1
+    },
+    "metrics": {
+      "first-contentful-paint": 1651.4965000000002,
+      "largest-contentful-paint": 11668.496500000001,
+      "speed-index": 1651.4965000000002,
+      "total-blocking-time": 37,
+      "cumulative-layout-shift": 0
+    }
+  },
+  {
+    "route": "/register",
+    "repeat": 1,
+    "report": "lighthouse-register-1.json",
+    "scores": {
+      "performance": 0.75,
+      "accessibility": 0.87,
+      "best-practices": 0.96,
+      "seo": 1
+    },
+    "metrics": {
+      "first-contentful-paint": 1651.4168,
+      "largest-contentful-paint": 9121.416799999999,
+      "speed-index": 1651.4168,
+      "total-blocking-time": 40,
+      "cumulative-layout-shift": 0
+    }
+  },
+  {
+    "route": "/register",
+    "repeat": 2,
+    "report": "lighthouse-register-2.json",
+    "scores": {
+      "performance": 0.75,
+      "accessibility": 0.87,
+      "best-practices": 0.96,
+      "seo": 1
+    },
+    "metrics": {
+      "first-contentful-paint": 1651.3856,
+      "largest-contentful-paint": 9120.385600000001,
+      "speed-index": 1651.3856,
+      "total-blocking-time": 39,
+      "cumulative-layout-shift": 0
+    }
+  },
+  {
+    "route": "/register",
+    "repeat": 3,
+    "report": "lighthouse-register-3.json",
+    "scores": {
+      "performance": 0.75,
+      "accessibility": 0.87,
+      "best-practices": 0.96,
+      "seo": 1
+    },
+    "metrics": {
+      "first-contentful-paint": 1651.4929000000002,
+      "largest-contentful-paint": 9118.492900000003,
+      "speed-index": 1651.4929000000002,
+      "total-blocking-time": 37,
+      "cumulative-layout-shift": 0
+    }
+  }
+]

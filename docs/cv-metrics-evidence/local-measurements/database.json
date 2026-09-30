@@ -1,0 +1,6 @@
+{
+  "version": "PostgreSQL 18.2 on x86_64-apple-darwin24.6.0, compiled by Apple clang version 17.0.0 (clang-1700.6.3.2), 64-bit",
+  "host": "127.0.0.1",
+  "port": 55439,
+  "database": "swim_measurement"
+}

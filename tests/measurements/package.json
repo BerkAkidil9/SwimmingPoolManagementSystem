@@ -1,0 +1,16 @@
+{
+  "name": "swimcenter-local-measurements",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "measure": "node run.mjs",
+    "summarize": "node summarize.mjs"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.63.0",
+    "autocannon": "8.0.0",
+    "chrome-launcher": "1.2.2",
+    "lighthouse": "13.5.0"
+  }
+}

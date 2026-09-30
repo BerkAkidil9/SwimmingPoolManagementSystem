@@ -1,0 +1,21 @@
+PASS tests/unit/utils/validations.test.js
+PASS tests/unit/auth/login.test.js
+PASS tests/unit/member/member.test.js
+PASS tests/unit/auth/register.test.js
+PASS tests/unit/middleware/auth.test.js
+PASS tests/unit/doctor/doctor.test.js
+PASS tests/unit/coach/coach.test.js
+PASS tests/unit/staff/staff.test.js
+PASS tests/unit/payment/payment.test.js
+PASS tests/unit/reminders/reminders.test.js
+PASS tests/unit/landingPage/landingPage.test.js
+PASS tests/unit/admin/pools.test.js
+PASS tests/unit/admin/verifications.test.js
+PASS tests/unit/admin/sessions.test.js
+PASS tests/unit/admin/feedback.test.js
+
+Test Suites: 15 passed, 15 total
+Tests:       52 passed, 52 total
+Snapshots:   0 total
+Time:        2.422 s
+Test results written to: ../../../../../../../..<repository>/docs/cv-metrics-evidence/local-measurements/backend-unit.json

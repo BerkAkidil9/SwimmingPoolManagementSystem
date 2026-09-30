@@ -1,0 +1,69 @@
+PASS src/__tests__/utils/dateUtils.test.js
+PASS src/__tests__/utils/validations.test.js
+PASS src/__tests__/dashboard/AdminDashboard.test.jsx
+PASS src/__tests__/components/ReservationDetails.test.jsx
+PASS src/App.test.js
+PASS src/__tests__/auth/ForgotPassword.test.jsx
+PASS src/__tests__/verify/EmailVerification.test.jsx
+PASS src/__tests__/utils/formatters.test.js
+PASS src/__tests__/auth/Login.test.jsx
+PASS src/__tests__/register/PersonalInfoStep.test.jsx
+PASS src/__tests__/components/VerifyResult.test.jsx
+[0;33mOne of your dependencies, babel-preset-react-app, is importing the
+"@babel/plugin-proposal-private-property-in-object" package without
+declaring it in its dependencies. This is currently working because
+"@babel/plugin-proposal-private-property-in-object" is already in your
+node_modules folder for unrelated reasons, but it [1mmay break at any time[0;33m.
+
+babel-preset-react-app is part of the create-react-app project, [1mwhich
+is not maintianed anymore[0;33m. It is thus unlikely that this bug will
+ever be fixed. Add "@babel/plugin-proposal-private-property-in-object" to
+your devDependencies to work around this error. This will make this message
+go away.[0m
+  
+PASS src/__tests__/auth/ResetPassword.test.jsx
+PASS src/__tests__/pages/LandingPage.test.jsx
+PASS src/__tests__/register/HealthQuestionsStep.test.jsx
+PASS src/__tests__/components/ProtectedRoute.test.jsx
+PASS src/__tests__/dashboard/DoctorDashboard.test.jsx
+PASS src/__tests__/register/HealthInfoStep.test.jsx
+PASS src/__tests__/dashboard/MemberDashboard.test.jsx
+PASS src/__tests__/register/TermsStep.test.jsx
+PASS src/__tests__/admin/PoolManagement.test.jsx
+PASS src/__tests__/register/EmergencyContactStep.test.jsx
+PASS src/__tests__/components/StripeCheckout.test.jsx
+PASS src/pages/Pools/Pools.test.jsx
+PASS src/__tests__/components/StaffVerification.test.jsx
+PASS src/__tests__/components/PackagePurchase.test.jsx
+PASS src/__tests__/register/ProgressBar.test.jsx
+PASS src/__tests__/pages/Dashboard.test.jsx
+PASS src/__tests__/pages/Billing.test.jsx
+PASS src/__tests__/components/CheckInPage.test.jsx
+PASS src/__tests__/dashboard/CoachDashboard.test.jsx
+PASS src/__tests__/admin/MapPicker.test.jsx
+PASS src/__tests__/pages/EducationPackage.test.jsx
+PASS src/__tests__/components/HealthReportUpload.test.jsx
+PASS src/__tests__/admin/SessionManagement.test.jsx
+PASS src/__tests__/pages/EditProfile.test.jsx
+PASS src/__tests__/pages/FreeSwimmingPackage.test.jsx
+PASS src/__tests__/doctor/HealthReportReminders.test.jsx
+PASS src/__tests__/auth/SocialLogin.test.jsx
+PASS src/__tests__/doctor/HealthReportReviews.test.jsx
+PASS src/__tests__/admin/FeedbackManagement.test.jsx
+PASS src/__tests__/doctor/HealthReviewQueue.test.jsx
+PASS src/__tests__/admin/VerificationQueue.test.jsx
+PASS src/__tests__/components/PaymentMethods.test.jsx
+PASS src/__tests__/register/MultiStepForm.test.jsx
+PASS src/__tests__/components/Navbar.test.jsx
+PASS src/__tests__/pages/HomePage.test.jsx
+PASS src/__tests__/components/TransactionHistory.test.jsx
+PASS src/__tests__/static/PrivacyPolicy.test.jsx
+PASS src/__tests__/components/LoadingSpinner.test.jsx
+PASS src/__tests__/static/Terms.test.jsx
+
+Test Suites: 50 passed, 50 total
+Tests:       71 passed, 71 total
+Snapshots:   0 total
+Time:        7.657 s
+Test results written to: ../../../../../../../..<repository>/docs/cv-metrics-evidence/local-measurements/frontend-tests.json
+Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?

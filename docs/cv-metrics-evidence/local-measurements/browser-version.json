@@ -1,0 +1,14 @@
+{
+  "browser": "154.0.8037.92",
+  "engine": "Chromium via installed Google Chrome",
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "width": 390,
+      "height": 844
+    }
+  ]
+}

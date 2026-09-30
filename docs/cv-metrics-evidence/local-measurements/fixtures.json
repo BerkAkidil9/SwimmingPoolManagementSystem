@@ -1,0 +1,15 @@
+{
+  "synthetic": true,
+  "pools": 10,
+  "sessions": 1000,
+  "users": 5,
+  "roles": [
+    "user",
+    "admin",
+    "doctor",
+    "staff",
+    "coach"
+  ],
+  "reservations": 0,
+  "payments": 0
+}
