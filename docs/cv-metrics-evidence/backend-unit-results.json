@@ -1,0 +1,1004 @@
+{
+  "numFailedTestSuites": 0,
+  "numFailedTests": 0,
+  "numPassedTestSuites": 15,
+  "numPassedTests": 52,
+  "numPendingTestSuites": 0,
+  "numPendingTests": 0,
+  "numRuntimeErrorTestSuites": 0,
+  "numTodoTests": 0,
+  "numTotalTestSuites": 15,
+  "numTotalTests": 52,
+  "openHandles": [],
+  "snapshot": {
+    "added": 0,
+    "didUpdate": false,
+    "failure": false,
+    "filesAdded": 0,
+    "filesRemoved": 0,
+    "filesRemovedList": [],
+    "filesUnmatched": 0,
+    "filesUpdated": 0,
+    "matched": 0,
+    "total": 0,
+    "unchecked": 0,
+    "uncheckedKeysByFile": [],
+    "unmatched": 0,
+    "updated": 0
+  },
+  "startTime": 1790777537774,
+  "success": true,
+  "testResults": [
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": [
+            "Backend validations",
+            "validatePersonalInfo"
+          ],
+          "duration": 1,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Backend validations validatePersonalInfo should return error when name is empty",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should return error when name is empty"
+        },
+        {
+          "ancestorTitles": [
+            "Backend validations",
+            "validatePersonalInfo"
+          ],
+          "duration": 0,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Backend validations validatePersonalInfo should return error when name is too short",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should return error when name is too short"
+        },
+        {
+          "ancestorTitles": [
+            "Backend validations",
+            "validatePersonalInfo"
+          ],
+          "duration": 0,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Backend validations validatePersonalInfo should return error for invalid email",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should return error for invalid email"
+        },
+        {
+          "ancestorTitles": [
+            "Backend validations",
+            "validatePersonalInfo"
+          ],
+          "duration": 0,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Backend validations validatePersonalInfo should return error for invalid Turkish phone",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should return error for invalid Turkish phone"
+        },
+        {
+          "ancestorTitles": [
+            "Backend validations",
+            "validatePersonalInfo"
+          ],
+          "duration": 1,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Backend validations validatePersonalInfo should accept valid Turkish phone 05321234567",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should accept valid Turkish phone 05321234567"
+        },
+        {
+          "ancestorTitles": [
+            "Backend validations",
+            "validateHealthInfo"
+          ],
+          "duration": 0,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Backend validations validateHealthInfo should return error when height is missing",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should return error when height is missing"
+        },
+        {
+          "ancestorTitles": [
+            "Backend validations",
+            "validateHealthInfo"
+          ],
+          "duration": 0,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Backend validations validateHealthInfo should return error when height is out of range",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should return error when height is out of range"
+        },
+        {
+          "ancestorTitles": [
+            "Backend validations",
+            "validateHealthInfo"
+          ],
+          "duration": 0,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Backend validations validateHealthInfo should return error when weight is out of range",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should return error when weight is out of range"
+        },
+        {
+          "ancestorTitles": [
+            "Backend validations",
+            "validateHealthInfo"
+          ],
+          "duration": 0,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Backend validations validateHealthInfo should accept valid height and weight",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should accept valid height and weight"
+        },
+        {
+          "ancestorTitles": [
+            "Backend validations",
+            "validateEmergencyContact"
+          ],
+          "duration": 0,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Backend validations validateEmergencyContact should return error when emergency contact name is empty",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should return error when emergency contact name is empty"
+        },
+        {
+          "ancestorTitles": [
+            "Backend validations",
+            "validateEmergencyContact"
+          ],
+          "duration": 0,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Backend validations validateEmergencyContact should return error when phone same as user phone",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should return error when phone same as user phone"
+        },
+        {
+          "ancestorTitles": [
+            "Backend validations",
+            "validateHealthQuestions"
+          ],
+          "duration": 0,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Backend validations validateHealthQuestions should return error when questions are not answered",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should return error when questions are not answered"
+        },
+        {
+          "ancestorTitles": [
+            "Backend validations",
+            "validateHealthQuestions"
+          ],
+          "duration": 1,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Backend validations validateHealthQuestions should require health_additional_info when condition is true",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should require health_additional_info when condition is true"
+        },
+        {
+          "ancestorTitles": [
+            "Backend validations",
+            "validateTerms"
+          ],
+          "duration": 0,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Backend validations validateTerms should return error when terms not accepted",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should return error when terms not accepted"
+        },
+        {
+          "ancestorTitles": [
+            "Backend validations",
+            "validateTerms"
+          ],
+          "duration": 0,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Backend validations validateTerms should return error when privacy not accepted",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should return error when privacy not accepted"
+        },
+        {
+          "ancestorTitles": [
+            "Backend validations",
+            "validateRegistration"
+          ],
+          "duration": 0,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Backend validations validateRegistration should return isValid false when personal info invalid",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should return isValid false when personal info invalid"
+        },
+        {
+          "ancestorTitles": [
+            "Backend validations",
+            "validateRegistration"
+          ],
+          "duration": 0,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Backend validations validateRegistration should require files when not social registration",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should require files when not social registration"
+        }
+      ],
+      "endTime": 1790777537871,
+      "message": "",
+      "name": "backend/tests/unit/utils/validations.test.js",
+      "startTime": 1790777537806,
+      "status": "passed",
+      "summary": ""
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": [
+            "Login API"
+          ],
+          "duration": 17,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Login API should return 401 when user not found",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should return 401 when user not found"
+        },
+        {
+          "ancestorTitles": [
+            "Login API"
+          ],
+          "duration": 1,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Login API should return 403 when OAuth account tries password login",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should return 403 when OAuth account tries password login"
+        },
+        {
+          "ancestorTitles": [
+            "Login API"
+          ],
+          "duration": 1,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Login API should return 401 when password wrong",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should return 401 when password wrong"
+        },
+        {
+          "ancestorTitles": [
+            "Login API"
+          ],
+          "duration": 1,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Login API should return 403 when email not verified",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should return 403 when email not verified"
+        },
+        {
+          "ancestorTitles": [
+            "Login API"
+          ],
+          "duration": 2,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Login API should return 200 and user when credentials valid",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 3,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should return 200 and user when credentials valid"
+        }
+      ],
+      "endTime": 1790777537981,
+      "message": "",
+      "name": "backend/tests/unit/auth/login.test.js",
+      "startTime": 1790777537873,
+      "status": "passed",
+      "summary": ""
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": [
+            "Member API",
+            "GET /api/member/user/me"
+          ],
+          "duration": 1,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Member API GET /api/member/user/me returns 401 when not authenticated",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "returns 401 when not authenticated"
+        },
+        {
+          "ancestorTitles": [
+            "Member API",
+            "GET /api/member/user/me"
+          ],
+          "duration": 1,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Member API GET /api/member/user/me returns 404 when user not found",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "returns 404 when user not found"
+        },
+        {
+          "ancestorTitles": [
+            "Member API",
+            "GET /api/member/user/me"
+          ],
+          "duration": 1,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Member API GET /api/member/user/me returns user data when found",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "returns user data when found"
+        },
+        {
+          "ancestorTitles": [
+            "Member API",
+            "GET /api/member/package"
+          ],
+          "duration": 1,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Member API GET /api/member/package returns 401 when not authenticated",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "returns 401 when not authenticated"
+        },
+        {
+          "ancestorTitles": [
+            "Member API",
+            "GET /api/member/reservations"
+          ],
+          "duration": 0,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Member API GET /api/member/reservations returns 401 when not authenticated",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "returns 401 when not authenticated"
+        }
+      ],
+      "endTime": 1790777538107,
+      "message": "",
+      "name": "backend/tests/unit/member/member.test.js",
+      "startTime": 1790777537982,
+      "status": "passed",
+      "summary": ""
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": [
+            "Register API",
+            "POST /auth/check-email"
+          ],
+          "duration": 205,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Register API POST /auth/check-email returns isUnique when email not in DB",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "returns isUnique when email not in DB"
+        },
+        {
+          "ancestorTitles": [
+            "Register API",
+            "POST /auth/check-email"
+          ],
+          "duration": 205,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Register API POST /auth/check-email returns isUnique false when email exists",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "returns isUnique false when email exists"
+        },
+        {
+          "ancestorTitles": [
+            "Register API",
+            "POST /auth/check-phone"
+          ],
+          "duration": 206,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Register API POST /auth/check-phone returns isUnique when phone not in DB",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "returns isUnique when phone not in DB"
+        }
+      ],
+      "endTime": 1790777539220,
+      "message": "",
+      "name": "backend/tests/unit/auth/register.test.js",
+      "startTime": 1790777538109,
+      "status": "passed",
+      "summary": ""
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": [
+            "Auth Middleware",
+            "isAdmin"
+          ],
+          "duration": 0,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Auth Middleware isAdmin calls next when user is admin",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "calls next when user is admin"
+        },
+        {
+          "ancestorTitles": [
+            "Auth Middleware",
+            "isAdmin"
+          ],
+          "duration": 0,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Auth Middleware isAdmin returns 403 when user is not admin",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 3,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "returns 403 when user is not admin"
+        },
+        {
+          "ancestorTitles": [
+            "Auth Middleware",
+            "isAdmin"
+          ],
+          "duration": 1,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Auth Middleware isAdmin returns 403 when no session user",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "returns 403 when no session user"
+        },
+        {
+          "ancestorTitles": [
+            "Auth Middleware",
+            "isDoctor"
+          ],
+          "duration": 0,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Auth Middleware isDoctor calls next when user is doctor",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "calls next when user is doctor"
+        },
+        {
+          "ancestorTitles": [
+            "Auth Middleware",
+            "isDoctor"
+          ],
+          "duration": 0,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Auth Middleware isDoctor returns 403 when user is not doctor",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "returns 403 when user is not doctor"
+        }
+      ],
+      "endTime": 1790777539260,
+      "message": "",
+      "name": "backend/tests/unit/middleware/auth.test.js",
+      "startTime": 1790777539226,
+      "status": "passed",
+      "summary": ""
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": [
+            "Doctor API",
+            "GET /api/doctor/health-reviews"
+          ],
+          "duration": 3,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Doctor API GET /api/doctor/health-reviews returns 403 when not doctor",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "returns 403 when not doctor"
+        },
+        {
+          "ancestorTitles": [
+            "Doctor API",
+            "GET /api/doctor/health-reviews"
+          ],
+          "duration": 3,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Doctor API GET /api/doctor/health-reviews returns health reviews when doctor",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "returns health reviews when doctor"
+        },
+        {
+          "ancestorTitles": [
+            "Doctor API",
+            "PUT /api/doctor/health-status/:userId"
+          ],
+          "duration": 0,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Doctor API PUT /api/doctor/health-status/:userId returns 403 when not authenticated",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "returns 403 when not authenticated"
+        }
+      ],
+      "endTime": 1790777539383,
+      "message": "",
+      "name": "backend/tests/unit/doctor/doctor.test.js",
+      "startTime": 1790777539262,
+      "status": "passed",
+      "summary": ""
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": [
+            "Coach API",
+            "GET /api/coach/members"
+          ],
+          "duration": 1,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Coach API GET /api/coach/members returns 403 when not coach",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "returns 403 when not coach"
+        },
+        {
+          "ancestorTitles": [
+            "Coach API",
+            "GET /api/coach/members"
+          ],
+          "duration": 0,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Coach API GET /api/coach/members returns members when coach",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "returns members when coach"
+        },
+        {
+          "ancestorTitles": [
+            "Coach API",
+            "PUT /api/coach/members/:userId/swimming-status"
+          ],
+          "duration": 1,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Coach API PUT /api/coach/members/:userId/swimming-status returns 400 for invalid swimming_ability",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "returns 400 for invalid swimming_ability"
+        }
+      ],
+      "endTime": 1790777539405,
+      "message": "",
+      "name": "backend/tests/unit/coach/coach.test.js",
+      "startTime": 1790777539384,
+      "status": "passed",
+      "summary": ""
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": [
+            "Staff API",
+            "GET /api/staff/dashboard"
+          ],
+          "duration": 1,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Staff API GET /api/staff/dashboard returns 403 when not staff",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "returns 403 when not staff"
+        },
+        {
+          "ancestorTitles": [
+            "Staff API",
+            "POST /api/staff/verify-qr-code"
+          ],
+          "duration": 1,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Staff API POST /api/staff/verify-qr-code returns 403 when not staff",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "returns 403 when not staff"
+        }
+      ],
+      "endTime": 1790777539429,
+      "message": "",
+      "name": "backend/tests/unit/staff/staff.test.js",
+      "startTime": 1790777539406,
+      "status": "passed",
+      "summary": ""
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": [
+            "Payment API",
+            "POST /api/payment/create-payment-intent"
+          ],
+          "duration": 2,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Payment API POST /api/payment/create-payment-intent returns 401 when not authenticated",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "returns 401 when not authenticated"
+        },
+        {
+          "ancestorTitles": [
+            "Payment API",
+            "POST /api/payment/create-payment-intent"
+          ],
+          "duration": 1,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Payment API POST /api/payment/create-payment-intent returns 400 when type is missing",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "returns 400 when type is missing"
+        }
+      ],
+      "endTime": 1790777539467,
+      "message": "",
+      "name": "backend/tests/unit/payment/payment.test.js",
+      "startTime": 1790777539430,
+      "status": "passed",
+      "summary": ""
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": [
+            "Reminders API"
+          ],
+          "duration": 6,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Reminders API send-health-report-reminders requires auth",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "send-health-report-reminders requires auth"
+        }
+      ],
+      "endTime": 1790777539548,
+      "message": "",
+      "name": "backend/tests/unit/reminders/reminders.test.js",
+      "startTime": 1790777539468,
+      "status": "passed",
+      "summary": ""
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": [
+            "LandingPage API"
+          ],
+          "duration": 3,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "LandingPage API GET /api/pools should return pools array",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "GET /api/pools should return pools array"
+        },
+        {
+          "ancestorTitles": [
+            "LandingPage API"
+          ],
+          "duration": 1,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "LandingPage API GET /api/pools should return 500 on DB error",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "GET /api/pools should return 500 on DB error"
+        }
+      ],
+      "endTime": 1790777539571,
+      "message": "",
+      "name": "backend/tests/unit/landingPage/landingPage.test.js",
+      "startTime": 1790777539549,
+      "status": "passed",
+      "summary": ""
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": [
+            "Admin Pools API"
+          ],
+          "duration": 1,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Admin Pools API GET /api/admin/pools requires admin auth or returns error when unauthenticated",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "GET /api/admin/pools requires admin auth or returns error when unauthenticated"
+        }
+      ],
+      "endTime": 1790777539701,
+      "message": "",
+      "name": "backend/tests/unit/admin/pools.test.js",
+      "startTime": 1790777539572,
+      "status": "passed",
+      "summary": ""
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": [
+            "Admin Verifications API"
+          ],
+          "duration": 1,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Admin Verifications API GET /api/admin/verifications requires admin auth",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "GET /api/admin/verifications requires admin auth"
+        }
+      ],
+      "endTime": 1790777539769,
+      "message": "",
+      "name": "backend/tests/unit/admin/verifications.test.js",
+      "startTime": 1790777539704,
+      "status": "passed",
+      "summary": ""
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": [
+            "Admin Sessions API"
+          ],
+          "duration": 7,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Admin Sessions API GET /api/admin/sessions requires admin auth",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "GET /api/admin/sessions requires admin auth"
+        }
+      ],
+      "endTime": 1790777539855,
+      "message": "",
+      "name": "backend/tests/unit/admin/sessions.test.js",
+      "startTime": 1790777539771,
+      "status": "passed",
+      "summary": ""
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": [
+            "Admin Feedback API"
+          ],
+          "duration": 1,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Admin Feedback API GET /api/admin/feedback requires admin auth",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "GET /api/admin/feedback requires admin auth"
+        }
+      ],
+      "endTime": 1790777539919,
+      "message": "",
+      "name": "backend/tests/unit/admin/feedback.test.js",
+      "startTime": 1790777539858,
+      "status": "passed",
+      "summary": ""
+    }
+  ],
+  "wasInterrupted": false
+}

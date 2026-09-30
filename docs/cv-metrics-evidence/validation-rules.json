@@ -1,0 +1,252 @@
+[
+  {
+    "field": "idCard",
+    "message": "id card is required",
+    "line": 66
+  },
+  {
+    "field": "profilePhoto",
+    "message": "profile photo is required",
+    "line": 34
+  },
+  {
+    "field": "idCard",
+    "message": "id card must be a pdf file",
+    "line": 25
+  },
+  {
+    "field": "idCard",
+    "message": "id card must be less than 5mb",
+    "line": 28
+  },
+  {
+    "field": "profilePhoto",
+    "message": "profile photo must be an image file",
+    "line": 38
+  },
+  {
+    "field": "profilePhoto",
+    "message": "profile photo must be less than 5mb",
+    "line": 41
+  },
+  {
+    "field": "name",
+    "message": "name is required",
+    "line": 89
+  },
+  {
+    "field": "name",
+    "message": "name must be at least 2 characters",
+    "line": 91
+  },
+  {
+    "field": "name",
+    "message": "name can only contain letters",
+    "line": 93
+  },
+  {
+    "field": "surname",
+    "message": "surname is required",
+    "line": 98
+  },
+  {
+    "field": "surname",
+    "message": "surname must be at least 2 characters",
+    "line": 100
+  },
+  {
+    "field": "surname",
+    "message": "surname can only contain letters",
+    "line": 102
+  },
+  {
+    "field": "email",
+    "message": "email is required",
+    "line": 107
+  },
+  {
+    "field": "email",
+    "message": "invalid email format",
+    "line": 109
+  },
+  {
+    "field": "phone",
+    "message": "phone number is required",
+    "line": 114
+  },
+  {
+    "field": "phone",
+    "message": "invalid phone format (05xx-xxx-xx-xx)",
+    "line": 116
+  },
+  {
+    "field": "date_of_birth",
+    "message": "date of birth is required",
+    "line": 121
+  },
+  {
+    "field": "date_of_birth",
+    "message": "you must be at least 18 years old",
+    "line": 127
+  },
+  {
+    "field": "gender",
+    "message": "gender is required",
+    "line": 133
+  },
+  {
+    "field": "swimming_ability",
+    "message": "swimming ability status is required",
+    "line": 138
+  },
+  {
+    "field": "password",
+    "message": "password is required",
+    "line": 144
+  },
+  {
+    "field": "password",
+    "message": "password must be at least 8 characters",
+    "line": 146
+  },
+  {
+    "field": "password",
+    "message": "password must be at most 128 characters",
+    "line": 148
+  },
+  {
+    "field": "password",
+    "message": "password must contain at least one uppercase letter",
+    "line": 150
+  },
+  {
+    "field": "password",
+    "message": "password must contain at least one lowercase letter",
+    "line": 152
+  },
+  {
+    "field": "password",
+    "message": "password must contain at least one number",
+    "line": 154
+  },
+  {
+    "field": "confirmPassword",
+    "message": "please confirm your password",
+    "line": 158
+  },
+  {
+    "field": "confirmPassword",
+    "message": "passwords do not match",
+    "line": 160
+  },
+  {
+    "field": "height",
+    "message": "height is required",
+    "line": 173
+  },
+  {
+    "field": "height",
+    "message": "please enter a valid height (100-250 cm)",
+    "line": 177
+  },
+  {
+    "field": "weight",
+    "message": "weight is required",
+    "line": 183
+  },
+  {
+    "field": "weight",
+    "message": "please enter a valid weight (30-300 kg)",
+    "line": 187
+  },
+  {
+    "field": "blood_type",
+    "message": "blood type is required",
+    "line": 193
+  },
+  {
+    "field": "allergies",
+    "message": "allergies description is too long (max 500 characters)",
+    "line": 198
+  },
+  {
+    "field": "emergency_contact_name",
+    "message": "emergency contact name is required",
+    "line": 210
+  },
+  {
+    "field": "emergency_contact_name",
+    "message": "name must be at least 2 characters",
+    "line": 212
+  },
+  {
+    "field": "emergency_contact_phone",
+    "message": "emergency contact phone is required",
+    "line": 217
+  },
+  {
+    "field": "emergency_contact_phone",
+    "message": "invalid phone format (05xx-xxx-xx-xx)",
+    "line": 219
+  },
+  {
+    "field": "emergency_contact_phone",
+    "message": "emergency contact phone cannot be same as your phone",
+    "line": 221
+  },
+  {
+    "field": "emergency_contact_relationship",
+    "message": "please specify the relationship",
+    "line": 226
+  },
+  {
+    "field": "has_heart_problems",
+    "message": "please answer this question",
+    "line": 250
+  },
+  {
+    "field": "chest_pain_activity",
+    "message": "please answer this question",
+    "line": 250
+  },
+  {
+    "field": "balance_dizziness",
+    "message": "please answer this question",
+    "line": 250
+  },
+  {
+    "field": "other_chronic_disease",
+    "message": "please answer this question",
+    "line": 250
+  },
+  {
+    "field": "prescribed_medication",
+    "message": "please answer this question",
+    "line": 250
+  },
+  {
+    "field": "bone_joint_issues",
+    "message": "please answer this question",
+    "line": 250
+  },
+  {
+    "field": "doctor_supervised_activity",
+    "message": "please answer this question",
+    "line": 250
+  },
+  {
+    "field": "health_additional_info",
+    "message": "please provide details about your health conditions",
+    "line": 260
+  },
+  {
+    "field": "terms_accepted",
+    "message": "you must accept the terms and conditions",
+    "line": 271
+  },
+  {
+    "field": "privacy_accepted",
+    "message": "you must accept the privacy policy",
+    "line": 275
+  }
+]

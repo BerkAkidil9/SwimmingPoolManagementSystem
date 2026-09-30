@@ -376,6 +376,7 @@ Additional guides are available in the [`docs/`](docs/) folder:
 | [docs/r2-setup.md](docs/r2-setup.md) | Cloudflare R2 bucket setup and configuration |
 | [docs/cloudflare-worker.md](docs/cloudflare-worker.md) | Cloudflare Worker proxy for R2 uploads |
 | [docs/testing.md](docs/testing.md) | Detailed test structure, coverage, and setup |
+| [docs/cv-metrics-analysis.md](docs/cv-metrics-analysis.md) | Repository-backed CV metrics, evidence, limitations, and English bullet suggestions (Turkish report) |
 
 ---
 

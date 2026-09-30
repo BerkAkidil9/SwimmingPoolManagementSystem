@@ -1,0 +1,2251 @@
+{
+  "tests": {
+    "backend/tests/integration/admin/admin.integration.test.js": [
+      {
+        "line": 39,
+        "name": "GET /verifications requires admin auth"
+      },
+      {
+        "line": 44,
+        "name": "GET /verifications returns list when admin"
+      },
+      {
+        "line": 54,
+        "name": "GET /pools returns pools when admin"
+      },
+      {
+        "line": 64,
+        "name": "POST /pools creates pool when admin"
+      },
+      {
+        "line": 80,
+        "name": "GET /feedback returns feedback when admin"
+      }
+    ],
+    "backend/tests/integration/auth/login.integration.test.js": [
+      {
+        "line": 42,
+        "name": "should login with valid credentials"
+      },
+      {
+        "line": 54,
+        "name": "should return 401 for wrong password"
+      },
+      {
+        "line": 63,
+        "name": "should return 401 for non-existent user"
+      }
+    ],
+    "backend/tests/integration/auth/register.integration.test.js": [
+      {
+        "line": 32,
+        "name": "check-email returns isUnique true for new email"
+      },
+      {
+        "line": 41,
+        "name": "check-email returns isUnique false for existing email"
+      },
+      {
+        "line": 50,
+        "name": "check-phone returns isUnique true for new phone"
+      }
+    ],
+    "backend/tests/integration/doctor/doctor.integration.test.js": [
+      {
+        "line": 37,
+        "name": "GET /health-reviews requires doctor auth"
+      },
+      {
+        "line": 42,
+        "name": "GET /health-reviews returns list when doctor"
+      },
+      {
+        "line": 52,
+        "name": "GET /pending-health-report-reminders returns list when doctor"
+      }
+    ],
+    "backend/tests/integration/landingPage/landingPage.integration.test.js": [
+      {
+        "line": 14,
+        "name": "should fetch pools from database"
+      }
+    ],
+    "backend/tests/integration/member/member.integration.test.js": [
+      {
+        "line": 37,
+        "name": "GET /user/me returns 401 when not authenticated"
+      },
+      {
+        "line": 42,
+        "name": "GET /user/me returns user after login"
+      },
+      {
+        "line": 52,
+        "name": "GET /package-prices returns prices"
+      },
+      {
+        "line": 61,
+        "name": "GET /package requires auth"
+      },
+      {
+        "line": 67,
+        "name": "GET /package returns package after login"
+      }
+    ],
+    "backend/tests/integration/payment/payment.integration.test.js": [
+      {
+        "line": 19,
+        "name": "GET /config returns publishable key"
+      },
+      {
+        "line": 27,
+        "name": "POST /create-payment-intent requires auth"
+      },
+      {
+        "line": 35,
+        "name": "GET /payment-methods requires auth"
+      }
+    ],
+    "backend/tests/integration/reminders/reminders.integration.test.js": [
+      {
+        "line": 37,
+        "name": "POST /send-health-report-reminders requires doctor or admin"
+      },
+      {
+        "line": 43,
+        "name": "POST /send-health-report-reminders succeeds when doctor"
+      }
+    ],
+    "backend/tests/integration/staff/staff.integration.test.js": [
+      {
+        "line": 37,
+        "name": "GET /dashboard requires staff auth"
+      },
+      {
+        "line": 42,
+        "name": "GET /dashboard returns staff info when staff"
+      },
+      {
+        "line": 54,
+        "name": "POST /verify-qr-code rejects invalid data"
+      },
+      {
+        "line": 63,
+        "name": "POST /verify-qr-code requires qrData"
+      }
+    ],
+    "backend/tests/unit/admin/feedback.test.js": [
+      {
+        "line": 18,
+        "name": "GET /api/admin/feedback requires admin auth"
+      }
+    ],
+    "backend/tests/unit/admin/pools.test.js": [
+      {
+        "line": 19,
+        "name": "GET /api/admin/pools requires admin auth or returns error when unauthenticated"
+      }
+    ],
+    "backend/tests/unit/admin/sessions.test.js": [
+      {
+        "line": 18,
+        "name": "GET /api/admin/sessions requires admin auth"
+      }
+    ],
+    "backend/tests/unit/admin/verifications.test.js": [
+      {
+        "line": 18,
+        "name": "GET /api/admin/verifications requires admin auth"
+      }
+    ],
+    "backend/tests/unit/auth/login.test.js": [
+      {
+        "line": 41,
+        "name": "should return 401 when user not found"
+      },
+      {
+        "line": 52,
+        "name": "should return 403 when OAuth account tries password login"
+      },
+      {
+        "line": 65,
+        "name": "should return 401 when password wrong"
+      },
+      {
+        "line": 88,
+        "name": "should return 403 when email not verified"
+      },
+      {
+        "line": 112,
+        "name": "should return 200 and user when credentials valid"
+      }
+    ],
+    "backend/tests/unit/auth/register.test.js": [
+      {
+        "line": 38,
+        "name": "returns isUnique when email not in DB"
+      },
+      {
+        "line": 47,
+        "name": "returns isUnique false when email exists"
+      },
+      {
+        "line": 58,
+        "name": "returns isUnique when phone not in DB"
+      }
+    ],
+    "backend/tests/unit/coach/coach.test.js": [
+      {
+        "line": 25,
+        "name": "returns 403 when not coach"
+      },
+      {
+        "line": 30,
+        "name": "returns members when coach"
+      },
+      {
+        "line": 40,
+        "name": "returns 400 for invalid swimming_ability"
+      }
+    ],
+    "backend/tests/unit/doctor/doctor.test.js": [
+      {
+        "line": 31,
+        "name": "returns 403 when not doctor"
+      },
+      {
+        "line": 36,
+        "name": "returns health reviews when doctor"
+      },
+      {
+        "line": 49,
+        "name": "returns 403 when not authenticated"
+      }
+    ],
+    "backend/tests/unit/landingPage/landingPage.test.js": [
+      {
+        "line": 23,
+        "name": "GET /api/pools should return pools array"
+      },
+      {
+        "line": 35,
+        "name": "GET /api/pools should return 500 on DB error"
+      }
+    ],
+    "backend/tests/unit/member/member.test.js": [
+      {
+        "line": 43,
+        "name": "returns 401 when not authenticated"
+      },
+      {
+        "line": 49,
+        "name": "returns 404 when user not found"
+      },
+      {
+        "line": 58,
+        "name": "returns user data when found"
+      },
+      {
+        "line": 71,
+        "name": "returns 401 when not authenticated"
+      },
+      {
+        "line": 78,
+        "name": "returns 401 when not authenticated"
+      }
+    ],
+    "backend/tests/unit/middleware/auth.test.js": [
+      {
+        "line": 18,
+        "name": "calls next when user is admin"
+      },
+      {
+        "line": 27,
+        "name": "returns 403 when user is not admin"
+      },
+      {
+        "line": 37,
+        "name": "returns 403 when no session user"
+      },
+      {
+        "line": 47,
+        "name": "calls next when user is doctor"
+      },
+      {
+        "line": 55,
+        "name": "returns 403 when user is not doctor"
+      }
+    ],
+    "backend/tests/unit/payment/payment.test.js": [
+      {
+        "line": 29,
+        "name": "returns 401 when not authenticated"
+      },
+      {
+        "line": 36,
+        "name": "returns 400 when type is missing"
+      }
+    ],
+    "backend/tests/unit/reminders/reminders.test.js": [
+      {
+        "line": 37,
+        "name": "send-health-report-reminders requires auth"
+      }
+    ],
+    "backend/tests/unit/staff/staff.test.js": [
+      {
+        "line": 36,
+        "name": "returns 403 when not staff"
+      },
+      {
+        "line": 44,
+        "name": "returns 403 when not staff"
+      }
+    ],
+    "backend/tests/unit/utils/validations.test.js": [
+      {
+        "line": 12,
+        "name": "should return error when name is empty"
+      },
+      {
+        "line": 18,
+        "name": "should return error when name is too short"
+      },
+      {
+        "line": 24,
+        "name": "should return error for invalid email"
+      },
+      {
+        "line": 30,
+        "name": "should return error for invalid Turkish phone"
+      },
+      {
+        "line": 41,
+        "name": "should accept valid Turkish phone 05321234567"
+      },
+      {
+        "line": 60,
+        "name": "should return error when height is missing"
+      },
+      {
+        "line": 66,
+        "name": "should return error when height is out of range"
+      },
+      {
+        "line": 72,
+        "name": "should return error when weight is out of range"
+      },
+      {
+        "line": 78,
+        "name": "should accept valid height and weight"
+      },
+      {
+        "line": 87,
+        "name": "should return error when emergency contact name is empty"
+      },
+      {
+        "line": 93,
+        "name": "should return error when phone same as user phone"
+      },
+      {
+        "line": 106,
+        "name": "should return error when questions are not answered"
+      },
+      {
+        "line": 115,
+        "name": "should require health_additional_info when condition is true"
+      },
+      {
+        "line": 132,
+        "name": "should return error when terms not accepted"
+      },
+      {
+        "line": 138,
+        "name": "should return error when privacy not accepted"
+      },
+      {
+        "line": 146,
+        "name": "should return isValid false when personal info invalid"
+      },
+      {
+        "line": 156,
+        "name": "should require files when not social registration"
+      }
+    ],
+    "frontend/src/App.test.js": [
+      {
+        "line": 17,
+        "name": "App renders without crashing"
+      },
+      {
+        "line": 22,
+        "name": "App header exists"
+      }
+    ],
+    "frontend/src/__tests__/admin/FeedbackManagement.test.jsx": [
+      {
+        "line": 9,
+        "name": "renders without crashing"
+      }
+    ],
+    "frontend/src/__tests__/admin/MapPicker.test.jsx": [
+      {
+        "line": 13,
+        "name": "renders map"
+      }
+    ],
+    "frontend/src/__tests__/admin/PoolManagement.test.jsx": [
+      {
+        "line": 15,
+        "name": "renders without crashing"
+      }
+    ],
+    "frontend/src/__tests__/admin/SessionManagement.test.jsx": [
+      {
+        "line": 9,
+        "name": "renders without crashing"
+      }
+    ],
+    "frontend/src/__tests__/admin/VerificationQueue.test.jsx": [
+      {
+        "line": 9,
+        "name": "renders without crashing"
+      }
+    ],
+    "frontend/src/__tests__/auth/ForgotPassword.test.jsx": [
+      {
+        "line": 15,
+        "name": "renders reset password form"
+      },
+      {
+        "line": 25,
+        "name": "has Send Reset Link button"
+      }
+    ],
+    "frontend/src/__tests__/auth/Login.test.jsx": [
+      {
+        "line": 15,
+        "name": "renders login form"
+      },
+      {
+        "line": 25,
+        "name": "has login button"
+      }
+    ],
+    "frontend/src/__tests__/auth/ResetPassword.test.jsx": [
+      {
+        "line": 13,
+        "name": "shows loading or form when token provided"
+      }
+    ],
+    "frontend/src/__tests__/auth/SocialLogin.test.jsx": [
+      {
+        "line": 8,
+        "name": "renders Register with Google heading"
+      },
+      {
+        "line": 13,
+        "name": "has Google button"
+      }
+    ],
+    "frontend/src/__tests__/components/CheckInPage.test.jsx": [
+      {
+        "line": 12,
+        "name": "renders without crashing"
+      }
+    ],
+    "frontend/src/__tests__/components/HealthReportUpload.test.jsx": [
+      {
+        "line": 12,
+        "name": "renders without crashing"
+      }
+    ],
+    "frontend/src/__tests__/components/LoadingSpinner.test.jsx": [
+      {
+        "line": 6,
+        "name": "renders without crashing"
+      }
+    ],
+    "frontend/src/__tests__/components/Navbar.test.jsx": [
+      {
+        "line": 11,
+        "name": "renders without crashing"
+      }
+    ],
+    "frontend/src/__tests__/components/PackagePurchase.test.jsx": [
+      {
+        "line": 10,
+        "name": "renders without crashing"
+      }
+    ],
+    "frontend/src/__tests__/components/PaymentMethods.test.jsx": [
+      {
+        "line": 9,
+        "name": "renders without crashing"
+      }
+    ],
+    "frontend/src/__tests__/components/ProtectedRoute.test.jsx": [
+      {
+        "line": 12,
+        "name": "redirects to login when not authenticated"
+      }
+    ],
+    "frontend/src/__tests__/components/ReservationDetails.test.jsx": [
+      {
+        "line": 17,
+        "name": "renders reservation details when reservation is provided"
+      },
+      {
+        "line": 27,
+        "name": "returns null when reservation is null"
+      }
+    ],
+    "frontend/src/__tests__/components/StaffVerification.test.jsx": [
+      {
+        "line": 13,
+        "name": "renders staff verification component"
+      }
+    ],
+    "frontend/src/__tests__/components/StripeCheckout.test.jsx": [
+      {
+        "line": 14,
+        "name": "renders without crashing"
+      }
+    ],
+    "frontend/src/__tests__/components/TransactionHistory.test.jsx": [
+      {
+        "line": 7,
+        "name": "renders without crashing"
+      }
+    ],
+    "frontend/src/__tests__/components/VerifyResult.test.jsx": [
+      {
+        "line": 7,
+        "name": "shows error state when status is not success"
+      },
+      {
+        "line": 17,
+        "name": "shows success when status=success"
+      }
+    ],
+    "frontend/src/__tests__/dashboard/AdminDashboard.test.jsx": [
+      {
+        "line": 13,
+        "name": "renders pool management by default"
+      }
+    ],
+    "frontend/src/__tests__/dashboard/CoachDashboard.test.jsx": [
+      {
+        "line": 13,
+        "name": "renders without crashing"
+      }
+    ],
+    "frontend/src/__tests__/dashboard/DoctorDashboard.test.jsx": [
+      {
+        "line": 11,
+        "name": "renders health information reviews"
+      }
+    ],
+    "frontend/src/__tests__/dashboard/MemberDashboard.test.jsx": [
+      {
+        "line": 14,
+        "name": "renders without crashing"
+      }
+    ],
+    "frontend/src/__tests__/doctor/HealthReportReminders.test.jsx": [
+      {
+        "line": 9,
+        "name": "renders without crashing"
+      }
+    ],
+    "frontend/src/__tests__/doctor/HealthReportReviews.test.jsx": [
+      {
+        "line": 9,
+        "name": "renders without crashing"
+      }
+    ],
+    "frontend/src/__tests__/doctor/HealthReviewQueue.test.jsx": [
+      {
+        "line": 9,
+        "name": "renders without crashing"
+      }
+    ],
+    "frontend/src/__tests__/pages/Billing.test.jsx": [
+      {
+        "line": 11,
+        "name": "renders without crashing"
+      }
+    ],
+    "frontend/src/__tests__/pages/Dashboard.test.jsx": [
+      {
+        "line": 17,
+        "name": "redirects to login when no user in session"
+      }
+    ],
+    "frontend/src/__tests__/pages/EditProfile.test.jsx": [
+      {
+        "line": 10,
+        "name": "renders without crashing"
+      }
+    ],
+    "frontend/src/__tests__/pages/EducationPackage.test.jsx": [
+      {
+        "line": 11,
+        "name": "renders education package content"
+      }
+    ],
+    "frontend/src/__tests__/pages/FreeSwimmingPackage.test.jsx": [
+      {
+        "line": 11,
+        "name": "renders free swimming package content"
+      }
+    ],
+    "frontend/src/__tests__/pages/HomePage.test.jsx": [
+      {
+        "line": 9,
+        "name": "renders without crashing"
+      }
+    ],
+    "frontend/src/__tests__/pages/LandingPage.test.jsx": [
+      {
+        "line": 9,
+        "name": "renders hero section"
+      },
+      {
+        "line": 18,
+        "name": "has Register and Login links"
+      }
+    ],
+    "frontend/src/__tests__/register/EmergencyContactStep.test.jsx": [
+      {
+        "line": 16,
+        "name": "renders form"
+      }
+    ],
+    "frontend/src/__tests__/register/HealthInfoStep.test.jsx": [
+      {
+        "line": 16,
+        "name": "renders form with height and weight inputs"
+      }
+    ],
+    "frontend/src/__tests__/register/HealthQuestionsStep.test.jsx": [
+      {
+        "line": 24,
+        "name": "renders form"
+      }
+    ],
+    "frontend/src/__tests__/register/MultiStepForm.test.jsx": [
+      {
+        "line": 7,
+        "name": "renders registration form"
+      }
+    ],
+    "frontend/src/__tests__/register/PersonalInfoStep.test.jsx": [
+      {
+        "line": 20,
+        "name": "renders form"
+      }
+    ],
+    "frontend/src/__tests__/register/ProgressBar.test.jsx": [
+      {
+        "line": 8,
+        "name": "renders step labels"
+      }
+    ],
+    "frontend/src/__tests__/register/TermsStep.test.jsx": [
+      {
+        "line": 17,
+        "name": "renders terms and privacy checkboxes"
+      }
+    ],
+    "frontend/src/__tests__/static/PrivacyPolicy.test.jsx": [
+      {
+        "line": 7,
+        "name": "renders Privacy Policy heading"
+      }
+    ],
+    "frontend/src/__tests__/static/Terms.test.jsx": [
+      {
+        "line": 6,
+        "name": "renders terms content"
+      }
+    ],
+    "frontend/src/__tests__/utils/dateUtils.test.js": [
+      {
+        "line": 10,
+        "name": "returns empty string for null/undefined"
+      },
+      {
+        "line": 15,
+        "name": "returns formatted string for valid date"
+      },
+      {
+        "line": 23,
+        "name": "returns false for null/undefined"
+      },
+      {
+        "line": 28,
+        "name": "returns false for past date"
+      },
+      {
+        "line": 34,
+        "name": "returns empty string for null"
+      },
+      {
+        "line": 40,
+        "name": "returns N/A for null"
+      },
+      {
+        "line": 44,
+        "name": "returns formatted string for valid date"
+      }
+    ],
+    "frontend/src/__tests__/utils/formatters.test.js": [
+      {
+        "line": 5,
+        "name": "returns \"Not provided\" for empty text"
+      },
+      {
+        "line": 10,
+        "name": "returns \"No phone number provided\" for empty phone"
+      },
+      {
+        "line": 14,
+        "name": "returns \"Not specified\" for empty gender"
+      },
+      {
+        "line": 18,
+        "name": "returns value as-is when not empty"
+      },
+      {
+        "line": 22,
+        "name": "formats date type with toLocaleDateString"
+      }
+    ],
+    "frontend/src/__tests__/utils/validations.test.js": [
+      {
+        "line": 14,
+        "name": "returns errors for empty name"
+      },
+      {
+        "line": 19,
+        "name": "returns errors for invalid email"
+      },
+      {
+        "line": 26,
+        "name": "returns error for missing height"
+      },
+      {
+        "line": 31,
+        "name": "returns error for invalid height"
+      }
+    ],
+    "frontend/src/__tests__/verify/EmailVerification.test.jsx": [
+      {
+        "line": 19,
+        "name": "renders verifying state initially with token"
+      }
+    ],
+    "frontend/src/pages/Pools/Pools.test.jsx": [
+      {
+        "line": 11,
+        "name": "renders loading state initially"
+      },
+      {
+        "line": 20,
+        "name": "renders empty pools message when loaded"
+      }
+    ],
+    "tests/e2e/admin/poolManagement.spec.js": [
+      {
+        "line": 4,
+        "name": "admin section requires auth"
+      }
+    ],
+    "tests/e2e/admin/sessionManagement.spec.js": [
+      {
+        "line": 4,
+        "name": "session management section requires auth"
+      }
+    ],
+    "tests/e2e/admin/verificationQueue.spec.js": [
+      {
+        "line": 4,
+        "name": "verification queue section requires auth"
+      }
+    ],
+    "tests/e2e/auth/forgotPassword.spec.js": [
+      {
+        "line": 4,
+        "name": "forgot password page loads"
+      }
+    ],
+    "tests/e2e/auth/login.spec.js": [
+      {
+        "line": 9,
+        "name": "login page loads"
+      },
+      {
+        "line": 13,
+        "name": "shows login form elements"
+      }
+    ],
+    "tests/e2e/auth/register.spec.js": [
+      {
+        "line": 8,
+        "name": "register page loads"
+      }
+    ],
+    "tests/e2e/auth/socialLogin.spec.js": [
+      {
+        "line": 4,
+        "name": "social login page loads"
+      }
+    ],
+    "tests/e2e/doctor/healthReviewFlow.spec.js": [
+      {
+        "line": 4,
+        "name": "doctor dashboard requires auth"
+      }
+    ],
+    "tests/e2e/member/billing.spec.js": [
+      {
+        "line": 4,
+        "name": "billing page requires auth"
+      }
+    ],
+    "tests/e2e/member/checkIn.spec.js": [
+      {
+        "line": 4,
+        "name": "check-in page requires auth"
+      }
+    ],
+    "tests/e2e/member/reservation.spec.js": [
+      {
+        "line": 4,
+        "name": "member dashboard requires auth"
+      }
+    ],
+    "tests/e2e/staff/qrVerification.spec.js": [
+      {
+        "line": 4,
+        "name": "staff verification page requires auth"
+      }
+    ]
+  },
+  "api": [
+    {
+      "method": "GET",
+      "path": "/pools",
+      "file": "backend/index.js",
+      "line": 195
+    },
+    {
+      "method": "POST",
+      "path": "/auth/check-email",
+      "file": "backend/register.js",
+      "line": 206
+    },
+    {
+      "method": "POST",
+      "path": "/auth/check-phone",
+      "file": "backend/register.js",
+      "line": 227
+    },
+    {
+      "method": "POST",
+      "path": "/auth/register",
+      "file": "backend/register.js",
+      "line": 257
+    },
+    {
+      "method": "GET",
+      "path": "/auth/verify-email",
+      "file": "backend/register.js",
+      "line": 542
+    },
+    {
+      "method": "POST",
+      "path": "/auth/verify-email",
+      "file": "backend/register.js",
+      "line": 601
+    },
+    {
+      "method": "POST",
+      "path": "/auth/verify-email/:token",
+      "file": "backend/register.js",
+      "line": 601
+    },
+    {
+      "method": "GET",
+      "path": "/auth/google",
+      "file": "backend/register.js",
+      "line": 650
+    },
+    {
+      "method": "GET",
+      "path": "/auth/google/callback",
+      "file": "backend/register.js",
+      "line": 658
+    },
+    {
+      "method": "POST",
+      "path": "/auth/upload-id-card",
+      "file": "backend/register.js",
+      "line": 703
+    },
+    {
+      "method": "POST",
+      "path": "/auth/upload-profile-photo",
+      "file": "backend/register.js",
+      "line": 729
+    },
+    {
+      "method": "GET",
+      "path": "/auth/check-auth",
+      "file": "backend/register.js",
+      "line": 756
+    },
+    {
+      "method": "GET",
+      "path": "/auth/check-verification",
+      "file": "backend/register.js",
+      "line": 821
+    },
+    {
+      "method": "POST",
+      "path": "/auth/resend-verification",
+      "file": "backend/register.js",
+      "line": 842
+    },
+    {
+      "method": "POST",
+      "path": "/auth/clear-session",
+      "file": "backend/register.js",
+      "line": 872
+    },
+    {
+      "method": "POST",
+      "path": "/auth/clear-all-session",
+      "file": "backend/register.js",
+      "line": 889
+    },
+    {
+      "method": "POST",
+      "path": "/auth/reset-password-request",
+      "file": "backend/register.js",
+      "line": 921
+    },
+    {
+      "method": "GET",
+      "path": "/auth/reset-password/:token",
+      "file": "backend/register.js",
+      "line": 968
+    },
+    {
+      "method": "POST",
+      "path": "/auth/validate-reset-token",
+      "file": "backend/register.js",
+      "line": 983
+    },
+    {
+      "method": "POST",
+      "path": "/auth/reset-password",
+      "file": "backend/register.js",
+      "line": 1009
+    },
+    {
+      "method": "POST",
+      "path": "/auth/verify-social-email",
+      "file": "backend/register.js",
+      "line": 1083
+    },
+    {
+      "method": "GET",
+      "path": "/auth/social-registration-data",
+      "file": "backend/register.js",
+      "line": 1112
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/pools",
+      "file": "backend/routes/admin.js",
+      "line": 18
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/pools",
+      "file": "backend/routes/admin.js",
+      "line": 29
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/admin/pools/:poolId",
+      "file": "backend/routes/admin.js",
+      "line": 59
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/pools/:poolId",
+      "file": "backend/routes/admin.js",
+      "line": 72
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/verifications",
+      "file": "backend/routes/admin.js",
+      "line": 114
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/verifications/:userId",
+      "file": "backend/routes/admin.js",
+      "line": 149
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/sessions",
+      "file": "backend/routes/admin.js",
+      "line": 290
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/sessions",
+      "file": "backend/routes/admin.js",
+      "line": 404
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/admin/sessions/:sessionId",
+      "file": "backend/routes/admin.js",
+      "line": 423
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/sessions/:sessionId",
+      "file": "backend/routes/admin.js",
+      "line": 436
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/feedback",
+      "file": "backend/routes/admin.js",
+      "line": 542
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/feedback/:id",
+      "file": "backend/routes/admin.js",
+      "line": 558
+    },
+    {
+      "method": "GET",
+      "path": "/api/coach/members",
+      "file": "backend/routes/coach.js",
+      "line": 9
+    },
+    {
+      "method": "PUT",
+      "path": "/api/coach/members/:userId/swimming-status",
+      "file": "backend/routes/coach.js",
+      "line": 28
+    },
+    {
+      "method": "GET",
+      "path": "/api/doctor/health-reviews",
+      "file": "backend/routes/doctor.js",
+      "line": 42
+    },
+    {
+      "method": "PUT",
+      "path": "/api/doctor/health-status/:userId",
+      "file": "backend/routes/doctor.js",
+      "line": 99
+    },
+    {
+      "method": "POST",
+      "path": "/api/doctor/upload-health-report-doctor/:userId",
+      "file": "backend/routes/doctor.js",
+      "line": 194
+    },
+    {
+      "method": "POST",
+      "path": "/api/doctor/upload-health-report/:userId",
+      "file": "backend/routes/doctor.js",
+      "line": 209
+    },
+    {
+      "method": "GET",
+      "path": "/api/doctor/health-reports/:reportId/download",
+      "file": "backend/routes/doctor.js",
+      "line": 228
+    },
+    {
+      "method": "GET",
+      "path": "/api/doctor/health-reports/:userId",
+      "file": "backend/routes/doctor.js",
+      "line": 262
+    },
+    {
+      "method": "PUT",
+      "path": "/api/doctor/health-reports/:reportId",
+      "file": "backend/routes/doctor.js",
+      "line": 289
+    },
+    {
+      "method": "GET",
+      "path": "/api/doctor/users-with-reports",
+      "file": "backend/routes/doctor.js",
+      "line": 357
+    },
+    {
+      "method": "GET",
+      "path": "/api/doctor/pending-health-report-reminders",
+      "file": "backend/routes/doctor.js",
+      "line": 533
+    },
+    {
+      "method": "GET",
+      "path": "/api/pools",
+      "file": "backend/routes/landingPage.js",
+      "line": 5
+    },
+    {
+      "method": "POST",
+      "path": "/auth/login",
+      "file": "backend/routes/login.js",
+      "line": 13
+    },
+    {
+      "method": "GET",
+      "path": "/api/member/pools",
+      "file": "backend/routes/member.js",
+      "line": 127
+    },
+    {
+      "method": "GET",
+      "path": "/api/member/user/me",
+      "file": "backend/routes/member.js",
+      "line": 154
+    },
+    {
+      "method": "POST",
+      "path": "/api/member/upload-health-report",
+      "file": "backend/routes/member.js",
+      "line": 171
+    },
+    {
+      "method": "GET",
+      "path": "/api/member/package",
+      "file": "backend/routes/member.js",
+      "line": 192
+    },
+    {
+      "method": "POST",
+      "path": "/api/member/packages",
+      "file": "backend/routes/member.js",
+      "line": 206
+    },
+    {
+      "method": "GET",
+      "path": "/api/member/reservations",
+      "file": "backend/routes/member.js",
+      "line": 250
+    },
+    {
+      "method": "GET",
+      "path": "/api/member/pools/:poolId/sessions",
+      "file": "backend/routes/member.js",
+      "line": 285
+    },
+    {
+      "method": "GET",
+      "path": "/api/member/sessions",
+      "file": "backend/routes/member.js",
+      "line": 398
+    },
+    {
+      "method": "POST",
+      "path": "/api/member/reservations",
+      "file": "backend/routes/member.js",
+      "line": 422
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/member/reservations/:id",
+      "file": "backend/routes/member.js",
+      "line": 600
+    },
+    {
+      "method": "POST",
+      "path": "/api/member/feedback",
+      "file": "backend/routes/member.js",
+      "line": 669
+    },
+    {
+      "method": "GET",
+      "path": "/api/member/feedback",
+      "file": "backend/routes/member.js",
+      "line": 700
+    },
+    {
+      "method": "GET",
+      "path": "/api/member/history",
+      "file": "backend/routes/member.js",
+      "line": 718
+    },
+    {
+      "method": "GET",
+      "path": "/api/member/pools/:poolId/sessions/count",
+      "file": "backend/routes/member.js",
+      "line": 775
+    },
+    {
+      "method": "GET",
+      "path": "/api/member/package-prices",
+      "file": "backend/routes/member.js",
+      "line": 805
+    },
+    {
+      "method": "POST",
+      "path": "/api/member/resubmit-verification",
+      "file": "backend/routes/member.js",
+      "line": 836
+    },
+    {
+      "method": "GET",
+      "path": "/api/member/verification-status",
+      "file": "backend/routes/member.js",
+      "line": 932
+    },
+    {
+      "method": "GET",
+      "path": "/api/member/profile",
+      "file": "backend/routes/member.js",
+      "line": 954
+    },
+    {
+      "method": "POST",
+      "path": "/api/member/check-in",
+      "file": "backend/routes/member.js",
+      "line": 988
+    },
+    {
+      "method": "POST",
+      "path": "/api/member/update-profile",
+      "file": "backend/routes/member.js",
+      "line": 1104
+    },
+    {
+      "method": "POST",
+      "path": "/api/member/update-health-info",
+      "file": "backend/routes/member.js",
+      "line": 1194
+    },
+    {
+      "method": "GET",
+      "path": "/api/member/health-info",
+      "file": "backend/routes/member.js",
+      "line": 1301
+    },
+    {
+      "method": "POST",
+      "path": "/api/member/upload-id-card",
+      "file": "backend/routes/member.js",
+      "line": 1320
+    },
+    {
+      "method": "POST",
+      "path": "/api/member/upload-profile-photo",
+      "file": "backend/routes/member.js",
+      "line": 1341
+    },
+    {
+      "method": "POST",
+      "path": "/api/payment/create-payment-intent",
+      "file": "backend/routes/payment.js",
+      "line": 45
+    },
+    {
+      "method": "POST",
+      "path": "/api/payment/payment-success",
+      "file": "backend/routes/payment.js",
+      "line": 97
+    },
+    {
+      "method": "GET",
+      "path": "/api/payment/payment-methods",
+      "file": "backend/routes/payment.js",
+      "line": 240
+    },
+    {
+      "method": "PUT",
+      "path": "/api/payment/payment-methods/:id/default",
+      "file": "backend/routes/payment.js",
+      "line": 255
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/payment/payment-methods/:id",
+      "file": "backend/routes/payment.js",
+      "line": 289
+    },
+    {
+      "method": "GET",
+      "path": "/api/payment/config",
+      "file": "backend/routes/payment.js",
+      "line": 333
+    },
+    {
+      "method": "POST",
+      "path": "/api/reminders/send-health-report-reminders",
+      "file": "backend/routes/reminders.js",
+      "line": 67
+    },
+    {
+      "method": "POST",
+      "path": "/api/reminders/send-specific-reminders",
+      "file": "backend/routes/reminders.js",
+      "line": 140
+    },
+    {
+      "method": "POST",
+      "path": "/api/reminders/send-invalid-document-notification",
+      "file": "backend/routes/reminders.js",
+      "line": 267
+    },
+    {
+      "method": "GET",
+      "path": "/api/staff/dashboard",
+      "file": "backend/routes/staff.js",
+      "line": 10
+    },
+    {
+      "method": "POST",
+      "path": "/api/staff/verify-qr-code",
+      "file": "backend/routes/staff.js",
+      "line": 28
+    }
+  ],
+  "routes": [
+    {
+      "file": "frontend/src/App.js",
+      "line": 87,
+      "path": "/"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 90,
+      "path": "/register"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 100,
+      "path": "/register/social"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 110,
+      "path": "/terms"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 111,
+      "path": "/privacy-policy"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 114,
+      "path": "/social-login"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 124,
+      "path": "/login"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 127,
+      "path": "/home"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 137,
+      "path": "/dashboard"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 147,
+      "path": "/verify-email"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 148,
+      "path": "/verify-email/:token"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 149,
+      "path": "/verify-result"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 152,
+      "path": "/admin/*"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 162,
+      "path": "/doctor/dashboard"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 172,
+      "path": "/health-report-upload"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 177,
+      "path": "/upload-health-report"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 182,
+      "path": "/upload-health-report/:userId"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 188,
+      "path": "/coach/dashboard"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 198,
+      "path": "/member/dashboard"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 208,
+      "path": "/check-in"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 218,
+      "path": "/billing"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 228,
+      "path": "/edit-profile"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 238,
+      "path": "/education-package"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 241,
+      "path": "/free-swimming-package"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 244,
+      "path": "/reset-password"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 245,
+      "path": "/reset-password/:token"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 248,
+      "path": "/forgot-password"
+    },
+    {
+      "file": "frontend/src/App.js",
+      "line": 251,
+      "path": "/staff/verification"
+    }
+  ],
+  "components": [
+    "frontend/src/App.js",
+    "frontend/src/SocialLogin.js",
+    "frontend/src/Terms.js",
+    "frontend/src/components/AdminDashboard/AdminDashboard.js",
+    "frontend/src/components/AdminDashboard/FeedbackManagement.js",
+    "frontend/src/components/AdminDashboard/MapPicker.js",
+    "frontend/src/components/AdminDashboard/PoolManagement.js",
+    "frontend/src/components/AdminDashboard/SessionManagement.js",
+    "frontend/src/components/AdminDashboard/VerificationQueue.js",
+    "frontend/src/components/CheckInPage.js",
+    "frontend/src/components/CoachDashboard/CoachDashboard.js",
+    "frontend/src/components/DoctorDashboard/DoctorDashboard.js",
+    "frontend/src/components/DoctorDashboard/HealthReportReminders.js",
+    "frontend/src/components/DoctorDashboard/HealthReportReviews.js",
+    "frontend/src/components/DoctorDashboard/HealthReviewQueue.js",
+    "frontend/src/components/EmailVerification/EmailVerification.js",
+    "frontend/src/components/HealthReportUpload.js",
+    "frontend/src/components/LoadingSpinner.js",
+    "frontend/src/components/MemberDashboard.js",
+    "frontend/src/components/MultiStepForm/MultiStepForm.js",
+    "frontend/src/components/MultiStepForm/ProgressBar/ProgressBar.js",
+    "frontend/src/components/MultiStepForm/Steps/EmergencyContactStep.js",
+    "frontend/src/components/MultiStepForm/Steps/HealthInfoStep.js",
+    "frontend/src/components/MultiStepForm/Steps/HealthQuestionsStep.js",
+    "frontend/src/components/MultiStepForm/Steps/PersonalInfoStep.js",
+    "frontend/src/components/MultiStepForm/Steps/TermsStep.js",
+    "frontend/src/components/Navbar/Navbar.js",
+    "frontend/src/components/PackagePurchase.js",
+    "frontend/src/components/PaymentMethods.js",
+    "frontend/src/components/PrivacyPolicy/PrivacyPolicy.js",
+    "frontend/src/components/ProtectedRoute.js",
+    "frontend/src/components/ReservationDetails.js",
+    "frontend/src/components/StaffVerification.js",
+    "frontend/src/components/StripeCheckout.js",
+    "frontend/src/components/TransactionHistory.js",
+    "frontend/src/components/VerifyResult/VerifyResult.js",
+    "frontend/src/index.js",
+    "frontend/src/pages/Billing.js",
+    "frontend/src/pages/Dashboard.js",
+    "frontend/src/pages/EditProfile.js",
+    "frontend/src/pages/ForgotPassword.js",
+    "frontend/src/pages/HomePage/HomePage.js",
+    "frontend/src/pages/LandingPage/LandingPage.js",
+    "frontend/src/pages/Login.js",
+    "frontend/src/pages/Pools/Pools.js",
+    "frontend/src/pages/ResetPassword.js",
+    "frontend/src/pages/packages/EducationPackage.js",
+    "frontend/src/pages/packages/FreeSwimmingPackage.js"
+  ],
+  "imports": {
+    "backend/app.js": [],
+    "backend/config/database.js": [],
+    "backend/index.js": [],
+    "backend/jest.config.js": [],
+    "backend/jest.integration.config.js": [],
+    "backend/middleware/auth.js": [],
+    "backend/register.js": [],
+    "backend/routes/admin.js": [],
+    "backend/routes/coach.js": [],
+    "backend/routes/doctor.js": [],
+    "backend/routes/landingPage.js": [],
+    "backend/routes/login.js": [],
+    "backend/routes/member.js": [],
+    "backend/routes/payment.js": [],
+    "backend/routes/reminders.js": [],
+    "backend/routes/staff.js": [],
+    "backend/scripts/check-postgres.js": [],
+    "backend/scripts/db-check.js": [],
+    "backend/scripts/get-gmail-refresh-token.js": [],
+    "backend/scripts/init-db.js": [],
+    "backend/scripts/init-test-db.js": [],
+    "backend/tests/integration/admin/admin.integration.test.js": [],
+    "backend/tests/integration/auth/login.integration.test.js": [],
+    "backend/tests/integration/auth/register.integration.test.js": [],
+    "backend/tests/integration/doctor/doctor.integration.test.js": [],
+    "backend/tests/integration/landingPage/landingPage.integration.test.js": [],
+    "backend/tests/integration/member/member.integration.test.js": [],
+    "backend/tests/integration/payment/payment.integration.test.js": [],
+    "backend/tests/integration/reminders/reminders.integration.test.js": [],
+    "backend/tests/integration/setup.js": [],
+    "backend/tests/integration/staff/staff.integration.test.js": [],
+    "backend/tests/unit/admin/feedback.test.js": [],
+    "backend/tests/unit/admin/pools.test.js": [],
+    "backend/tests/unit/admin/sessions.test.js": [],
+    "backend/tests/unit/admin/verifications.test.js": [],
+    "backend/tests/unit/auth/login.test.js": [],
+    "backend/tests/unit/auth/register.test.js": [],
+    "backend/tests/unit/coach/coach.test.js": [],
+    "backend/tests/unit/doctor/doctor.test.js": [],
+    "backend/tests/unit/landingPage/landingPage.test.js": [],
+    "backend/tests/unit/member/member.test.js": [],
+    "backend/tests/unit/middleware/auth.test.js": [],
+    "backend/tests/unit/payment/payment.test.js": [],
+    "backend/tests/unit/reminders/reminders.test.js": [],
+    "backend/tests/unit/staff/staff.test.js": [],
+    "backend/tests/unit/utils/validations.test.js": [],
+    "backend/utils/r2Storage.js": [],
+    "backend/utils/security.js": [],
+    "backend/utils/sendEmail.js": [],
+    "backend/validations.js": [],
+    "cloudflare-worker/src/index.js": [],
+    "frontend/src/App.js": [
+      "react",
+      "react-router-dom",
+      "./components/MultiStepForm/MultiStepForm",
+      "./Terms",
+      "./SocialLogin",
+      "./components/PrivacyPolicy/PrivacyPolicy",
+      "./pages/Login",
+      "./pages/Dashboard",
+      "./components/EmailVerification/EmailVerification",
+      "./components/VerifyResult/VerifyResult",
+      "./pages/LandingPage/LandingPage",
+      "./components/ProtectedRoute",
+      "./App.css",
+      "./components/AdminDashboard/AdminDashboard",
+      "./components/DoctorDashboard/DoctorDashboard",
+      "./components/HealthReportUpload",
+      "axios",
+      "./components/MemberDashboard",
+      "./components/CheckInPage",
+      "./components/StaffVerification",
+      "./pages/packages/EducationPackage",
+      "./pages/packages/FreeSwimmingPackage",
+      "./pages/Billing",
+      "./pages/EditProfile",
+      "./pages/ResetPassword",
+      "./components/CoachDashboard/CoachDashboard",
+      "./pages/ForgotPassword",
+      "./pages/HomePage/HomePage"
+    ],
+    "frontend/src/App.test.js": [
+      "react",
+      "@testing-library/react",
+      "./App"
+    ],
+    "frontend/src/SocialLogin.js": [
+      "react",
+      "./logo/google logo.png"
+    ],
+    "frontend/src/Terms.js": [
+      "react",
+      "./Terms.css"
+    ],
+    "frontend/src/__tests__/admin/FeedbackManagement.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/AdminDashboard/FeedbackManagement"
+    ],
+    "frontend/src/__tests__/admin/MapPicker.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "../../components/AdminDashboard/MapPicker"
+    ],
+    "frontend/src/__tests__/admin/PoolManagement.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/AdminDashboard/PoolManagement"
+    ],
+    "frontend/src/__tests__/admin/SessionManagement.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/AdminDashboard/SessionManagement"
+    ],
+    "frontend/src/__tests__/admin/VerificationQueue.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/AdminDashboard/VerificationQueue"
+    ],
+    "frontend/src/__tests__/auth/ForgotPassword.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../pages/ForgotPassword"
+    ],
+    "frontend/src/__tests__/auth/Login.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../pages/Login"
+    ],
+    "frontend/src/__tests__/auth/ResetPassword.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../pages/ResetPassword"
+    ],
+    "frontend/src/__tests__/auth/SocialLogin.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "../../SocialLogin"
+    ],
+    "frontend/src/__tests__/components/CheckInPage.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/CheckInPage"
+    ],
+    "frontend/src/__tests__/components/HealthReportUpload.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/HealthReportUpload"
+    ],
+    "frontend/src/__tests__/components/LoadingSpinner.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "../../components/LoadingSpinner"
+    ],
+    "frontend/src/__tests__/components/Navbar.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/Navbar/Navbar"
+    ],
+    "frontend/src/__tests__/components/PackagePurchase.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/PackagePurchase"
+    ],
+    "frontend/src/__tests__/components/PaymentMethods.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/PaymentMethods"
+    ],
+    "frontend/src/__tests__/components/ProtectedRoute.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/ProtectedRoute"
+    ],
+    "frontend/src/__tests__/components/ReservationDetails.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/ReservationDetails"
+    ],
+    "frontend/src/__tests__/components/StaffVerification.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/StaffVerification"
+    ],
+    "frontend/src/__tests__/components/StripeCheckout.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/StripeCheckout"
+    ],
+    "frontend/src/__tests__/components/TransactionHistory.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/TransactionHistory"
+    ],
+    "frontend/src/__tests__/components/VerifyResult.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/VerifyResult/VerifyResult"
+    ],
+    "frontend/src/__tests__/dashboard/AdminDashboard.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/AdminDashboard/AdminDashboard"
+    ],
+    "frontend/src/__tests__/dashboard/CoachDashboard.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/CoachDashboard/CoachDashboard"
+    ],
+    "frontend/src/__tests__/dashboard/DoctorDashboard.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/DoctorDashboard/DoctorDashboard"
+    ],
+    "frontend/src/__tests__/dashboard/MemberDashboard.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/MemberDashboard"
+    ],
+    "frontend/src/__tests__/doctor/HealthReportReminders.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/DoctorDashboard/HealthReportReminders"
+    ],
+    "frontend/src/__tests__/doctor/HealthReportReviews.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/DoctorDashboard/HealthReportReviews"
+    ],
+    "frontend/src/__tests__/doctor/HealthReviewQueue.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/DoctorDashboard/HealthReviewQueue"
+    ],
+    "frontend/src/__tests__/pages/Billing.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../pages/Billing"
+    ],
+    "frontend/src/__tests__/pages/Dashboard.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../pages/Dashboard"
+    ],
+    "frontend/src/__tests__/pages/EditProfile.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../pages/EditProfile"
+    ],
+    "frontend/src/__tests__/pages/EducationPackage.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../pages/packages/EducationPackage"
+    ],
+    "frontend/src/__tests__/pages/FreeSwimmingPackage.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../pages/packages/FreeSwimmingPackage"
+    ],
+    "frontend/src/__tests__/pages/HomePage.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../pages/HomePage/HomePage"
+    ],
+    "frontend/src/__tests__/pages/LandingPage.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../pages/LandingPage/LandingPage"
+    ],
+    "frontend/src/__tests__/register/EmergencyContactStep.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/MultiStepForm/Steps/EmergencyContactStep"
+    ],
+    "frontend/src/__tests__/register/HealthInfoStep.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/MultiStepForm/Steps/HealthInfoStep"
+    ],
+    "frontend/src/__tests__/register/HealthQuestionsStep.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/MultiStepForm/Steps/HealthQuestionsStep"
+    ],
+    "frontend/src/__tests__/register/MultiStepForm.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/MultiStepForm/MultiStepForm"
+    ],
+    "frontend/src/__tests__/register/PersonalInfoStep.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/MultiStepForm/Steps/PersonalInfoStep"
+    ],
+    "frontend/src/__tests__/register/ProgressBar.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "../../components/MultiStepForm/ProgressBar/ProgressBar"
+    ],
+    "frontend/src/__tests__/register/TermsStep.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/MultiStepForm/Steps/TermsStep"
+    ],
+    "frontend/src/__tests__/static/PrivacyPolicy.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/PrivacyPolicy/PrivacyPolicy"
+    ],
+    "frontend/src/__tests__/static/Terms.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "../../Terms"
+    ],
+    "frontend/src/__tests__/utils/dateUtils.test.js": [
+      "../../utils/dateUtils"
+    ],
+    "frontend/src/__tests__/utils/formatters.test.js": [
+      "../../utils/formatters"
+    ],
+    "frontend/src/__tests__/utils/validations.test.js": [
+      "../../utils/validations"
+    ],
+    "frontend/src/__tests__/verify/EmailVerification.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "../../components/EmailVerification/EmailVerification"
+    ],
+    "frontend/src/api/poolsApi.js": [
+      "axios"
+    ],
+    "frontend/src/components/AdminDashboard/AdminDashboard.js": [
+      "react",
+      "./PoolManagement",
+      "./VerificationQueue",
+      "./SessionManagement",
+      "./FeedbackManagement",
+      "../Navbar/Navbar",
+      "./AdminDashboard.css",
+      "react-icons/fa"
+    ],
+    "frontend/src/components/AdminDashboard/FeedbackManagement.js": [
+      "react",
+      "axios",
+      "react-icons/fa",
+      "./FeedbackManagement.css",
+      "../../utils/dateUtils"
+    ],
+    "frontend/src/components/AdminDashboard/MapPicker.js": [
+      "react",
+      "react-leaflet",
+      "leaflet/dist/leaflet.css",
+      "./MapPicker.css",
+      "leaflet",
+      "leaflet/dist/images/marker-icon.png",
+      "leaflet/dist/images/marker-shadow.png"
+    ],
+    "frontend/src/components/AdminDashboard/PoolManagement.js": [
+      "react",
+      "axios",
+      "react-icons/fa",
+      "./MapPicker"
+    ],
+    "frontend/src/components/AdminDashboard/SessionManagement.js": [
+      "react",
+      "axios",
+      "./SessionManagement.css",
+      "react-icons/fa"
+    ],
+    "frontend/src/components/AdminDashboard/VerificationQueue.js": [
+      "react",
+      "axios",
+      "./VerificationQueue.css",
+      "../../config",
+      "../../utils/formatters",
+      "react-icons/fa"
+    ],
+    "frontend/src/components/CheckInPage.js": [
+      "react",
+      "axios",
+      "react-icons/fa",
+      "qrcode.react",
+      "./CheckInPage.css",
+      "./Navbar/Navbar"
+    ],
+    "frontend/src/components/CheckInPageFix.js": [],
+    "frontend/src/components/CoachDashboard/CoachDashboard.js": [
+      "react",
+      "axios",
+      "./CoachDashboard.css",
+      "../Navbar/Navbar"
+    ],
+    "frontend/src/components/DoctorDashboard/DoctorDashboard.js": [
+      "react",
+      "react-icons/fa",
+      "./HealthReviewQueue",
+      "./HealthReportReminders",
+      "../Navbar/Navbar",
+      "./DoctorDashboard.css"
+    ],
+    "frontend/src/components/DoctorDashboard/HealthReportReminders.js": [
+      "react",
+      "react-bootstrap",
+      "react-icons/fa",
+      "axios",
+      "../../utils/dateUtils",
+      "./HealthReportReminders.css"
+    ],
+    "frontend/src/components/DoctorDashboard/HealthReportReviews.js": [
+      "react",
+      "react-bootstrap",
+      "react-icons/fa",
+      "axios"
+    ],
+    "frontend/src/components/DoctorDashboard/HealthReviewQueue.js": [
+      "react",
+      "react-bootstrap",
+      "react-icons/fa",
+      "axios",
+      "../../config",
+      "./HealthReviewQueue.css"
+    ],
+    "frontend/src/components/EmailVerification/EmailVerification.js": [
+      "react",
+      "react-router-dom",
+      "react-icons/fa",
+      "../../config",
+      "./EmailVerification.css"
+    ],
+    "frontend/src/components/HealthReportUpload.js": [
+      "react",
+      "react-bootstrap",
+      "react-router-dom",
+      "react-icons/fa",
+      "axios",
+      "./HealthReportUpload.css"
+    ],
+    "frontend/src/components/LoadingSpinner.js": [
+      "react"
+    ],
+    "frontend/src/components/MemberDashboard.js": [
+      "react",
+      "axios",
+      "./MemberDashboard.css",
+      "./PackagePurchase",
+      "react-icons/fa",
+      "./TransactionHistory",
+      "./Navbar/Navbar",
+      "../config"
+    ],
+    "frontend/src/components/MultiStepForm/MultiStepForm.js": [
+      "react",
+      "react-router-dom",
+      "./Steps/PersonalInfoStep",
+      "./Steps/HealthInfoStep",
+      "./Steps/EmergencyContactStep",
+      "./Steps/HealthQuestionsStep",
+      "./Steps/TermsStep",
+      "./ProgressBar/ProgressBar",
+      "../../utils/validations",
+      "./MultiStepForm.css",
+      "./animations.css"
+    ],
+    "frontend/src/components/MultiStepForm/ProgressBar/ProgressBar.js": [
+      "react",
+      "./ProgressBar.css"
+    ],
+    "frontend/src/components/MultiStepForm/Steps/EmergencyContactStep.js": [
+      "react",
+      "react-router-dom",
+      "react-icons/fa",
+      "../../../utils/validations",
+      "./EmergencyContact.css"
+    ],
+    "frontend/src/components/MultiStepForm/Steps/HealthInfoStep.js": [
+      "react",
+      "react-router-dom",
+      "react-icons/fa",
+      "../../../utils/validations",
+      "./HealthInfo.css"
+    ],
+    "frontend/src/components/MultiStepForm/Steps/HealthQuestionsStep.js": [
+      "react",
+      "react-router-dom",
+      "react-icons/fa",
+      "../../../utils/validations",
+      "./HealthQuestions.css"
+    ],
+    "frontend/src/components/MultiStepForm/Steps/PersonalInfoStep.js": [
+      "react",
+      "react-router-dom",
+      "../../../SocialLogin",
+      "./PersonalInfo.css",
+      "react-icons/fa",
+      "../../../utils/validations"
+    ],
+    "frontend/src/components/MultiStepForm/Steps/TermsStep.js": [
+      "react",
+      "react-router-dom",
+      "../../../utils/validations",
+      "./TermsStep.css"
+    ],
+    "frontend/src/components/Navbar/Navbar.js": [
+      "react",
+      "react-router-dom",
+      "axios",
+      "react-icons/fa",
+      "../../config",
+      "./Navbar.css"
+    ],
+    "frontend/src/components/PackagePurchase.js": [
+      "react",
+      "axios",
+      "./PackagePurchase.css",
+      "./StripeCheckout",
+      "react-icons/fa"
+    ],
+    "frontend/src/components/PaymentMethods.js": [
+      "react",
+      "axios",
+      "react-icons/fa",
+      "./PaymentMethods.css"
+    ],
+    "frontend/src/components/PrivacyPolicy/PrivacyPolicy.js": [
+      "react",
+      "react-router-dom",
+      "./PrivacyPolicy.css"
+    ],
+    "frontend/src/components/ProtectedRoute.js": [
+      "react",
+      "react-router-dom",
+      "axios",
+      "./LoadingSpinner"
+    ],
+    "frontend/src/components/ReservationDetails.js": [
+      "react",
+      "react-icons/fa"
+    ],
+    "frontend/src/components/StaffVerification.js": [
+      "react",
+      "axios",
+      "react-qr-scanner",
+      "./Navbar/Navbar",
+      "./StaffVerification.css"
+    ],
+    "frontend/src/components/StripeCheckout.js": [
+      "react",
+      "@stripe/stripe-js",
+      "@stripe/react-stripe-js",
+      "axios",
+      "./StripeCheckout.css",
+      "react-icons/fa"
+    ],
+    "frontend/src/components/TransactionHistory.js": [
+      "react",
+      "react-icons/fa",
+      "./TransactionHistory.css"
+    ],
+    "frontend/src/components/VerifyResult/VerifyResult.js": [
+      "react",
+      "react-router-dom",
+      "react-icons/fa",
+      "./VerifyResult.css"
+    ],
+    "frontend/src/config.js": [],
+    "frontend/src/index.js": [
+      "react",
+      "react-dom/client",
+      "./index.css",
+      "./App",
+      "./reportWebVitals"
+    ],
+    "frontend/src/pages/Billing.js": [
+      "react",
+      "react-router-dom",
+      "axios",
+      "react-icons/fa",
+      "../components/Navbar/Navbar",
+      "../components/PaymentMethods",
+      "./Billing.css"
+    ],
+    "frontend/src/pages/Dashboard.js": [
+      "react",
+      "react-router-dom"
+    ],
+    "frontend/src/pages/EditProfile.js": [
+      "react",
+      "react-router-dom",
+      "axios",
+      "react-icons/fa",
+      "../components/Navbar/Navbar",
+      "./EditProfile.css",
+      "../utils/validations"
+    ],
+    "frontend/src/pages/ForgotPassword.js": [
+      "react",
+      "react-router-dom",
+      "axios",
+      "react-icons/fa",
+      "./ForgotPassword.css"
+    ],
+    "frontend/src/pages/HomePage/HomePage.js": [
+      "react",
+      "react-router-dom",
+      "../../components/Navbar/Navbar",
+      "react-icons/fa",
+      "../../logo/ozu_havuz_0.jpg",
+      "./HomePage.css"
+    ],
+    "frontend/src/pages/LandingPage/LandingPage.js": [
+      "react",
+      "react-router-dom",
+      "./LandingPage.css",
+      "../../logo/ozu_havuz_0.jpg",
+      "../Pools/Pools"
+    ],
+    "frontend/src/pages/Login.js": [
+      "react",
+      "axios",
+      "react-router-dom",
+      "react-icons/fa",
+      "../pool.jpg",
+      "./LoginPage.css"
+    ],
+    "frontend/src/pages/Pools/Pools.js": [
+      "react",
+      "../../api/poolsApi",
+      "./Pools.css"
+    ],
+    "frontend/src/pages/Pools/Pools.test.jsx": [
+      "react",
+      "@testing-library/react",
+      "react-router-dom",
+      "./Pools"
+    ],
+    "frontend/src/pages/ResetPassword.js": [
+      "react",
+      "react-router-dom",
+      "axios",
+      "react-icons/fa",
+      "./ResetPassword.css"
+    ],
+    "frontend/src/pages/packages/EducationPackage.js": [
+      "react",
+      "react-router-dom",
+      "axios",
+      "./PackagePage.css"
+    ],
+    "frontend/src/pages/packages/FreeSwimmingPackage.js": [
+      "react",
+      "react-router-dom",
+      "axios",
+      "./PackagePage.css"
+    ],
+    "frontend/src/reportWebVitals.js": [],
+    "frontend/src/setupTests.js": [
+      "@testing-library/jest-dom"
+    ],
+    "frontend/src/utils/dateUtils.js": [],
+    "frontend/src/utils/formatters.js": [],
+    "frontend/src/utils/validations.js": [
+      "axios"
+    ],
+    "tests/e2e/admin/poolManagement.spec.js": [],
+    "tests/e2e/admin/sessionManagement.spec.js": [],
+    "tests/e2e/admin/verificationQueue.spec.js": [],
+    "tests/e2e/auth/forgotPassword.spec.js": [],
+    "tests/e2e/auth/login.spec.js": [],
+    "tests/e2e/auth/register.spec.js": [],
+    "tests/e2e/auth/socialLogin.spec.js": [],
+    "tests/e2e/doctor/healthReviewFlow.spec.js": [],
+    "tests/e2e/member/billing.spec.js": [],
+    "tests/e2e/member/checkIn.spec.js": [],
+    "tests/e2e/member/reservation.spec.js": [],
+    "tests/e2e/playwright.config.js": [],
+    "tests/e2e/staff/qrVerification.spec.js": []
+  },
+  "metadata": {
+    "date": "2026-09-30",
+    "commit": "a03f094",
+    "method": "Babel AST: literal router/app HTTP calls expanded by mounts in backend/index.js; literal it/test calls; production Route JSX; static relative import traversal",
+    "apiCount": 82,
+    "deprecated410": "POST /api/doctor/upload-health-report/:userId",
+    "frontendRouteBindings": 28,
+    "componentMetric": "48 non-test source files containing JSX; 46 reachable through static imports, not a count of rendered or reusable components",
+    "testFiles": 86,
+    "testDeclarations": 165
+  }
+}
