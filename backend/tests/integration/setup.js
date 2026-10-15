@@ -2,6 +2,11 @@
 // 1) TEST_DATABASE_URL -> use it
 // 2) TEST_DB_* or defaults (localhost:5432)
 require("dotenv").config({ path: ".env.test" }); // load .env.test if exists
+// Native CI creates a separate disposable database for each Jest worker.
+const workerDatabaseUrl = process.env[`TEST_DATABASE_URL_${process.env.JEST_WORKER_ID}`];
+if (workerDatabaseUrl) {
+  process.env.TEST_DATABASE_URL = workerDatabaseUrl;
+}
 if (process.env.TEST_DATABASE_URL) {
   process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
 } else {

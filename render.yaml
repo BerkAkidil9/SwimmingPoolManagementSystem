@@ -14,7 +14,7 @@ services:
     startCommand: node index.js
     envVars:
       - key: NODE_VERSION
-        value: "20"
+        value: "24"
       - key: NODE_ENV
         value: production
       - key: SESSION_SECRET
@@ -75,6 +75,8 @@ services:
         source: /*
         destination: /index.html
     envVars:
+      - key: NODE_VERSION
+        value: "24"
       - key: REACT_APP_API_URL
         value: https://swimcenter-api.onrender.com
       - key: REACT_APP_STRIPE_PUBLISHABLE_KEY

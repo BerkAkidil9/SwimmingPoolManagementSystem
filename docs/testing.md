@@ -41,6 +41,47 @@ Module-based test structure. Coverage is measured separately; passing tests do n
 
 ## Running Tests
 
+### Native macOS CI
+
+GitHub Actions schedules CI on this MacBook's two repository-specific services,
+`swimcenter-ci-1` and `swimcenter-ci-2`, with the `swimcenter-ci` label. Jobs use
+Node.js 24 directly on macOS ARM64. Docker is not required.
+
+The audit/build job checks all five npm lockfiles, including development packages.
+Then two test shards run in parallel. Each shard runs Jest and Playwright with
+exactly two workers, for at most four test workers across this repository's two
+runners. Other repositories have their own runner pools.
+
+Each job copies the source to a disposable directory, omits `.env` files, and uses
+synthetic credentials. Each test shard starts its own loopback PostgreSQL cluster;
+the two Jest integration workers have separate databases. API and preview ports
+are allocated locally, so simultaneous jobs do not share ports or databases.
+Application sockets and browser DNS are restricted to loopback during tests;
+live payment, email, OAuth and R2 flows are outside these smoke tests.
+
+Run the same checks locally:
+
+```bash
+npm run ci:quality          # All npm audits and the production build
+npm run ci:test -- 1/2      # First shard, two workers
+npm run ci:test -- 2/2      # Second shard, two workers
+npm run ci:local            # Audit, build and the full test suite, two workers
+```
+
+GitHub runners keep logs and JSON/browser reports under
+`$RUNNER_WORKSPACE/swimcenter-ci-reports/<run>/<attempt>/<job-shard>/`.
+Local commands use the system temporary directory; `CI_REPORT_DIR` overrides the
+report location. Reports record the source commit, runner, shard and result.
+The final `CI` job fails if any audit/build or test shard fails.
+
+Jobs require the repository owner as actor; pull requests must also originate
+in the same repository. Fork PR code is excluded. To install or check the two native
+runner services, run `python3 tooling/ci/install-runners.py` as the logged-in Mac
+user with an administrator-authorized `gh` session. The installer verifies the
+official runner archive checksum and preserves other repositories' runners.
+
+### Individual test commands
+
 **Local PostgreSQL** – For integration tests:
 1. PostgreSQL must be installed: `winget install PostgreSQL.PostgreSQL.16` or `PostgreSQL.PostgreSQL.17`
 2. Create `backend/.env.test` with your postgres password (copy from `.env.test.example`)
