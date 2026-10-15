@@ -5,7 +5,7 @@ const request = require('supertest');
 const express = require('express');
 const session = require('express-session');
 
-const registerRoutes = require('../../../register');
+const registerRoutes = require('../../../routes/register');
 const db = require('../../../config/database');
 
 const app = express();

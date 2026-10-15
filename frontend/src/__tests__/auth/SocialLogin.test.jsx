@@ -1,8 +1,8 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import SocialLogin from '../../SocialLogin';
+import SocialLogin from '../../components/SocialLogin';
 
-jest.mock('../../logo/google logo.png', () => 'google.png');
+jest.mock('../../assets/google-logo.png', () => 'google.png');
 
 describe('SocialLogin', () => {
   it('renders Register with Google heading', () => {

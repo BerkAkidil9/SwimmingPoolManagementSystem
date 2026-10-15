@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar/Navbar';
 import { FaSwimmingPool, FaUserCog, FaUserCheck, FaStethoscope, FaChalkboardTeacher, FaCreditCard, FaUserEdit, FaCheckCircle } from 'react-icons/fa';
-import poolImage from '../../logo/ozu_havuz_0.jpg';
+import poolImage from '../../assets/pool-landing.jpg';
 import './HomePage.css';
 
 const HomePage = () => {

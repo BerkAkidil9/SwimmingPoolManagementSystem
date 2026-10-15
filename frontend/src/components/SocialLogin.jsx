@@ -1,5 +1,5 @@
 import React from 'react';
-import googleLogo from './logo/google logo.png';
+import googleLogo from '../assets/google-logo.png';
 
 const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 

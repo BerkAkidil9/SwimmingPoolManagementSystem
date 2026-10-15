@@ -1,6 +1,22 @@
 # Yerel Test ve Performans Ölçümleri
 
-Bu rapor, CV metrik analizini yeni test ve benchmark çıktılarıyla tamamlar. Ölçümler 30 Eylül 2026 tarihinde uygulama kaynakları değiştirilmeden, izole geçici kopyada yapıldı. Sonuçlar mevcut durumun başlangıç ölçümüdür; üretim kapasitesi, gerçek kullanıcı trafiği veya geçmişe göre iyileşme değildir.
+Bu rapor, 30 Eylül 2026 tarihinde uygulama kaynakları değiştirilmeden, izole
+geçici kopyada yapılan test ve benchmark ölçümlerini kaydeder. Sonuçlar o sürümün
+başlangıç ölçümüdür; üretim kapasitesi, gerçek kullanıcı trafiği veya geçmişe
+göre iyileşme değildir.
+
+**Güncellik notu — 16 Ekim 2026:** Aşağıdaki sayılar 30 Eylül sürümüne aittir.
+15 Ekim'de bağımlılıklar güncellendi; frontend CRA'dan Vite 8'e, testler Jest 30'a,
+router React Router 7'ye taşındı. Render ve native CI Node 24 kullanıyor. Main
+`75b1ca2` üzerindeki [native CI](https://github.com/BerkAkidil9/SwimmingPoolManagementSystem/actions/runs/38784680714)
+testleri ve build'i yeniden doğruladı; coverage, bundle, Lighthouse, axe veya yük
+ölçümlerini yenilemedi. Bu raporun ham JSON/log dosyaları tarihsel kanıt olarak
+korunuyor; aşağıdaki yüzdeler ve boyutlar güncel Vite çıktısı gibi sunulmamalıdır.
+
+Sonraki dosya düzenlemesi kaynak ve test dosyalarının yerlerini değiştirdi.
+Aşağıdaki tarihsel kapsam adları ile ham raporlardaki yollar o günkü konumu
+gösterir; güncel kaynak bağlantıları ve test komutları için [test rehberine](testing.md)
+bakın. Arşivdeki dosya yolları, hash’ler ve ölçüm sonuçları korunmuştur.
 
 Sayısal sonuçların tamamı [ölçüm özeti](cv-metrics-evidence/local-measurements/summary.json) ve aynı klasördeki ham raporlarla doğrulanabilir. CV'de kullanılabilecek kapsam değerleri ve İngilizce öneriler için [CV metrik analizi](cv-metrics-analysis.md) dosyasına bakın.
 
@@ -51,7 +67,7 @@ Kaynaklar: [backend unit coverage](cv-metrics-evidence/local-measurements/backen
 
 ## Production build ve bundle boyutu
 
-Production build başarıyla tamamlandı ve ESLint uyarıları üretti. `CI=false` kullanıldı; dolayısıyla bu sonuç, uyarıları hata kabul eden katı CI kontrolünün geçtiği anlamına gelmez. Kaynak kod veya lint ayarları değiştirilmedi.
+30 Eylül'deki CRA production build'i başarıyla tamamlandı ve ESLint uyarıları üretti. `CI=false` kullanıldı; dolayısıyla bu tarihsel sonuç, uyarıları hata kabul eden katı CI kontrolünün geçtiği anlamına gelmez. Ölçüm sırasında kaynak kod veya lint ayarları değiştirilmedi. Güncel Vite build'i farklı bir araç zinciridir ve kendiliğinden ESLint çalıştırmaz.
 
 | Asset | Ham byte | Gzip byte | Brotli byte |
 |---|---:|---:|---:|
@@ -129,7 +145,7 @@ Kaynak: [fixture büyüklükleri](cv-metrics-evidence/local-measurements/fixture
 
 ## CV için yorum
 
-Yeni kanıtla kullanılabilecek ifade:
+30 Eylül çalıştırmasının kanıtladığı kapsamı anlatan ifade:
 
 > Validated a React and Express application with 165 passing tests across backend unit, PostgreSQL integration, frontend component, and browser smoke suites in an isolated local environment.
 
@@ -137,17 +153,44 @@ Yeni kanıtla kullanılabilecek ifade:
 
 ## Tekrar çalıştırma
 
-Önkoşullar: Node/npm, kurulu Google Chrome, backend bağımlılıkları ve işletim sistemine uygun `embedded-postgres` binary'si. Backend lockfile ile kurulum için `npm --prefix backend ci`; ölçüm araçları için `npm --prefix tests/measurements ci` kullanılabilir. PostgreSQL paketinin kurulum script'leri gerekli binary izinlerini/symlink'leri hazırlamalıdır.
+Güncel kodla yeniden çalıştırmak **yeni bir ölçüm** üretir; 30 Eylül sonuçlarını
+birebir yeniden üretmez. O dönemin uygulama bağımlılıkları ve ölçüm araçları
+`aa2bd2a` commit'inde birlikte bulunur; tarihsel karşılaştırma gerekiyorsa ayrı
+bir checkout ve o sürümün ortamını kullanın. Yeni sonuçlarda commit, Node,
+tarayıcı ve araç sürümlerini ayrıca kaydedin.
+
+Önkoşullar: Node 24/npm, kurulu Google Chrome, backend bağımlılıkları ve işletim sistemine uygun `embedded-postgres` binary'si. Backend lockfile ile kurulum için `npm --prefix backend ci`; ölçüm araçları için `npm --prefix tests/measurements ci` kullanılabilir. PostgreSQL paketinin kurulum script'leri gerekli binary izinlerini/symlink'leri hazırlamalıdır; `--ignore-scripts` kullanmayın.
 
 Repository kökünden:
 
 ```sh
+export MEASUREMENT_OUTPUT="$(mktemp -d /tmp/swimcenter-measurements.XXXXXX)"
 npm --prefix tests/measurements run measure
 npm --prefix tests/measurements run summarize
 ```
 
-Runner yeni geçici kopya oluşturur; frontend ve mevcut E2E bağımlılıklarını kendi lockfile'larıyla kurar. İlk kurulum ağ erişimi gerektirir. Varsayılan rapor klasörü `docs/cv-metrics-evidence/local-measurements` şeklindedir. Önceki ölçümü korumak için iki komutta da `MEASUREMENT_OUTPUT` ile yeni bir dizin seçin. `MEASUREMENT_WORKDIR` önceki geçici kopyayı yeniden kullanabilir; normalde yeni kopya tercih edilmelidir. `MEASUREMENT_PHASE` değerleri `all`, `tests`, `build`, `browser`, `load` olup varsayılan `all` değeridir. `summarize`, bütün aşamaların dosyalarının mevcut olmasını gerektirir.
+İki komutu aynı terminalde çalıştırın; sonuçlar `$MEASUREMENT_OUTPUT` dizinine
+yazılır. Runner yeni geçici kopya oluşturur; frontend ve mevcut E2E bağımlılıklarını
+kendi lockfile'larıyla kurar. İlk kurulum ağ erişimi gerektirir. Varsayılan rapor
+klasörü `docs/cv-metrics-evidence/local-measurements` şeklindedir; değişkeni
+ayarlamadan çalıştırmak arşivlenmiş raporların üzerine yazabilir.
+`MEASUREMENT_WORKDIR` önceki geçici kopyayı yeniden kullanabilir; normalde yeni
+kopya tercih edilmelidir. `MEASUREMENT_PHASE` değerleri `all`, `tests`, `build`,
+`browser`, `load` olup varsayılan `all` değeridir. `summarize`, bütün aşamaların
+dosyalarının mevcut olmasını gerektirir. Güncel araç build aşamasında Vite
+manifest'ini ve kök HTML girişini kullanır.
+
+`browser` ve `load` aşamaları çalışma kopyasında hazır bir frontend build'i
+gerektirir. Aşamaları ayrı çalıştıracaksanız aynı `MEASUREMENT_WORKDIR` ve
+`MEASUREMENT_OUTPUT` dizinlerini kullanıp önce `build` aşamasını tamamlayın.
+Varsayılan `all` bu sırayı kendi yönetir. Arşivdeki dosyaları yeni koşularla
+karıştırarak eksik bir aşamayı tamamlanmış gibi özetlemeyin.
 
 Yerel portlar: UI 3300, API 3301, PostgreSQL 55439. Runner yalnızca kendi başlattığı süreçleri kapatır; geçici cluster verisini ve ayrıntılı backend logunu geçici kopyada bırakır. Runtime backend logunun son kısmı kanıt klasöründe tutulur. Coverage JSON dosyaları yeniden birleştirme için saklanır. Raporlardaki makineye özel repository/geçici dizin yolları normalize edilir; ölçüm sayıları değiştirilmez.
+
+Bu araç, günlük doğrulama için kullanılan `npm run ci:local` komutundan ayrıdır.
+Native CI geçici portlar ve worker başına veritabanı kullanır; benchmark
+çalıştırmaz. Runner düzeni ve güncel test komutları için [test rehberine](testing.md)
+bakın.
 
 Araç referansları: [Lighthouse programatik kullanım](https://github.com/GoogleChrome/lighthouse/blob/main/docs/readme.md), [Autocannon API](https://github.com/mcollina/autocannon/blob/master/README.md), [Embedded PostgreSQL](https://github.com/leinelissen/embedded-postgres). Bu bağlantılar ölçüm yönteminin araç kaynaklarıdır; proje sonuçlarının kanıtı yerel JSON raporlarıdır.

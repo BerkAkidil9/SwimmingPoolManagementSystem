@@ -4,7 +4,7 @@
   "description": "Swimming Pool Management System",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "cd backend && node index.js",
     "test": "npm run test:full",
     "test:unit": "npm run test:backend && npm run test:frontend",
     "test:backend": "cd backend && npm test",

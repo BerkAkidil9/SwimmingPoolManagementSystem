@@ -1,124 +1,229 @@
 # Test Documentation
 
-Module-based test structure. Coverage is measured separately; passing tests do not imply full coverage.
+This guide covers the existing test suites, manual execution and the isolated
+CI runner. Use Node.js 24. Commands below run from the repository root unless
+stated otherwise.
 
 ## Test Summary
 
-| Type | Test Count | Requirement |
-|------|------------|-------------|
-| Backend unit | 52 | - |
-| Frontend unit | 71 | - |
-| Integration | 29 | PostgreSQL (port 5432) |
-| E2E | 13 | Frontend localhost:3000 |
-| **Total** | **165** | |
+| Suite | Files | Tests | Location / requirements |
+|-------|------:|------:|-------------------------|
+| Backend unit | 15 | 52 | `backend/tests/unit/`; predominantly mocked dependencies |
+| Frontend unit/component | 50 | 71 | `frontend/src/__tests__/`; jsdom |
+| PostgreSQL integration | 9 | 29 | `backend/tests/integration/`; disposable database |
+| Browser smoke | 12 | 13 | `tests/e2e/`; running frontend and Chromium |
+| **Total** | **86** | **165** | Source declarations, not a coverage percentage |
 
-## Folder Structure
-
-- **backend/tests/** - Backend unit + integration
-  - unit/auth, unit/admin (pools, verifications, sessions, feedback), unit/member, unit/doctor, unit/staff, unit/coach
-  - unit/middleware (auth.js: isAdmin, isDoctor), unit/payment, unit/reminders, unit/landingPage, unit/utils
-  - integration/auth (login, register), integration/member, integration/admin, integration/doctor, integration/staff
-  - integration/payment, integration/reminders, integration/landingPage (swimcenter_test PostgreSQL DB)
-- **frontend/src/__tests__/** - Frontend unit
-  - auth/ (Login, ForgotPassword, ResetPassword, SocialLogin)
-  - register/ (MultiStepForm, PersonalInfoStep, HealthInfoStep, EmergencyContactStep, HealthQuestionsStep, TermsStep, ProgressBar)
-  - verify/ (EmailVerification)
-  - dashboard/ (AdminDashboard, MemberDashboard, DoctorDashboard, CoachDashboard)
-  - admin/ (SessionManagement, PoolManagement, VerificationQueue, FeedbackManagement, MapPicker)
-  - doctor/ (HealthReviewQueue, HealthReportReviews, HealthReportReminders)
-  - components/ (LoadingSpinner, ProtectedRoute, StaffVerification, VerifyResult, HealthReportUpload, Navbar, CheckInPage, StripeCheckout, PaymentMethods, TransactionHistory, PackagePurchase, ReservationDetails)
-  - pages/ (LandingPage, EducationPackage, FreeSwimmingPackage, HomePage, Dashboard, Billing, EditProfile)
-  - Pools test: frontend/src/pages/Pools/Pools.test.jsx (mocks poolsApi)
-  - utils/ (validations, formatters, dateUtils)
-  - static/ (Terms, PrivacyPolicy)
-  - App.test.js
-- **tests/e2e/** - E2E (Playwright)
-  - auth/ (login, register, forgotPassword, socialLogin)
-  - member/ (checkIn, reservation, billing)
-  - admin/ (poolManagement, verificationQueue, sessionManagement)
-  - doctor/ (healthReviewFlow)
-  - staff/ (qrVerification)
+Backend tests use Jest 30 and Supertest; frontend tests use Jest 30 and React
+Testing Library. Frontend setup and mocks live in `frontend/test/`; the Jest
+configuration loads `test/setupTests.js`. Playwright browser tests mainly check page loading, form
+visibility and navigation. Some URL assertions accept both the protected route
+and a login redirect. These tests do not establish completed registration,
+payment, reservation or QR workflows. Google, Stripe, email and R2 live-service
+behavior is outside the automated smoke coverage.
 
 ## Running Tests
 
 ### Native macOS CI
 
-GitHub Actions schedules CI on this MacBook's two repository-specific services,
-`swimcenter-ci-1` and `swimcenter-ci-2`, with the `swimcenter-ci` label. Jobs use
-Node.js 24 directly on macOS ARM64. Docker is not required.
-
-The audit/build job checks all five npm lockfiles, including development packages.
-Then two test shards run in parallel. Each shard runs Jest and Playwright with
-exactly two workers, for at most four test workers across this repository's two
-runners. Other repositories have their own runner pools.
-
-npm and Chromium downloads are cached in each runner's
-`$RUNNER_TOOL_CACHE/swimcenter-ci-cache/`, outside the temporary directory that
-GitHub clears between jobs. Local commands keep the same cache under the system
-temporary directory.
-
-CodeQL default setup is routed to the same `swimcenter-ci` runner label. The
-runner service environment sets `CODEQL_THREADS=2` for its analysis threads.
-
-Each job copies the source to a disposable directory, omits `.env` files, and uses
-synthetic credentials. Each test shard starts its own loopback PostgreSQL cluster;
-the two Jest integration workers have separate databases. API and preview ports
-are allocated locally, so simultaneous jobs do not share ports or databases.
-Application sockets and browser DNS are restricted to loopback during tests;
-live payment, email, OAuth and R2 flows are outside these smoke tests.
-
-Run the same checks locally:
+The managed runner is verified on macOS ARM64 with Node.js 24. It installs its
+own dependencies and Chromium, builds the frontend, starts application servers
+and provisions disposable PostgreSQL databases. It needs network access for npm
+audits and initial downloads; no existing application server, external database
+or production credentials are required.
 
 ```bash
-npm run ci:quality          # All npm audits and the production build
-npm run ci:test -- 1/2      # First shard, two workers
-npm run ci:test -- 2/2      # Second shard, two workers
-npm run ci:local            # Audit, build and the full test suite, two workers
+npm run ci:local             # Audits, production build and all test suites
+npm run ci:quality           # Five lockfile audits and production build
+npm run ci:test -- 1/2       # First test shard
+npm run ci:test -- 2/2       # Second test shard
 ```
 
-GitHub runners keep logs and JSON/browser reports under
-`$RUNNER_WORKSPACE/swimcenter-ci-reports/<run>/<attempt>/<job-shard>/`.
-Local commands use the system temporary directory; `CI_REPORT_DIR` overrides the
-report location. Reports record the source commit, runner, shard and result.
-The final `CI` job fails if any audit/build or test shard fails.
+[`tooling/ci/run.mjs`](../tooling/ci/run.mjs) copies source into a temporary
+workspace, excludes `.env` files and uploads, and uses synthetic settings. Each
+`tests` or `all` invocation starts one loopback PostgreSQL cluster, containing an
+application database and separate integration databases selected by `JEST_WORKER_ID`. API, preview
+and database ports are allocated dynamically. Test Node connections and browser
+DNS are restricted to loopback; dependency downloads and audits still use the
+network. Temporary application processes and the cluster are cleaned up afterward.
 
-Jobs require the repository owner as actor; pull requests must also originate
-in the same repository. Fork PR code is excluded. To install or check the two native
-runner services, run `python3 tooling/ci/install-runners.py` as the logged-in Mac
-user with an administrator-authorized `gh` session. The installer verifies the
-official runner archive checksum and preserves other repositories' runners.
+Jest and Playwright use a limit of two workers per shard. The wrapper disables
+browser retries, unlike the standalone Playwright config. Audits cover the root,
+`backend`, `frontend`, `tests/e2e` and `tests/measurements` lockfiles, including
+development dependencies. These commands do not run a standalone lint check,
+coverage threshold, Lighthouse, axe or load benchmark.
 
 ### Individual test commands
 
-**Local PostgreSQL** – For integration tests:
-1. PostgreSQL must be installed: `winget install PostgreSQL.PostgreSQL.16` or `PostgreSQL.PostgreSQL.17`
-2. Create `backend/.env.test` with your postgres password (copy from `.env.test.example`)
-3. Start the service: Windows Services → postgresql-x64-16 or postgresql-x64-17
+These commands use the current checkout and its environment rather than an
+isolated copy. Install application dependencies if not already present:
 
-**From project root:**
 ```bash
-npm test                  # All tests (unit + integration + e2e)
-npm run test:unit         # Unit only (backend + frontend)
-npm run test:integration  # Integration only (DB schema auto-created)
-npm run test:e2e          # E2E only
-npm run db:check          # PostgreSQL connection check
+npm --prefix backend ci
+npm --prefix frontend ci
 ```
 
-**Individually:**
+Run unit suites:
+
 ```bash
-cd backend && npm test                                    # Backend unit
-cd frontend && npm test -- --watchAll=false --forceExit   # Frontend unit
-cd backend && npm run db:test:setup && npm run test:integration   # Integration
-cd tests/e2e && npm test   # Frontend must be running on localhost:3000
+npm --prefix backend test -- --runInBand
+npm --prefix frontend test -- --watchAll=false --forceExit
 ```
 
-**E2E note:** Current E2E tests check page loading and auth redirects; backend is optional. For full-flow tests, backend (localhost:3001) should also be running.
+#### Manual integration database
 
+Create a separate, disposable database, replacing `postgres` with your database
+user where necessary. Copy the template only if `.env.test` does not already exist:
 
-## Recorded local measurements
+```bash
+createdb -h localhost -U postgres swimcenter_test
+cp backend/.env.test.example backend/.env.test
+```
 
-On 30 September 2026, all 165 existing tests passed in an isolated local run: 52 backend unit, 71 frontend, 29 PostgreSQL integration, and 13 browser smoke tests. No application code or existing assertions were changed. The browser tests remain page/auth smoke checks, not completed business workflows.
+Add an explicit connection URL to `backend/.env.test`, using your own credentials:
 
-Combined backend unit/integration line coverage was **21.83%** with entrypoint, middleware, database and utility files included; frontend source line coverage was **31.43%**. Backend unit coverage under the narrower existing config was **19.71%**. These scopes have different denominators and must not be compared as coverage improvements.
+```dotenv
+TEST_DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@localhost:5432/swimcenter_test
+```
 
-See [the measurement report](local-measurements.md) for environment, exact coverage scopes, build and browser findings, local load results, raw artifacts and rerun instructions. The tools live in [tests/measurements](../tests/measurements/). These results are a dated local baseline, not a production guarantee.
+The database must already exist when using this URL. Keep the backend client
+settings needed by the tested routes configured as described in the
+[application setup](../README.md#configuration).
+
+```bash
+(cd backend && npm run db:test:setup && npm run test:integration -- --runInBand)
+```
+
+**Setup drops and recreates application tables, and suites modify fixture data.**
+Never use the application or production database. Run serially when suites share
+one database; the managed runner can run in parallel because it provides separate
+worker databases.
+
+Use `TEST_DATABASE_URL` explicitly rather than relying on `TEST_DB_*` alone.
+The initializer also loads backend `.env` and can fall back to `DB_*`; integration
+setup uses different defaults. More significantly, when `TEST_DATABASE_URL` is
+absent, the database module can reload `DATABASE_URL` from `.env` after integration
+setup removed it, selecting the application database instead. The explicit test
+URL sets `DATABASE_URL` before that module loads and avoids this fallback.
+
+Sources: [schema initializer](../backend/scripts/init-test-db.js),
+[integration setup](../backend/tests/integration/setup.js) and
+[database configuration](../backend/config/database.js).
+
+| Setting | Current behavior |
+|---------|------------------|
+| `TEST_DATABASE_URL` | Recommended for manual runs; takes precedence in setup and integration tests. |
+| `TEST_DB_HOST`, `TEST_DB_PORT`, `TEST_DB_USER`, `TEST_DB_PASSWORD`, `TEST_DB_NAME` | Legacy discrete settings; integration defaults are `localhost`, `5432`, `postgres`, `postgres`, `swimcenter_test`. Do not rely on these alone with a populated backend `.env`. |
+| `TEST_DATABASE_URL_1`, `TEST_DATABASE_URL_2` | Worker-specific URLs supplied by the managed runner; selected using `JEST_WORKER_ID`. |
+
+Diagnose the configured test database with `npm --prefix backend run db:check`.
+This diagnostic uses test settings, not the application's `DATABASE_URL`.
+
+#### Browser smoke tests
+
+Start the frontend on port 3000, or set `FRONTEND_URL` to its running URL, then:
+
+```bash
+npm --prefix tests/e2e ci
+(cd tests/e2e && npx playwright install chromium)
+npm --prefix tests/e2e test
+```
+
+The standalone config does not start servers. It uses Chromium, two workers,
+HTML reporting and two retries when `CI=true` (zero otherwise). The managed
+runner starts both backend and production frontend preview and sets retries to
+zero. The current checks remain browser smoke tests in either execution mode.
+
+Root shortcuts `npm test` / `npm run test:full` chain unit, integration and browser
+tests; `test:unit`, `test:integration` and `test:e2e` select groups. They require
+manual prerequisites and do not allocate worker databases or start servers.
+Use the explicit serial integration command above when sharing one test database,
+or `ci:local` for the managed full run.
+
+## Coverage and Recorded Measurements
+
+For a new unit coverage report:
+
+```bash
+npm --prefix backend run test:coverage -- --runInBand
+npm --prefix frontend run test:coverage -- --watchAll=false --forceExit
+```
+
+Backend unit coverage collects `routes/**/*.js` and `utils/validations.js`;
+it does not include all backend source. A passing test suite is not evidence of
+full coverage. The frontend and integration commands use `--forceExit`; successful
+completion does not prove there are no open handles.
+
+On **30 September 2026**, an isolated local run passed all 165 tests. Its combined
+backend unit/integration line coverage was **21.83%**, using an expanded scope
+including entrypoint, middleware, database and utilities. Frontend source line
+coverage was **31.43%**; backend unit coverage under the narrower config was
+**19.71%**. These percentages have different denominators and are historical,
+not current measurements after the Vite/Jest migration.
+
+See [the measurement report](local-measurements.md) for exact scopes, raw results
+and rerun instructions. Performance and coverage measurements are separate from
+daily CI checks.
+
+## CI Workflow and Runner Operations
+
+[`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs on pushes to `main`,
+PRs targeting `main` and manual dispatches. The repository owner must be the actor;
+PRs must originate in the same repository. Native jobs from fork PRs and Dependabot
+are skipped by this policy.
+
+The workflow targets two repository-specific services, `swimcenter-ci-1` and
+`swimcenter-ci-2`, labeled `swimcenter-ci`. Jobs run directly on macOS ARM64 with
+Node 24; Docker is not used. Audit/build runs first, followed by two parallel test
+shards, for at most four test workers across the two runners. The final `CI` job
+requires both audit/build and all shards to succeed. Jobs queue while services
+are offline; the runner host must be awake and its user services available.
+
+As recorded on **16 October 2026**, main `75b1ca2` passed the
+[native workflow](https://github.com/BerkAkidil9/SwimmingPoolManagementSystem/actions/runs/38784680714)
+and [CodeQL](https://github.com/BerkAkidil9/SwimmingPoolManagementSystem/actions/runs/38784702601).
+All five lockfile audits reported zero vulnerabilities in that native run; this
+is a dated result, not a guarantee about future advisories.
+
+### Reports and cache
+
+Logs, stage summaries and test JSON/browser reports stay on the runner under
+`$RUNNER_WORKSPACE/swimcenter-ci-reports/<run>/<attempt>/<job-shard>/`; they are
+not uploaded as GitHub artifacts. Local runs use the system temporary directory.
+`CI_REPORT_DIR` overrides the report base. Each `summary.json` records job, shard,
+Node version, runner and stage results; GitHub runs also set the source commit.
+
+Downloads are cached in `$RUNNER_TOOL_CACHE/swimcenter-ci-cache/`, outside the
+job temporary directory. Local runs use the system temporary directory for the
+same cache. An empty cache requires downloading npm packages and Chromium again.
+
+### Runner installation and operations
+
+The installer requires macOS ARM64, Python 3.12+, `gh`, `curl`, and a GitHub
+session with repository administration permission. Run as the logged-in user,
+without `sudo`:
+
+```bash
+python3 tooling/ci/install-runners.py
+```
+
+It verifies the official archive checksum, installs the two runners under
+`~/.github-runners/swimcenter-ci-{1,2}` and starts their LaunchAgent services.
+It checks existing matching registrations and preserves other runner installations.
+A new registration adds `CODEQL_THREADS=2` to the service environment.
+
+Check services and GitHub settings:
+
+```bash
+(cd "$HOME/.github-runners/swimcenter-ci-1" && ./svc.sh status)
+(cd "$HOME/.github-runners/swimcenter-ci-2" && ./svc.sh status)
+gh api repos/BerkAkidil9/SwimmingPoolManagementSystem/actions/runners \
+  --jq '.runners[] | {name, status, busy, labels: [.labels[].name]}'
+gh api repos/BerkAkidil9/SwimmingPoolManagementSystem/code-scanning/default-setup \
+  --jq '{state, runner_type, runner_label}'
+```
+
+CodeQL default setup is configured separately in GitHub with `runner_type=labeled`
+and `runner_label=swimcenter-ci`. Its analysis uses `CODEQL_THREADS=2` from the
+service environment. The installer does not select the CodeQL runner label, and
+CodeQL is separate from the native workflow's final `CI` status.

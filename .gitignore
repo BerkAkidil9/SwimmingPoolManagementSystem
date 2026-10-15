@@ -3,11 +3,20 @@
 .env.*
 !.env.example
 !.env.test.example
+!.env.*.example
 backend/.env
 *.env.local
 *.env.development.local
 *.env.test.local
 *.env.production.local
+.envrc
+.direnv/
+
+# Local Cloudflare Worker secrets; keep placeholder templates versionable
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+!.dev.vars.*.example
 
 # Private keys and certificates
 *.pem
@@ -17,6 +26,8 @@ backend/.env
 credentials.json
 client_secret*.json
 secrets.json
+.netrc
+.git-credentials
 
 # User uploads (personal data - GDPR)
 backend/uploads/*
@@ -33,6 +44,13 @@ backup.sql
 backend/sql/schema_and_data.sql
 backend/sql/update_schema_health_report_reminders.sql
 backend/sql/add_health_report_request_limit.sql
+*.dump
+*.pgdump
+*.backup
+*.sql.gz
+*.sql.bz2
+*.sql.xz
+pgdata/
 
 # === NODE ===
 node_modules/
@@ -41,6 +59,12 @@ yarn-debug.log*
 yarn-error.log*
 .pnp
 .pnp.js
+
+# Python runner tooling
+__pycache__/
+*.pyc
+*.pyo
+.venv/
 
 # === BUILD / DERIVED ===
 frontend/build/
@@ -52,6 +76,9 @@ dist/
 .vercel/
 .netlify/
 .cache/
+.vite/
+.vite-temp/
+.eslintcache
 
 # === UNNECESSARY FILES ===
 # All .md except README and docs/
@@ -64,6 +91,7 @@ dist/
 *.temp
 *.log
 *.swp
+*.swo
 Thumbs.db
 Desktop.ini
 .DS_Store
@@ -74,6 +102,11 @@ deneme.txt
 # Unnecessary/temporary files
 MyDatabase.session.sql
 frontend/src/components/DoctorDashboard/backup
+/backend/[{]
+
+# Obsolete local-only helpers, unused by the application
+/backend/app.js
+/frontend/src/components/CheckInPageFix.js
 
 # Personal helper scripts and migration files (may contain sensitive data)
 /scripts/
@@ -96,7 +129,16 @@ backend/data/
 backend/tests/setup.js
 tests/e2e/playwright-report/
 tests/e2e/test-results/
+playwright-report/
+test-results/
+blob-report/
+playwright/.cache/
+swimcenter-ci-reports/
+swimcenter-ci-cache/
 tests/backend/
+
+# docs/cv-metrics-evidence/ contains intentional, referenced historical evidence.
+# Keep it versioned rather than ignoring all JSON/TXT measurement output.
 
 # Frontend mocks
 frontend/__mocks__/

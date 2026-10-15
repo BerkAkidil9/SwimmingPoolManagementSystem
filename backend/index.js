@@ -211,7 +211,7 @@ app.get("/pools", async (req, res) => {
 
 // Routes - login first so POST /auth/login is never handled by register
 app.use("/auth", loginRoutes);
-app.use("/auth", require("./register"));
+app.use("/auth", require("./routes/register"));
 app.use("/api", landingPageRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/member", memberRoutes);

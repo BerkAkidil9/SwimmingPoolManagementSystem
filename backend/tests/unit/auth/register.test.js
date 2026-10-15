@@ -22,7 +22,7 @@ jest.mock('passport-google-oauth20', () => ({
   Strategy: jest.fn().mockImplementation(() => ({ name: 'google' })),
 }));
 
-const registerRoutes = require('../../../register');
+const registerRoutes = require('../../../routes/register');
 const db = require('../../../config/database');
 
 const app = express();

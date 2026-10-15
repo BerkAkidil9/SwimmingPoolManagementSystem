@@ -1,63 +1,81 @@
 # Gmail API Setup
 
-Guide for setting up Gmail API email sending with OAuth 2.0 refresh token.
+Reviewed **16 October 2026**. The backend can send verification, password-reset
+and health-report messages through Gmail's HTTPS API using an OAuth refresh
+token. This is separate from signing end users in with Google.
 
 ## Prerequisites
 
-- A Google account (Gmail)
-- `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` configured in `backend/.env` – see [google-oauth-setup.md](google-oauth-setup.md) if you need to create these (same credentials are used for Google OAuth login)
+- A Gmail/Google account that will send the messages.
+- Backend dependencies installed with `npm --prefix backend ci`, including the
+  development dependency used by the token helper.
+- `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` configured in `backend/.env`.
+  See [Google OAuth setup](google-oauth-setup.md).
 
-## Steps
+## 1. Configure Google
 
-### 1. Enable Gmail API
+1. In the same Google Cloud project, enable **Gmail API** under
+   **APIs & Services → Library**.
+2. Under **Google Auth platform → Data Access**, add
+   `https://www.googleapis.com/auth/gmail.send`.
+3. Under **Audience**, add the sending account as a test user if the app is in
+   Testing status.
+4. Under **Clients**, open the web application's OAuth client and add
+   `http://localhost:3333/oauth2callback` as an authorized redirect URI.
 
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Select your project (the same one used for Google OAuth login)
-3. Navigate to **APIs & Services** → **Library**
-4. Search for **Gmail API** and click **Enable**
+This local callback is for token generation. The application login callback
+remains `/auth/google/callback` on the backend. See Google's [consent setup](https://developers.google.com/workspace/guides/configure-oauth-consent).
 
-### 2. Configure OAuth Consent Screen
+## 2. Generate a refresh token locally
 
-1. Go to **APIs & Services** → **OAuth consent screen**
-2. Under **Scopes**, add: `https://www.googleapis.com/auth/gmail.send`
-3. Save changes
-
-### 3. Add Redirect URI
-
-1. Go to **APIs & Services** → **Credentials**
-2. Click your **OAuth 2.0 Client ID**
-3. Under **Authorized redirect URIs**, add: `http://localhost:3333/oauth2callback`
-4. Save
-
-### 4. Generate Refresh Token
-
-Run the token generator script:
+From the repository root:
 
 ```bash
-cd backend
-npm run gmail:token
+(cd backend && npm run gmail:token)
 ```
 
-This will:
-1. Open your browser automatically
-2. Ask you to sign in with your Gmail account
-3. Request permission to send emails
-4. Display the refresh token in the terminal
+The helper opens a browser, requests offline access with the Gmail send scope,
+listens on local port 3333 and prints the refresh token after consent. Sign in
+as the sending account. This interactive operation is not part of CI.
 
-### 5. Update Environment Variables
+If the port is in use, stop the conflicting local process before rerunning the
+helper. Its printed `GMAIL_USER=your@gmail.com` line is a placeholder; replace it
+with the account that granted consent. The refresh token and Google client
+credentials must belong to the same OAuth client.
 
-Add the output to your `backend/.env`:
+Store the token privately in `backend/.env`:
 
+```dotenv
+GMAIL_USER=your-sending-account@gmail.com
+GMAIL_REFRESH_TOKEN=your-refresh-token
 ```
-GMAIL_USER=your@gmail.com
-GMAIL_REFRESH_TOKEN=<token from step 4>
-```
 
-For Render deployment, add both variables in the backend service Environment settings.
+For Render, set both variables and the matching Google client ID/secret in the
+**backend service Environment**, then redeploy/restart. Do not put the token
+in Git, screenshots, frontend variables or CI logs. `EMAIL_FROM` can override
+the sender header; it must be an address the sending account is authorized to use.
 
-## Email Priority
+For External apps in **Testing** status, a Gmail-scoped refresh token expires
+after seven days. For continuing use, review publishing/verification requirements
+and issue a new token after the appropriate configuration changes. See Google's
+[refresh-token expiration rules](https://developers.google.com/identity/protocols/oauth2/).
 
-The backend tries email providers in this order:
-1. **Gmail API** (`GMAIL_USER` + `GMAIL_REFRESH_TOKEN`) – recommended for Render
-2. **Resend** (`RESEND_API_KEY` + `EMAIL_FROM`) – requires domain verification
-3. **SMTP** (`EMAIL_USER` + `EMAIL_PASSWORD`) – local development fallback only (blocked on Render)
+## Provider selection and troubleshooting
+
+[`sendEmail.js`](../backend/utils/sendEmail.js) selects by configuration:
+
+| Priority | Provider | Configuration |
+|----------|----------|---------------|
+| 1 | Gmail API | `GMAIL_USER`, `GMAIL_REFRESH_TOKEN`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` |
+| 2 | Resend | `RESEND_API_KEY`; set an authorized `EMAIL_FROM` for your sender domain |
+| 3 | Gmail SMTP through Nodemailer | `EMAIL_USER`, `EMAIL_PASSWORD`; set `EMAIL_FROM` as appropriate |
+
+A Gmail or Resend delivery error is thrown; it does not automatically switch to
+another provider. Remove/adjust higher-priority settings when deliberately
+switching providers. An expired/revoked refresh token requires reauthorization
+with the same client and sending account.
+
+The blueprint uses Render's free web-service plan, which blocks SMTP ports
+25, 465 and 587. Use Gmail API or Resend there. This restriction is specific to
+the free plan; see [Render free-service limitations](https://render.com/docs/free).
+Native CI uses synthetic settings and does not verify real email delivery.

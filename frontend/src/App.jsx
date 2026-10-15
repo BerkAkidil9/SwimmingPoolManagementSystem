@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import MultiStepForm from "./components/MultiStepForm/MultiStepForm";
-import Terms from "./Terms";
-import SocialLogin from "./SocialLogin";
+import Terms from "./pages/Terms";
+import SocialLogin from "./components/SocialLogin";
 import PrivacyPolicy from "./components/PrivacyPolicy/PrivacyPolicy";
 import LoginPage from "./pages/Login";
 import Dashboard from "./pages/Dashboard";

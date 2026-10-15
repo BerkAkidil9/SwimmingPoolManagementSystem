@@ -3,7 +3,7 @@ module.exports = {
   testEnvironment: 'jsdom',
   testMatch: ['**/?(*.)+(spec|test).[jt]s?(x)'],
   setupFiles: ['<rootDir>/test/polyfills.cjs'],
-  setupFilesAfterEnv: ['<rootDir>/src/setupTests.js'],
+  setupFilesAfterEnv: ['<rootDir>/test/setupTests.js'],
   transform: { '^.+\\.[jt]sx?$': 'babel-jest' },
   moduleNameMapper: {
     '\\.(css|less|sass|scss)$': '<rootDir>/test/styleMock.cjs',

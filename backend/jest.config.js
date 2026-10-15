@@ -5,8 +5,7 @@ module.exports = {
   coverageDirectory: 'coverage',
   collectCoverageFrom: [
     'routes/**/*.js',
-    'validations.js',
-    'register.js',
+    'utils/validations.js',
     '!**/node_modules/**',
   ],
   setupFilesAfterEnv: [],

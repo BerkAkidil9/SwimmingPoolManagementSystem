@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import Terms from '../../Terms';
+import Terms from '../../pages/Terms';
 
 describe('Terms', () => {
   it('renders terms content', () => {

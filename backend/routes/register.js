@@ -1,4 +1,4 @@
-const { validateRegistration } = require("./validations");
+const { validateRegistration } = require("../utils/validations");
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const rateLimit = require("express-rate-limit");
@@ -8,9 +8,9 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");
-const { sendEmail } = require("./utils/sendEmail");
-const { hashToken, validatePasswordStrength } = require("./utils/security");
-const { isAuthenticated, getCurrentUser, getCurrentUserId } = require("./middleware/auth");
+const { sendEmail } = require("../utils/sendEmail");
+const { hashToken, validatePasswordStrength } = require("../utils/security");
+const { isAuthenticated, getCurrentUser, getCurrentUserId } = require("../middleware/auth");
 
 const generateVerificationToken = () => {
   return crypto.randomBytes(32).toString("hex");
@@ -34,9 +34,9 @@ const sendVerificationEmail = async (email, token) => {
 };
 
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-const db = require("./config/database");
+const db = require("../config/database");
 const router = express.Router();
-const { uploadToR2 } = require("./utils/r2Storage");
+const { uploadToR2 } = require("../utils/r2Storage");
 
 const useR2 = process.env.USE_R2 === 'true';
 
@@ -384,7 +384,7 @@ router.post(
             if (useR2) {
               profilePhotoPath = await uploadToR2(buffer, `profile_photos/${fileName}`, 'image/jpeg');
             } else {
-              await fs.promises.writeFile(path.join(__dirname, 'uploads', 'profile_photos', fileName), buffer);
+              await fs.promises.writeFile(path.join(__dirname, '..', 'uploads', 'profile_photos', fileName), buffer);
               profilePhotoPath = `profile_photos/${fileName}`;
             }
           }

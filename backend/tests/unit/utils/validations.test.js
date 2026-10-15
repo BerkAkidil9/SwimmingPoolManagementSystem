@@ -5,7 +5,7 @@ const {
   validateEmergencyContact,
   validateHealthQuestions,
   validateTerms,
-} = require('../../../validations');
+} = require('../../../utils/validations');
 
 describe('Backend validations', () => {
   describe('validatePersonalInfo', () => {

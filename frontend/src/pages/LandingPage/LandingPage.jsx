@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './LandingPage.css';
-import poolImage from '../../logo/ozu_havuz_0.jpg';
+import poolImage from '../../assets/pool-landing.jpg';
 import Pools from '../Pools/Pools';
 
 const LandingPage = () => {

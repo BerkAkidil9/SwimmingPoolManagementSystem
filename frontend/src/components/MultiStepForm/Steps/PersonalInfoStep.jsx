@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import SocialLogin from '../../../SocialLogin';
+import SocialLogin from '../../SocialLogin';
 import './PersonalInfo.css';
 import { FaUser, FaPhone, FaCalendarAlt, FaVenusMars, FaEnvelope, FaIdCard, FaCamera, FaSwimmer, FaKey, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { checkEmailUnique, checkPhoneUnique, validatePersonalInfo } from '../../../utils/validations';

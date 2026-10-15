@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import poolImage from "../pool.jpg";
+import poolImage from "../assets/pool-login.jpg";
 import "./LoginPage.css";
 
 const GoogleIcon = () => (

@@ -7,7 +7,7 @@ const fs = require("fs");
 const multer = require("multer");
 const { uploadToR2 } = require("../utils/r2Storage");
 const { isAuthenticated, getCurrentUser, getCurrentUserId } = require("../middleware/auth");
-const { patterns } = require("../validations");
+const { patterns } = require("../utils/validations");
 
 const CHECK_IN_SECRET = process.env.CHECK_IN_SECRET || process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
 
