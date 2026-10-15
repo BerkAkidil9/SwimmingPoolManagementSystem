@@ -1,6 +1,6 @@
 # Swim Center (Swimming Pool Management System)
 
-[![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=flat&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-22.12+-339933?style=flat&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-18-61DAFB?style=flat&logo=react&logoColor=black)](https://reactjs.org/)
 [![Express](https://img.shields.io/badge/Express-4-000000?style=flat&logo=express&logoColor=white)](https://expressjs.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14+-336791?style=flat&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
@@ -39,7 +39,7 @@ A full-stack swimming pool management system with multi-role support and compreh
 ## Tech Stack
 
 - **Backend:** Node.js, Express 4, PostgreSQL 14+
-- **Frontend:** React 18 (CRA), React Router 6, Bootstrap 5
+- **Frontend:** React 18, Vite 8, React Router 7, Bootstrap 5
 - **Auth:** Passport.js (Google OAuth 2.0), express-session + connect-pg-simple
 - **Payments:** Stripe
 - **File Storage:** Local disk (dev) / Cloudflare R2 via Worker proxy (prod)
@@ -164,9 +164,9 @@ For detailed endpoint documentation (method, path, auth, description), see [docs
 
 ## Prerequisites
 
-- **Node.js** 18 or higher (20 recommended for Render deployment)
+- **Node.js** 22.12 or higher (Node 24 recommended); Vite also supports Node 20.19+.
 - **PostgreSQL** 14 or higher
-- **React** 18 (frontend – comes with Create React App)
+- **React** 18 (installed with frontend dependencies)
 - **npm** or **yarn**
 - (Optional) Stripe account, Google OAuth app for full functionality
 
@@ -218,6 +218,11 @@ npm install
 cp .env.example .env
 # Edit .env with REACT_APP_STRIPE_PUBLISHABLE_KEY if using Stripe
 ```
+
+The frontend uses Vite. Existing `REACT_APP_API_URL` and
+`REACT_APP_STRIPE_PUBLISHABLE_KEY` variables still work; only `REACT_APP_`
+variables are exposed to the browser. `npm start` uses port 3000 (or `PORT`),
+and `npm run build` still writes to `frontend/build` for the Render static site.
 
 ---
 
@@ -356,6 +361,14 @@ Add this redirect URI in Google Cloud Console:
 
 ## Security Notes
 
+- Audit each npm project separately: the repository root, `backend`, `frontend`,
+  `tests/e2e`, and `tests/measurements` each have their own lockfile. Run
+  `npm audit` in each directory; `npm audit --omit=dev` checks runtime dependencies.
+- The backend and frontend override `@istanbuljs/load-nyc-config` to use
+  `js-yaml` 4, removing the old `argparse` / unpatched `sprintf-js` dependency
+  chain. The measurement tools override autocannon's `hyperid` to version 4,
+  removing its vulnerable UUID dependency. Revisit these overrides when the
+  parent packages update their dependency ranges.
 - **Never commit** `.env` files or real credentials. Use `.env.example` as a template.
 - **Session:** Set `SESSION_SECRET` to a strong random string in production.
 - **Email:** Configure Gmail API (`GMAIL_USER`, `GMAIL_REFRESH_TOKEN`), Resend (`RESEND_API_KEY`), or SMTP (`EMAIL_USER`, `EMAIL_PASSWORD`) for verification and password reset. See [docs/gmail-api-setup.md](docs/gmail-api-setup.md) for Gmail setup.

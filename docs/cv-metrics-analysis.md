@@ -34,7 +34,7 @@ Kalıcı kanıt dosyaları:
 | Kullanıcı rolleri | 5 | Üye, yönetici, doktor, personel ve antrenör için farklı işlev ve erişim kontrolleri | [Rol enum](../backend/sql/schema_postgres.sql#L97), [auth middleware](../backend/middleware/auth.js#L6) | Scope | Yüksek; yetkilendirme ve ürün kapsamını somutlaştırır. |
 | İlişkisel veri modeli | 11 uygulama tablosu | Üyelik, sağlık değerlendirmesi, rezervasyon, ödeme ve giriş doğrulamasını kapsar | [SQL şeması](../backend/sql/schema_postgres.sql#L120) | Scope | Yüksek; tablo sayısı işlevlerle birlikte veri modelleme katkısını anlatır. |
 | Transaction kullanılan işlemler | 6 | Birden fazla veritabanı işlemini aynı transaction içinde yürütür | [Transaction helper](../backend/config/database.js#L35), aşağıdaki çağrı listesi | Scope | Yüksek; endpoint sayısından daha somut bir mühendislik ayrıntısıdır. |
-| Kayıt akışı | 5 adım ve 7 sağlık sorusu | Kişisel bilgiler, sağlık değerlendirmesi, acil durum kişisi ve onaylar | [Adımlar](../frontend/src/components/MultiStepForm/MultiStepForm.js#L67), [sağlık soruları](../backend/validations.js#L237) | Scope | Yüksek; özellikle frontend katkısını anlaşılır biçimde sayısallaştırır. |
+| Kayıt akışı | 5 adım ve 7 sağlık sorusu | Kişisel bilgiler, sağlık değerlendirmesi, acil durum kişisi ve onaylar | [Adımlar](../frontend/src/components/MultiStepForm/MultiStepForm.jsx#L67), [sağlık soruları](../backend/validations.js#L237) | Scope | Yüksek; özellikle frontend katkısını anlaşılır biçimde sayısallaştırır. |
 | Test envanteri | 86 dosyada 165 test bildirimi | Backend unit, frontend, integration ve tarayıcı testlerinin kaynak kapsamı | [Sayım envanteri](cv-metrics-evidence/inventory.json) | Scope | Orta; test pratiğini gösterir, assertion kalitesi nedeniyle tek başına kalite garantisi değildir. |
 | Yerel doğrulama | 4 test grubunda 165/165 test geçti | Unit, integration, frontend ve browser smoke çalıştırması | [Yeni sonuçlar](cv-metrics-evidence/local-measurements/summary.json) | Yerel ölçüm; ürün impact'i değil | High; tekrarlanabilir doğrulama, ancak test kalitesi sınırları devam eder. |
 
@@ -91,8 +91,8 @@ Assertion kalitesinin sınırları:
 | Metric | Değer | Ne ifade ediyor | Repository kanıtı | Impact veya Scope | CV değeri ve neden |
 |---|---|---|---|---|---|
 | Backend HTTP yüzeyi | 82 benzersiz method ve path | Alias ve bir kaldırılmış uç dâhil bağlı route tanımları | [Router bağlantıları](../backend/index.js#L212), [envanter](cv-metrics-evidence/inventory.json) | Scope | Orta; backend genişliği, bağımsız özellik sayısı değil. |
-| Frontend route tanımları | 28 | React Router'a kayıtlı path kalıpları | [App.js](../frontend/src/App.js#L85) | Scope | Orta veya düşük; alias'lar nedeniyle ekran sayısı gibi kullanılmamalı. |
-| Farklı route hedefleri | 23 bileşen | Aynı bileşene giden path'ler birleştirildi; yönlendirme ekranı dâhil | [App.js](../frontend/src/App.js#L3) | Scope | Orta; 23 bağımsız iş akışı anlamına gelmez. |
+| Frontend route tanımları | 28 | React Router'a kayıtlı path kalıpları | [App.js](../frontend/src/App.jsx#L85) | Scope | Orta veya düşük; alias'lar nedeniyle ekran sayısı gibi kullanılmamalı. |
+| Farklı route hedefleri | 23 bileşen | Aynı bileşene giden path'ler birleştirildi; yönlendirme ekranı dâhil | [App.js](../frontend/src/App.jsx#L3) | Scope | Orta; 23 bağımsız iş akışı anlamına gelmez. |
 | JSX kaynak dosyaları | 48; 46'sı statik import zincirinde | Test dışı JSX içeren dosyalar ve giriş dosyasından statik erişilebilirlik | [Dosya ve import envanteri](cv-metrics-evidence/inventory.json) | Scope | Düşük; yeniden kullanılabilir bileşen kalitesini ölçmez. |
 | Backend kayıt validation'ı | 28 alanda 50 benzersiz alan ve kural çifti | Yalnızca `backend/validations.js`; tekrarlar birleştirildi | [Validator](../backend/validations.js#L8), [kural listesi](cv-metrics-evidence/validation-rules.json) | Scope | Orta veya düşük; beş adımlı kayıt metriği CV'de daha doğal. |
 | Paket türleri | 2 | `education` ve `free_swimming` | [Paket oluşturma](../backend/routes/member.js#L223) | Scope | Orta; Stripe katkısıyla birlikte anlamlı, satış kanıtı değil. |
@@ -135,7 +135,7 @@ Başlangıç dosyası `backend/index.js` üzerinden bağlı router'lar izlendi. 
 
 `Dashboard` esasen yönlendirme ekranıdır. Kayıt, e-posta doğrulama, sağlık raporu yükleme ve parola sıfırlama alias'ları ayrı ekran kabul edilmedi. Bu statik route sayımı, ekranların tarayıcıda başarıyla çalıştırıldığı anlamına gelmez.
 
-Admin ekranı havuz, doğrulama, seans ve geri bildirim sekmelerini içerir. Doktor ekranında sağlık incelemesi ve hatırlatmalar vardır. [Admin sekmeleri](../frontend/src/components/AdminDashboard/AdminDashboard.js#L13), [doktor ekranı](../frontend/src/components/DoctorDashboard/DoctorDashboard.js#L30)
+Admin ekranı havuz, doğrulama, seans ve geri bildirim sekmelerini içerir. Doktor ekranında sağlık incelemesi ve hatırlatmalar vardır. [Admin sekmeleri](../frontend/src/components/AdminDashboard/AdminDashboard.jsx#L13), [doktor ekranı](../frontend/src/components/DoctorDashboard/DoctorDashboard.jsx#L30)
 
 `HealthReportReviews` ve `ReservationDetails` JSX dosyaları uygulamanın statik import zincirinde bulunmaz; testlerinin olması kullanıcı arayüzünde kullanıldıklarını göstermez. `CheckInPageFix.js` bir React bileşeni değil, tarayıcı konsolu için yardımcı script'tir. 48 sayısı bileşen tanımı sayısı değil, JSX içeren kaynak dosyası sayısıdır; `src/index.js` de bu sayıdadır.
 
@@ -153,7 +153,7 @@ Admin ekranı havuz, doğrulama, seans ve geri bildirim sekmelerini içerir. Dok
 
 Zorunluluk, format, uzunluk ve alanlar arası karşılaştırmalar ayrı kurallardır. Aynı alanın yinelenen zorunluluk kontrolleri tek kural; sayısal aralık koşulu tek kural sayıldı. Döngüdeki yedi sağlık sorusu alan bazında açıldı. Frontend tekrarları ve route içindeki diğer iş kuralları eklenmedi. Bu sayı, proje genelindeki bütün validation kurallarının toplamı değildir.
 
-Frontend ve backend davranışları tamamen eşleşmez. Ayrıca `validatePersonalInfo` async olmasına rağmen formun adım doğrulaması sonucu `await` etmeden kullanır. Bu nedenle “tüm adımlarda eksiksiz validation garantisi” iddiası uygun değildir. [Async validator](../frontend/src/utils/validations.js#L29), [çağrı noktası](../frontend/src/components/MultiStepForm/MultiStepForm.js#L133)
+Frontend ve backend davranışları tamamen eşleşmez. Ayrıca `validatePersonalInfo` async olmasına rağmen formun adım doğrulaması sonucu `await` etmeden kullanır. Bu nedenle “tüm adımlarda eksiksiz validation garantisi” iddiası uygun değildir. [Async validator](../frontend/src/utils/validations.js#L29), [çağrı noktası](../frontend/src/components/MultiStepForm/MultiStepForm.jsx#L133)
 
 ### İşlevler ve entegrasyonlar
 
@@ -166,7 +166,7 @@ Doğrulanan işlevsel kapsam; kayıt ve kimlik doğrulama, yönetici onayı, hav
 | PostgreSQL | Uygulama verisi ve oturum deposu | [Database helper](../backend/config/database.js), [session store](../backend/index.js#L96) |
 | Cloudflare R2 ve Worker | Doğrudan veya Worker üzerinden yükleme; aynı depolamanın farklı erişim yolları | [R2 helper](../backend/utils/r2Storage.js#L38) |
 | E-posta | Yapılandırmaya göre Gmail API, Resend veya SMTP; üçünün üretimde kullanıldığı doğrulanmadı | [Provider seçimi](../backend/utils/sendEmail.js#L94) |
-| Harita | Leaflet arayüzünde OpenStreetMap tile kullanımı | [MapPicker](../frontend/src/components/AdminDashboard/MapPicker.js#L46) |
+| Harita | Leaflet arayüzünde OpenStreetMap tile kullanımı | [MapPicker](../frontend/src/components/AdminDashboard/MapPicker.jsx#L46) |
 
 ### Güvenlik ve operasyon sınırları
 
@@ -218,7 +218,7 @@ Test sayılarının tamamını tek bullet'a yığmak yerine başvurunun odağın
 
 > Built a React and Express swimming pool management platform supporting 5 user roles across an 11-table PostgreSQL schema, covering reservations, payments, health reviews, and QR check-in.
 
-Kanıt: [Roller ve şema](../backend/sql/schema_postgres.sql#L97), [backend modülleri](../backend/index.js#L212), [frontend route'ları](../frontend/src/App.js#L85).
+Kanıt: [Roller ve şema](../backend/sql/schema_postgres.sql#L97), [backend modülleri](../backend/index.js#L212), [frontend route'ları](../frontend/src/App.jsx#L85).
 
 ### Backend veri işlemleri
 
@@ -230,7 +230,7 @@ Kanıt: [Transaction helper](../backend/config/database.js#L35) ve A bölümünd
 
 > Developed a 5-step React registration flow combining document uploads, a 7-question health questionnaire, emergency contacts, and consent collection.
 
-Kanıt: [Form adımları](../frontend/src/components/MultiStepForm/MultiStepForm.js#L67), [sağlık soruları](../frontend/src/components/MultiStepForm/Steps/HealthQuestionsStep.js).
+Kanıt: [Form adımları](../frontend/src/components/MultiStepForm/MultiStepForm.jsx#L67), [sağlık soruları](../frontend/src/components/MultiStepForm/Steps/HealthQuestionsStep.jsx).
 
 ### Stripe ödeme entegrasyonu
 
@@ -266,7 +266,7 @@ Kanıt: [yeni test özeti](cv-metrics-evidence/local-measurements/summary.json),
 | İş etkisi | Kayıt süresinde azalma, personel zaman tasarrufu, no-show azalması, kullanıcı memnuniyeti |
 | Tam akış doğrulaması | Gerçek ödeme, OAuth, kayıt, rezervasyon ve QR akışlarının tamamlandığını gösteren çalıştırma raporları |
 
-Web Vitals için konsola ölçüm gönderme kodu vardır; gerçek kullanıcı ölçümleri saklanmış değildir. Yeni Lighthouse sonuçları laboratuvar ölçümüdür, gerçek kullanıcı verisi yerine geçmez. Coverage artık script varlığına değil, saklanan çalıştırma raporlarına dayanır. [Web Vitals çağrısı](../frontend/src/index.js#L41), [Web Vitals helper](../frontend/src/reportWebVitals.js)
+Web Vitals için konsola ölçüm gönderme kodu vardır; gerçek kullanıcı ölçümleri saklanmış değildir. Yeni Lighthouse sonuçları laboratuvar ölçümüdür, gerçek kullanıcı verisi yerine geçmez. Coverage artık script varlığına değil, saklanan çalıştırma raporlarına dayanır. [Web Vitals çağrısı](../frontend/src/index.jsx#L41), [Web Vitals helper](../frontend/src/reportWebVitals.js)
 
 ## Gelecekte güncelleme yöntemi
 

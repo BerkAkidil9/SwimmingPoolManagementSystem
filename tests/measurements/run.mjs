@@ -128,16 +128,16 @@ try {
     await command('backend-unit', process.execPath, [jest, '--runInBand', '--silent', '--coverage', '--coverageReporters=json-summary', '--coverageReporters=json', '--coverageReporters=text', `--coverageDirectory=${out}/backend-unit-coverage`, '--json', `--outputFile=${out}/backend-unit.json`], path.join(work, 'backend'));
     // Includes untested entrypoint, auth, storage, email and DB code omitted by the existing unit config.
     await command('backend-integration', process.execPath, [jest, '--config=jest.integration.config.js', '--runInBand', '--forceExit', '--silent', '--coverage', '--collectCoverageFrom=routes/**/*.js', '--collectCoverageFrom=middleware/**/*.js', '--collectCoverageFrom=utils/**/*.js', '--collectCoverageFrom=config/**/*.js', '--collectCoverageFrom=register.js', '--collectCoverageFrom=validations.js', '--collectCoverageFrom=index.js', '--coverageReporters=json-summary', '--coverageReporters=json', '--coverageReporters=text', `--coverageDirectory=${out}/backend-integration-coverage`, '--json', `--outputFile=${out}/backend-integration.json`], path.join(work, 'backend'));
-    await command('frontend-tests', process.execPath, ['node_modules/react-scripts/bin/react-scripts.js', 'test', '--watchAll=false', '--runInBand', '--forceExit', '--silent', '--coverage', '--collectCoverageFrom=src/**/*.{js,jsx}', '--collectCoverageFrom=!src/**/*.test.{js,jsx}', '--collectCoverageFrom=!src/setupTests.js', '--collectCoverageFrom=!src/**/__tests__/**', '--coverageReporters=json-summary', '--coverageReporters=json', '--coverageReporters=text', `--coverageDirectory=${out}/frontend-coverage`, '--json', `--outputFile=${out}/frontend-tests.json`], path.join(work, 'frontend'));
+    await command('frontend-tests', process.execPath, ['node_modules/jest/bin/jest.js', '--watchAll=false', '--runInBand', '--forceExit', '--silent', '--coverage', '--collectCoverageFrom=src/**/*.{js,jsx}', '--collectCoverageFrom=!src/**/*.test.{js,jsx}', '--collectCoverageFrom=!src/setupTests.js', '--collectCoverageFrom=!src/**/__tests__/**', '--coverageReporters=json-summary', '--coverageReporters=json', '--coverageReporters=text', `--coverageDirectory=${out}/frontend-coverage`, '--json', `--outputFile=${out}/frontend-tests.json`], path.join(work, 'frontend'));
   }
   if (['all', 'build'].includes(phase)) {
-    await command('frontend-build', process.execPath, ['node_modules/react-scripts/bin/react-scripts.js', 'build'], path.join(work, 'frontend'), { NODE_ENV: 'production', CI: 'false' });
+    await command('frontend-build', process.execPath, ['node_modules/vite/bin/vite.js', 'build'], path.join(work, 'frontend'), { NODE_ENV: 'production', CI: 'false' });
   }
   const build = path.join(work, 'frontend/build');
-  if (fs.existsSync(path.join(build, 'asset-manifest.json'))) {
-    const manifest = JSON.parse(fs.readFileSync(path.join(build, 'asset-manifest.json')));
+  if (fs.existsSync(path.join(build, '.vite/manifest.json'))) {
+    const manifest = JSON.parse(fs.readFileSync(path.join(build, '.vite/manifest.json')));
     const assets = files(build).map(f => { const b = fs.readFileSync(f); return { path: path.relative(build, f), bytes: b.length, gzipBytes: gzipSync(b).length, brotliBytes: brotliCompressSync(b).length }; });
-    save('bundle.json', { note: 'Compressed sizes calculated locally, not network transfer measurements. Source maps excluded from runtime totals.', entrypoints: manifest.entrypoints,
+    save('bundle.json', { note: 'Compressed sizes calculated locally, not network transfer measurements. Source maps excluded from runtime totals.', entrypoints: Object.values(manifest).filter(entry => entry.isEntry).flatMap(entry => [entry.file, ...(entry.css || [])]),
       assets, runtimeTotals: assets.filter(a => !a.path.endsWith('.map')).reduce((s,a) => ({ bytes: s.bytes+a.bytes, gzipBytes:s.gzipBytes+a.gzipBytes, brotliBytes:s.brotliBytes+a.brotliBytes }), {bytes:0,gzipBytes:0,brotliBytes:0}) });
   }
 
