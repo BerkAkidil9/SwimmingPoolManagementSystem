@@ -81,6 +81,8 @@ def main():
             # Pass the short-lived registration token only in the process environment.
             run(["./config.sh", "--unattended", "--url", f"https://github.com/{REPO}",
                  "--name", name, "--labels", LABEL, "--work", "_work"], cwd=directory, env=registration_env)
+            with (directory / ".env").open("a") as service_env:
+                service_env.write("\nCODEQL_THREADS=2\n")
             print(f"Registered {name}", flush=True)
 
         service_name = f"actions.runner.BerkAkidil9-SwimmingPoolManagementSystem.{name}"

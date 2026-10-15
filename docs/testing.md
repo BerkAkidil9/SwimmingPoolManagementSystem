@@ -52,6 +52,14 @@ Then two test shards run in parallel. Each shard runs Jest and Playwright with
 exactly two workers, for at most four test workers across this repository's two
 runners. Other repositories have their own runner pools.
 
+npm and Chromium downloads are cached in each runner's
+`$RUNNER_TOOL_CACHE/swimcenter-ci-cache/`, outside the temporary directory that
+GitHub clears between jobs. Local commands keep the same cache under the system
+temporary directory.
+
+CodeQL default setup is routed to the same `swimcenter-ci` runner label. The
+runner service environment sets `CODEQL_THREADS=2` for its analysis threads.
+
 Each job copies the source to a disposable directory, omits `.env` files, and uses
 synthetic credentials. Each test shard starts its own loopback PostgreSQL cluster;
 the two Jest integration workers have separate databases. API and preview ports

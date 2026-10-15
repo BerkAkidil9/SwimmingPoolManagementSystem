@@ -31,13 +31,15 @@ process.once('SIGTERM', () => abort.abort());
 
 // Do not inherit deployment credentials or environment files from the Mac.
 const env = Object.fromEntries(['PATH', 'HOME', 'TMPDIR', 'SystemRoot'].filter(k => process.env[k]).map(k => [k, process.env[k]]));
+// RUNNER_TEMP is cleared between jobs; keep downloads in this runner's tool cache.
+const cacheDir = path.join(process.env.RUNNER_TOOL_CACHE || os.tmpdir(), 'swimcenter-ci-cache');
 Object.assign(env, {
   CI: 'true', NODE_ENV: 'test', TZ: 'Europe/Istanbul', USE_R2: 'false',
   GOOGLE_CLIENT_ID: 'ci-local-placeholder', GOOGLE_CLIENT_SECRET: 'ci-local-placeholder',
   STRIPE_SECRET_KEY: 'sk_test_ci_placeholder', STRIPE_PUBLISHABLE_KEY: 'pk_test_ci_placeholder',
   REACT_APP_STRIPE_PUBLISHABLE_KEY: 'pk_test_ci_placeholder', SESSION_SECRET: randomBytes(32).toString('hex'),
-  npm_config_cache: path.join(process.env.RUNNER_TEMP || os.tmpdir(), 'swimcenter-npm-cache'),
-  PLAYWRIGHT_BROWSERS_PATH: path.join(process.env.RUNNER_TEMP || os.tmpdir(), 'swimcenter-playwright'),
+  npm_config_cache: path.join(cacheDir, 'npm'),
+  PLAYWRIGHT_BROWSERS_PATH: path.join(cacheDir, 'playwright'),
 });
 
 let pg, preview, backend, socketDir;
