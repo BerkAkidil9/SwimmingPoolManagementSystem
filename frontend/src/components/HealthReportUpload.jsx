@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { FaUpload, FaFileUpload, FaExclamationTriangle, FaCheck } from 'react-icons/fa';
 import axios from 'axios';
 import './HealthReportUpload.css';
+import { getHealthReportReturnPath } from '../utils/healthReportReturn';
 
 const HealthReportUpload = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const returnTo = getHealthReportReturnPath(location.pathname + location.search);
+  const loginUrl = returnTo ? `/login?returnTo=${encodeURIComponent(returnTo)}` : '/login';
   const { userId } = useParams();
   const [searchParams] = useSearchParams();
   const requestedUserId = userId || searchParams.get('userId');
@@ -119,7 +123,7 @@ const HealthReportUpload = () => {
       setError(null);
       await axios.post('/auth/clear-session', {}, { withCredentials: true });
       sessionStorage.removeItem('user');
-      navigate('/login');
+      navigate(loginUrl);
     } catch {
       setError('Unable to sign out. Please try again.');
     } finally {
@@ -166,7 +170,7 @@ const HealthReportUpload = () => {
           {error || 'User not found or you need to log in to upload a health report.'}
         </Alert>
         {error && error.includes('log in') && (
-          <Button variant="primary" className="mt-3" onClick={() => navigate('/login')}>
+          <Button variant="primary" className="mt-3" onClick={() => navigate(loginUrl)}>
             Go to Login
           </Button>
         )}
@@ -183,7 +187,7 @@ const HealthReportUpload = () => {
             <p>You are signed in as <strong>{user.email}</strong>.</p>
             <Alert variant="warning">
               {accountMismatch
-                ? 'This health report request belongs to another account. Sign out and sign in with the account that received the request, then reopen the email link.'
+                ? 'This health report request belongs to another account. Sign in with the account that received the request. You will return to this page automatically after signing in.'
                 : user.health_status === 'pending'
                   ? 'Your health assessment is pending review. You can upload a report only when the medical team requests one.'
                   : 'There is no active health report request for this account. If you received a request email, check that you are signed in to the correct account.'}

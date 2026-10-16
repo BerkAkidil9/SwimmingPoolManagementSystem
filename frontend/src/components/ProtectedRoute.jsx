@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import LoadingSpinner from './LoadingSpinner';  // Create this if you don't have it
+import { getHealthReportReturnPath } from '../utils/healthReportReturn';
 
 const ProtectedRoute = ({ children, isAdmin, isDoctor, isStaff, isCoach, allowedRoles = ['user', 'admin', 'doctor', 'staff', 'coach'] }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
@@ -48,8 +49,10 @@ const ProtectedRoute = ({ children, isAdmin, isDoctor, isStaff, isCoach, allowed
   }
 
   if (!isAuthenticated) {
-    // Redirect to login with a return URL
-    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+    const from = location.pathname + location.search;
+    const returnTo = getHealthReportReturnPath(from);
+    const loginUrl = returnTo ? `/login?returnTo=${encodeURIComponent(returnTo)}` : '/login';
+    return <Navigate to={loginUrl} state={{ from }} replace />;
   }
 
   // Check for admin access if required

@@ -8,11 +8,11 @@ stated otherwise.
 
 | Suite | Files | Tests | Location / requirements |
 |-------|------:|------:|-------------------------|
-| Backend unit | 18 | 61 | `backend/tests/unit/`; predominantly mocked dependencies |
-| Frontend unit/component | 50 | 79 | `frontend/src/__tests__/`; jsdom |
+| Backend unit | 19 | 67 | `backend/tests/unit/`; predominantly mocked dependencies |
+| Frontend unit/component | 50 | 88 | `frontend/src/__tests__/`; jsdom |
 | PostgreSQL integration | 10 | 32 | `backend/tests/integration/`; disposable database |
-| Browser smoke | 12 | 13 | `tests/e2e/`; running frontend and Chromium |
-| **Total** | **90** | **185** | Test cases, including parameterized cases; not a coverage percentage |
+| Browser | 13 | 15 | `tests/e2e/`; running frontend and Chromium |
+| **Total** | **92** | **202** | Test cases, including parameterized cases; not a coverage percentage |
 
 Backend tests use Jest 30 and Supertest; frontend tests use Jest 30 and React
 Testing Library. Frontend setup and mocks live in `frontend/test/`; the Jest
@@ -31,6 +31,12 @@ Health-report integration tests cover a doctor's request, the recipient's
 upload, the resulting pending-review status and rejection of a second upload,
 using disposable PostgreSQL with mocked email and R2. Component tests cover
 recipient-link account mismatches and hide uploads without an active request.
+
+Post-login return tests cover password login, its timeout retry and the Google
+callback across session regeneration. Report destinations are limited to the
+upload routes; external or unrelated destinations are rejected. Two browser
+tests check returning from login to the report form with authentication and
+member data stubbed; they do not exercise Google's live consent screen.
 
 ## Running Tests
 

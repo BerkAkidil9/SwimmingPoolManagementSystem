@@ -10,7 +10,7 @@ const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");
 const { sendEmail } = require("../utils/sendEmail");
-const { hashToken, validatePasswordStrength } = require("../utils/security");
+const { hashToken, validatePasswordStrength, getHealthReportReturnPath } = require("../utils/security");
 const { isAuthenticated, getCurrentUser, getCurrentUserId } = require("../middleware/auth");
 
 const generateVerificationToken = () => {
@@ -615,6 +615,12 @@ router.post(["/verify-email", "/verify-email/:token"], async (req, res) => {
 // Add Google auth routes
 router.get(
   "/google",
+  (req, res, next) => {
+    const returnTo = getHealthReportReturnPath(req.query.returnTo);
+    if (returnTo) req.session.healthReportReturnTo = returnTo;
+    else delete req.session.healthReportReturnTo;
+    next();
+  },
   passport.authenticate("google", {
     scope: ["profile", "email"],
     prompt: "select_account",
@@ -623,6 +629,13 @@ router.get(
 
 router.get(
   "/google/callback",
+  (req, res, next) => {
+    // Passport regenerates the session at login. Retain only this validated
+    // destination on the request, then consume it even if authentication fails.
+    req.healthReportReturnTo = getHealthReportReturnPath(req.session?.healthReportReturnTo);
+    if (req.session) delete req.session.healthReportReturnTo;
+    next();
+  },
   passport.authenticate("google", { failureRedirect: "/login" }),
   (req, res) => {
     
@@ -649,6 +662,10 @@ router.get(
         name: req.user.name,
         verificationStatus: req.user.verification_status
       };
+
+      if (req.healthReportReturnTo) {
+        return res.redirect(`${feUrl}${req.healthReportReturnTo}`);
+      }
 
       if (req.user.role === 'admin') {
         return res.redirect(`${feUrl}/admin`);

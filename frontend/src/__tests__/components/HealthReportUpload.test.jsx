@@ -91,9 +91,16 @@ describe('HealthReportUpload', () => {
     openUpload();
     fireEvent.click(await screen.findByRole('button', { name: 'Sign in with another account' }));
 
-    await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/login'));
+    await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/login?returnTo=%2Fupload-health-report%2F42'));
     expect(axios.post).toHaveBeenCalledWith('/auth/clear-session', {}, { withCredentials: true });
     expect(sessionStorage.getItem('user')).toBeNull();
+  });
+
+  it('preserves the report destination when the account is no longer signed in', async () => {
+    axios.get.mockRejectedValueOnce({ response: { status: 401 } });
+    openUpload('/health-report-upload?userId=42');
+    fireEvent.click(await screen.findByRole('button', { name: 'Go to Login' }));
+    expect(mockNavigate).toHaveBeenCalledWith('/login?returnTo=%2Fhealth-report-upload%3FuserId%3D42');
   });
 
   it('refreshes eligibility when a request is no longer active at upload time', async () => {

@@ -209,8 +209,8 @@ server before using the same port for preview.
 ## Testing
 
 Tests use Jest, React Testing Library, Supertest and Playwright. The current
-inventory contains 61 backend unit, 79 frontend unit/component, 32 PostgreSQL
-integration and 13 browser smoke tests. Browser checks primarily cover page
+inventory contains 67 backend unit, 88 frontend unit/component, 32 PostgreSQL
+integration and 15 browser tests. Browser checks primarily cover page
 loading and navigation; they do not establish complete payment, registration
 or reservation workflows.
 

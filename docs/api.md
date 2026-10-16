@@ -60,7 +60,7 @@ the package session allowance.
 | POST | `/auth/register` | No | Multi-step registration with file uploads (rate limited: 5/hour) |
 | POST | `/auth/check-email` | No | Check email uniqueness (shared email/phone limit: 5/15min) |
 | POST | `/auth/check-phone` | No | Check phone uniqueness (shared email/phone limit: 5/15min) |
-| GET | `/auth/google` | No | Start Google OAuth flow |
+| GET | `/auth/google` | No | Start Google OAuth flow; optional `returnTo` for a report-upload page |
 | GET | `/auth/google/callback` | No | Google OAuth callback (redirects to frontend) |
 | GET | `/auth/verify-email` | No | Verify email token (query param) |
 | POST | `/auth/verify-email` | No | Verify email token (body) |
@@ -78,6 +78,14 @@ the package session allowance.
 | POST | `/auth/reset-password` | No | Submit new password (rate limited: 10/15min) |
 | POST | `/auth/verify-social-email` | Temporary Google session | Verify social registration email |
 | GET | `/auth/social-registration-data` | No | Get social registration session data |
+
+When login starts from a report link, the frontend preserves its upload path
+in the login page's `returnTo` query parameter. Password login returns there
+after success. Google login passes the validated path to `/auth/google`, stores
+it in the session and consumes it on callback; only the report-upload routes
+and their numeric recipient IDs are accepted. Normal login destinations apply
+when no valid report path is supplied. Returning to a report never bypasses
+account restrictions or upload authorization.
 
 ---
 

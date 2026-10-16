@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import poolImage from "../assets/pool-login.jpg";
 import "./LoginPage.css";
+import { getHealthReportReturnPath } from "../utils/healthReportReturn";
 
 const GoogleIcon = () => (
   <svg
@@ -40,7 +41,17 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
+  const returnTo = getHealthReportReturnPath(searchParams.get('returnTo'))
+    || getHealthReportReturnPath(location.state?.from);
+
+  const finishLogin = (user) => {
+    if (user?.role) user.role = String(user.role).toLowerCase().trim();
+    sessionStorage.setItem("user", JSON.stringify(user));
+    if (returnTo) navigate(returnTo, { replace: true });
+    else navigate("/home");
+  };
 
   useEffect(() => {
     document.title = "Welcome Back - Swimming Pool Project";
@@ -59,7 +70,8 @@ const LoginPage = () => {
 
   const handleSocialLogin = (provider) => {
     const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001';
-    window.location.href = `${apiUrl}/auth/${provider}`;
+    const returnQuery = returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : '';
+    window.location.href = `${apiUrl}/auth/${provider}${returnQuery}`;
   };
 
   const handleSubmit = async (e, isRetry = false) => {
@@ -75,10 +87,7 @@ const LoginPage = () => {
       );
 
       if (response.data.isAuthenticated) {
-        const user = response.data.user;
-        if (user?.role) user.role = String(user.role).toLowerCase().trim();
-        sessionStorage.setItem("user", JSON.stringify(user));
-        navigate("/home");
+        finishLogin(response.data.user);
       } else {
         setError("Invalid email or password.");
       }
@@ -87,10 +96,7 @@ const LoginPage = () => {
         try {
           const retryRes = await axios.post("/auth/login", { email, password }, { withCredentials: true, timeout: 60000 });
           if (retryRes.data.isAuthenticated) {
-            const user = retryRes.data.user;
-            if (user?.role) user.role = String(user.role).toLowerCase().trim();
-            sessionStorage.setItem("user", JSON.stringify(user));
-            navigate("/home");
+            finishLogin(retryRes.data.user);
             return;
           }
         } catch (_) {}

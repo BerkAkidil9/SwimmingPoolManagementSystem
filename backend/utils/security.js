@@ -49,4 +49,11 @@ function validatePasswordStrength(password) {
   return { valid: true };
 }
 
-module.exports = { escapeHtml, hashToken, validatePasswordStrength };
+// Match the frontend's report-page allowlist; never redirect to arbitrary URLs.
+function getHealthReportReturnPath(value) {
+  if (typeof value !== 'string' || value.length > 256) return null;
+  const match = value.match(/^\/(?:upload-health-report(?:\/[1-9]\d*)?|health-report-upload)(?:\?userId=[1-9]\d*)?$/);
+  return match?.[0] === value ? value : null;
+}
+
+module.exports = { escapeHtml, hashToken, validatePasswordStrength, getHealthReportReturnPath };
