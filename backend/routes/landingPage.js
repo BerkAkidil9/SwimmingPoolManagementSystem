@@ -1,3 +1,4 @@
+const { logError } = require("../utils/logger");
 const express = require("express");
 const router = express.Router();
 const db = require("../config/database");
@@ -14,7 +15,7 @@ router.get("/pools", async (req, res) => {
     `);
     res.json(pools);
   } catch (err) {
-    console.error("Error fetching pools:", err);
+    logError("Error fetching pools:", err);
     return res.status(500).json({ error: "Internal server error" });
   }
 });

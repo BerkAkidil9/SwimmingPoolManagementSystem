@@ -1,3 +1,4 @@
+const { logError } = require("../utils/logger");
 const { validateRegistration } = require("../utils/validations");
 const express = require("express");
 const bcrypt = require("bcryptjs");
@@ -87,11 +88,8 @@ const upload = multer({
   },
 });
 
-const _isDev = process.env.NODE_ENV !== 'production';
-
 // Passport serialization
 passport.serializeUser((user, done) => {
-  if (_isDev) console.log("Serializing user:", user.id || 'temp user');
   // If it's a temporary user from social auth, serialize the whole object
   if (user.isTemp) {
     done(null, { isTemp: true, ...user });
@@ -103,7 +101,6 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (serializedUser, done) => {
   try {
-    if (_isDev) console.log("Deserializing user:", serializedUser.id || 'temp user');
     if (serializedUser.isTemp) {
       done(null, serializedUser);
     } else {
@@ -117,7 +114,6 @@ passport.deserializeUser(async (serializedUser, done) => {
         );
       
       if (rows.length === 0) {
-        if (_isDev) console.log("No user found with ID:", serializedUser.id);
         return done(null, false);
       }
       
@@ -128,7 +124,7 @@ passport.deserializeUser(async (serializedUser, done) => {
       done(null, user);
     }
   } catch (error) {
-    console.error("Deserialization error:", error);
+    logError("Deserialization error:", error);
     done(error, null);
   }
 });
@@ -144,7 +140,6 @@ passport.use(
     },
     async function (accessToken, refreshToken, profile, done) {
       try {
-        if (_isDev) console.log("Google OAuth Profile:", profile.id);
 
         const [existingUsers] = await db
           .promise()
@@ -160,7 +155,6 @@ passport.use(
             ...existingUsers[0],
             isTemp: false
           };
-          if (_isDev) console.log("Found existing user:", existingUser.id);
           return done(null, existingUser);
         }
 
@@ -186,7 +180,7 @@ passport.use(
 
         return done(null, tempUser);
       } catch (error) {
-        console.error("Google auth error:", error);
+        logError("Google auth error:", error);
         done(error, null);
       }
     }
@@ -218,7 +212,7 @@ router.post('/check-email', checkUniquenessLimiter, async (req, res) => {
         const delay = Math.max(0, 200 - elapsed);
         setTimeout(() => res.json({ isUnique: Number(rows[0].count) === 0 }), delay);
     } catch (error) {
-        console.error('Email check error:', error);
+        logError("Email check error:", error);
         res.status(500).json({ error: 'Server error' });
     }
 });
@@ -239,7 +233,7 @@ router.post('/check-phone', checkUniquenessLimiter, async (req, res) => {
         const delay = Math.max(0, 200 - elapsed);
         setTimeout(() => res.json({ isUnique: Number(rows[0].count) === 0 }), delay);
     } catch (error) {
-        console.error('Phone check error:', error);
+        logError("Phone check error:", error);
         res.status(500).json({ error: 'Server error' });
     }
 });
@@ -262,11 +256,7 @@ router.post(
     { name: "profilePhoto", maxCount: 1 },
   ]),
   async (req, res) => {
-    const debug = (step, msg) => console.log(`[REGISTER DEBUG ${step}]`, msg);
     try {
-      debug(1, "START");
-      debug(2, "body keys: " + Object.keys(req.body || {}).join(", "));
-      debug(3, "files: " + (req.files ? JSON.stringify(Object.keys(req.files)) : "none"));
 
       const socialUser = req.user?.isTemp ? req.user : null;
 
@@ -278,12 +268,12 @@ router.post(
       );
 
       if (!isValid) {
-        debug(4, "VALIDATION FAILED: " + JSON.stringify(errors));
+        console.info("[REGISTER] Validation failed");
         // Clean up uploaded files if validation fails (disk storage only - memoryStorage has no file.path)
         if (req.files && !useR2) {
           Object.values(req.files).forEach((fileArray) => {
             fileArray.forEach((file) => {
-              if (file.path) fs.unlink(file.path, (err) => { if (err) console.error("Error deleting file:", err); });
+              if (file.path) fs.unlink(file.path, (err) => { if (err) logError("Error deleting file:", err); });
             });
           });
         }
@@ -333,37 +323,30 @@ router.post(
       } = req.body;
 
       // Get file paths if files were uploaded
-      debug(5, "FILE UPLOAD START useR2=" + useR2);
       let idCardPath = null;
       let profilePhotoPath = null;
 
       if (req.files?.idCard?.[0]) {
         const file = req.files.idCard[0];
         if (useR2 && file.buffer) {
-          debug(6, "Uploading idCard to R2...");
           const ext = path.extname(file.originalname) || '.pdf';
           const key = `id_cards/id-card-${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
           idCardPath = await uploadToR2(file.buffer, key, file.mimetype);
-          debug(7, "idCard R2 done: " + idCardPath);
         } else {
           idCardPath = `id_cards/${path.basename(file.path)}`;
-          debug(7, "idCard disk: " + idCardPath);
         }
       }
 
       if (req.files?.profilePhoto?.[0]) {
         const file = req.files.profilePhoto[0];
         if (useR2 && file.buffer) {
-          debug(8, "Uploading profilePhoto to R2...");
           const ext = path.extname(file.originalname) || '.jpg';
           const key = `profile_photos/profile-${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
           profilePhotoPath = await uploadToR2(file.buffer, key, file.mimetype);
-          debug(9, "profilePhoto R2 done: " + profilePhotoPath);
         } else {
           profilePhotoPath = `profile_photos/${path.basename(file.path)}`;
         }
       } else if (socialUser?.profile_picture) {
-        debug(8, "Fetching social profile pic...");
         try {
           const ALLOWED_PROFILE_HOSTS = new Set([
             'lh3.googleusercontent.com',
@@ -376,7 +359,7 @@ router.post(
           ]);
           const picUrl = new URL(socialUser.profile_picture);
           if (picUrl.protocol !== 'https:' || !ALLOWED_PROFILE_HOSTS.has(picUrl.hostname)) {
-            console.warn('Blocked untrusted profile picture URL:', picUrl.hostname);
+            console.warn("Blocked untrusted social profile picture URL");
           } else {
             const response = await fetch(picUrl.toString());
             const buffer = Buffer.from(await response.arrayBuffer());
@@ -389,11 +372,10 @@ router.post(
             }
           }
         } catch (error) {
-          console.error('Error saving social profile photo:', error);
+          logError("Error saving social profile photo:", error);
         }
       }
 
-      debug(10, "Files OK. Hashing password...");
       const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
 
       // Generate verification token (for all registrations - including social)
@@ -402,7 +384,6 @@ router.post(
       const tokenExpires = new Date();
       tokenExpires.setHours(tokenExpires.getHours() + 24);
 
-      debug(11, "Inserting user into DB...");
       // Insert user data with verification fields (PostgreSQL: RETURNING id for insertId)
       // Store hashed token in DB; raw token is sent to user via email
       const [insertRows] = await db.promise().query(
@@ -437,21 +418,18 @@ router.post(
       );
 
       const userId = insertRows[0].id;
-      debug(12, "User created id=" + userId);
 
       // Verification email - don't fail registration if email fails
-      debug(13, "Sending verification email...");
       try {
         await sendVerificationEmail(
           socialUser?.email || email,
           verificationToken
         );
-        debug(14, "Email sent OK");
+        console.info("[REGISTER] Verification email sent");
       } catch (mailErr) {
-        console.error("[REGISTER DEBUG] Email failed (user still created):", mailErr.message);
+        logError("[REGISTER] Verification email failed; registration retained", mailErr);
       }
 
-      debug(15, "Inserting health_info...");
       await db.promise().query(
         `INSERT INTO health_info (
                 user_id, blood_type, allergies, chronic_conditions, medications, 
@@ -484,7 +462,7 @@ router.post(
         ]
       );
 
-      debug(16, "DONE - success");
+      console.info("[REGISTER] Registration completed");
 
       // Email verification required for all registrations
       res.status(201).json({
@@ -494,13 +472,11 @@ router.post(
         requiresVerification: true,
       });
     } catch (error) {
-      console.error("[REGISTER DEBUG] ERROR:", error.message);
-      console.error("[REGISTER DEBUG] Stack:", error.stack);
-      console.error("[REGISTER DEBUG] Code:", error.code);
+      logError("[REGISTER] Registration failed", error);
       if (req.files && !useR2) {
         Object.values(req.files).forEach((fileArray) => {
           fileArray.forEach((file) => {
-            if (file.path) fs.unlink(file.path, (err) => { if (err) console.error("Error deleting file:", err); });
+            if (file.path) fs.unlink(file.path, (err) => { if (err) logError("Error deleting file:", err); });
           });
         });
       }
@@ -518,7 +494,6 @@ router.post(
         return res.status(500).json({ error: "File upload service not configured. Contact support." });
       }
       if (msg.includes("column") || msg.includes("syntax") || error.code) {
-        console.error("[REGISTER] Database error:", error);
         return res.status(500).json({ error: "An internal error occurred. Please try again." });
       }
       res.status(500).json({ error: "An internal error occurred during registration." });
@@ -548,11 +523,6 @@ router.get("/verify-email", async (req, res) => {
   } catch (_) {}
   token = token.trim();
 
-  if (_isDev) {
-    console.log("=== Email Verification (GET) ===");
-    console.log("Token length:", token.length);
-  }
-
   if (!token) {
     return res.redirect(`${redirectBase}/verify-result?status=error&message=invalid`);
   }
@@ -571,7 +541,6 @@ router.get("/verify-email", async (req, res) => {
     }
 
     if (users.length === 0) {
-      if (_isDev) console.log("No user found for verification token hash");
       return res.redirect(`${redirectBase}/verify-result?status=error&message=expired`);
     }
 
@@ -589,10 +558,9 @@ router.get("/verify-email", async (req, res) => {
         [user.id]
       );
 
-    if (_isDev) console.log("User verified successfully:", user.id);
     return res.redirect(`${redirectBase}/verify-result?status=success`);
   } catch (error) {
-    console.error("Verification error:", error);
+    logError("Verification error:", error);
     return res.redirect(`${redirectBase}/verify-result?status=error&message=server`);
   }
 });
@@ -603,7 +571,6 @@ router.post(["/verify-email", "/verify-email/:token"], async (req, res) => {
   try {
     token = decodeURIComponent(token);
   } catch (_) {}
-  if (_isDev) console.log("Email Verification POST - token length:", token.length);
 
   if (!token) {
     return res.status(400).json({ message: "Verification link is invalid or has expired." });
@@ -620,7 +587,6 @@ router.post(["/verify-email", "/verify-email/:token"], async (req, res) => {
       );
 
     if (users.length === 0) {
-      if (_isDev) console.log("No user found with this token");
       return res.status(400).json({ message: "Verification link is invalid or has expired." });
     }
 
@@ -641,7 +607,7 @@ router.post(["/verify-email", "/verify-email/:token"], async (req, res) => {
     // Send success response
     res.status(200).json({ message: "Email verification successful. You can now login to your account." });
   } catch (error) {
-    console.error("Verification error:", error);
+    logError("Verification error:", error);
     res.status(500).json({ message: "An error occurred during verification." });
   }
 });
@@ -659,7 +625,6 @@ router.get(
   "/google/callback",
   passport.authenticate("google", { failureRedirect: "/login" }),
   (req, res) => {
-    if (_isDev) console.log("Google callback - user id:", req.user?.id, "isTemp:", req.user?.isTemp);
     
     const feUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
 
@@ -676,7 +641,6 @@ router.get(
         req.session.destroy(() => {});
         return res.redirect(`${feUrl}/login?error=health_rejected`);
       }
-      if (_isDev) console.log("Redirecting existing user to dashboard, role:", req.user.role);
       
       req.session.user = {
         id: req.user.id,
@@ -692,7 +656,6 @@ router.get(
         return res.redirect(`${feUrl}/member/dashboard`);
       }
     } else {
-      if (_isDev) console.log("Redirecting new user to social registration");
       req.session.socialData = req.user.socialData;
       return res.redirect(`${feUrl}/register/social`);
     }
@@ -720,8 +683,8 @@ router.post("/upload-id-card", isAuthenticated, upload.single("idCard"), async (
 
     res.json({ message: "ID Card uploaded successfully", filePath });
   } catch (error) {
-    console.error("ID Card upload error:", error);
-    if (req.file?.path) fs.unlink(req.file.path, (err) => { if (err) console.error("Error deleting file:", err); });
+    logError("ID Card upload error:", error);
+    if (req.file?.path) fs.unlink(req.file.path, (err) => { if (err) logError("Error deleting file:", err); });
     res.status(500).json({ error: "Error uploading ID Card" });
   }
 });
@@ -746,8 +709,8 @@ router.post("/upload-profile-photo", isAuthenticated, upload.single("profilePhot
 
     res.json({ message: "Profile photo uploaded successfully", filePath });
   } catch (error) {
-    console.error("Profile photo upload error:", error);
-    if (req.file?.path) fs.unlink(req.file.path, (err) => { if (err) console.error("Error deleting file:", err); });
+    logError("Profile photo upload error:", error);
+    if (req.file?.path) fs.unlink(req.file.path, (err) => { if (err) logError("Error deleting file:", err); });
     res.status(500).json({ error: "Error uploading profile photo" });
   }
 });
@@ -755,17 +718,11 @@ router.post("/upload-profile-photo", isAuthenticated, upload.single("profilePhot
 // Check authentication status - update this route
 router.get("/check-auth", (req, res) => {
   try {
-    if (_isDev) {
-      console.log("Check Auth - Is Authenticated:", req.isAuthenticated());
-      console.log("Check Auth - User ID:", req.session?.user?.id || req.user?.id || "none");
-    }
-    
     let user = null;
     let isAuthenticated = false;
     
     // First check session.user (our custom session)
     if (req.session && req.session.user) {
-      if (_isDev) console.log("Using session.user with role:", req.session.user.role);
       isAuthenticated = true;
       user = {
         id: req.session.user.id,
@@ -777,7 +734,6 @@ router.get("/check-auth", (req, res) => {
     } 
     // Then check passport user
     else if (req.isAuthenticated() && req.user) {
-      if (_isDev) console.log("Using passport user with role:", req.user.role);
       isAuthenticated = true;
       user = {
         id: req.user.id,
@@ -800,20 +756,18 @@ router.get("/check-auth", (req, res) => {
         user.role = 'user'; // Default to user if invalid role
       }
       
-      if (_isDev) console.log("Returning authenticated user with role:", user.role);
       return res.json({
         isAuthenticated: true,
         user: user
       });
     } else {
-      if (_isDev) console.log("No authenticated user found");
       res.json({
         isAuthenticated: false,
         user: null
       });
     }
   } catch (error) {
-    console.error("Auth check error:", error);
+    logError("Auth check error:", error);
     res.status(500).json({ error: "Error checking authentication status", isAuthenticated: false });
   }
 });
@@ -834,7 +788,7 @@ router.get("/check-verification", async (req, res) => {
       email: currentUser.email,
     });
   } catch (error) {
-    console.error("Verification check error:", error);
+    logError("Verification check error:", error);
     res.status(500).json({ error: "Error checking verification status" });
   }
 });
@@ -863,7 +817,7 @@ router.post("/resend-verification", async (req, res) => {
 
     res.json({ message: "Verification email resent successfully" });
   } catch (error) {
-    console.error("Resend verification error:", error);
+    logError("Resend verification error:", error);
     res.status(500).json({ error: "Error resending verification email" });
   }
 });
@@ -872,13 +826,13 @@ router.post("/resend-verification", async (req, res) => {
 router.post("/clear-session", (req, res) => {
   req.logout(function (err) {
     if (err) {
-      console.error("Logout error:", err);
+      logError("Logout error:", err);
       return res.status(500).json({ error: "Error during logout" });
     }
     // Clear session
     req.session.destroy((sessionErr) => {
       if (sessionErr) {
-        console.error("Session destruction error:", sessionErr);
+        logError("Session destruction error:", sessionErr);
       }
       res.json({ message: "Session cleared successfully" });
     });
@@ -892,11 +846,11 @@ router.post("/clear-all-session", (req, res) => {
   }
   req.logout(function(err) {
     if (err) {
-      console.error("Logout error:", err);
+      logError("Logout error:", err);
     }
     req.session.destroy((err) => {
       if (err) {
-        console.error("Session destroy error:", err);
+        logError("Session destroy error:", err);
         return res.status(500).json({ error: "Failed to clear session" });
       }
       res.clearCookie('connect.sid');
@@ -959,7 +913,7 @@ router.post('/reset-password-request', resetRequestLimiter, async (req, res) => 
     
     res.status(200).json({ message: 'If an account with that email exists, a password reset link has been sent.' });
   } catch (error) {
-    console.error('Error sending reset email:', error);
+    logError("Error sending reset email:", error);
     res.status(500).json({ error: 'Failed to send reset email. Please try again later.' });
   }
 });
@@ -974,7 +928,7 @@ router.get('/reset-password/:token', resetSubmitLimiter, async (req, res) => {
     }
     res.status(200).json({ message: 'Token is valid' });
   } catch (error) {
-    console.error('Error verifying token:', error);
+    logError("Error verifying token:", error);
     res.status(500).json({ error: 'Server error. Please try again.' });
   }
 });
@@ -992,7 +946,7 @@ router.post('/validate-reset-token', resetSubmitLimiter, async (req, res) => {
     }
     res.status(200).json({ message: 'Token is valid' });
   } catch (error) {
-    console.error('Error validating reset token:', error);
+    logError("Error validating reset token:", error);
     res.status(500).json({ error: 'Server error. Please try again.' });
   }
 });
@@ -1050,18 +1004,18 @@ router.post('/reset-password', resetSubmitLimiter, async (req, res) => {
     
     res.status(200).json({ message: 'Password has been reset successfully' });
   } catch (error) {
-    console.error('Error resetting password:', error);
+    logError("Error resetting password:", error);
     res.status(500).json({ error: 'Server error. Please try again.' });
   }
 });
 
 router.use((err, req, res, next) => {
-  console.error("Route error:", err);
+  logError("Route error:", err);
 
   if (req.files && !useR2) {
     Object.values(req.files).forEach((fileArray) => {
       fileArray.forEach((file) => {
-        if (file.path) fs.unlink(file.path, (err) => { if (err) console.error("Error deleting file:", err); });
+        if (file.path) fs.unlink(file.path, (err) => { if (err) logError("Error deleting file:", err); });
       });
     });
   }
@@ -1103,7 +1057,7 @@ router.post('/verify-social-email', async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Social email verification error:", error);
+    logError("Social email verification error:", error);
     res.status(500).json({ error: "Error verifying email" });
   }
 });

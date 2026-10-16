@@ -1,3 +1,4 @@
+const { logError } = require("../utils/logger");
 const express = require("express");
 const router = express.Router();
 const db = require("../config/database");
@@ -20,7 +21,7 @@ router.get("/pools", isAdmin, async (req, res) => {
     const [pools] = await db.promise().query("SELECT * FROM \"Pools\"");
     res.json(pools);
   } catch (error) {
-    console.error("Error fetching pools:", error);
+    logError("Error fetching pools:", error);
     res.status(500).json({ error: "Error fetching pools" });
   }
 });
@@ -50,7 +51,7 @@ router.post("/pools", isAdmin, async (req, res) => {
     
     res.json({ success: true, poolId: rows[0]?.id });
   } catch (error) {
-    console.error("Error adding pool:", error);
+    logError("Error adding pool:", error);
     res.status(500).json({ error: "Error adding pool" });
   }
 });
@@ -63,7 +64,7 @@ router.delete("/pools/:poolId", isAdmin, async (req, res) => {
     await db.promise().query("DELETE FROM \"Pools\" WHERE id = ?", [poolId]);
     res.json({ success: true });
   } catch (error) {
-    console.error("Error deleting pool:", error);
+    logError("Error deleting pool:", error);
     res.status(500).json({ error: "Error deleting pool" });
   }
 });
@@ -93,7 +94,7 @@ router.put("/pools/:poolId", isAdmin, async (req, res) => {
     );
     res.json({ success: true });
   } catch (error) {
-    console.error("Error updating pool:", error);
+    logError("Error updating pool:", error);
     res.status(500).json({ error: "Error updating pool" });
   }
 });
@@ -140,7 +141,7 @@ router.get("/verifications", isAdmin, async (req, res) => {
     
     res.json(result);
   } catch (error) {
-    console.error("Error fetching verifications:", error);
+    logError("Error fetching verifications:", error);
     res.status(500).json({ error: "Error fetching verifications" });
   }
 });
@@ -151,7 +152,6 @@ router.put("/verifications/:userId", isAdmin, async (req, res) => {
   const { status, reason } = req.body;
   
   try {
-    console.log(`Updating verification for user ${userId} to ${status}`); // Debug log
     
     if (!reason || reason.trim() === '') {
       return res.status(400).json({ error: "Verification reason is required" });
@@ -184,12 +184,11 @@ router.put("/verifications/:userId", isAdmin, async (req, res) => {
       [status, reason, rejectionCount, userId]
     );
     
-    // Log the update result
+    // Read the updated verification status
     const [updatedUser] = await db.promise().query(
       "SELECT verification_status, rejection_count FROM users WHERE id = ?",
       [userId]
     );
-    console.log('Updated user status:', updatedUser[0]); // Debug log
     
     // If rejected, send email to the user
     if (status === 'rejected') {
@@ -205,7 +204,7 @@ router.put("/verifications/:userId", isAdmin, async (req, res) => {
       message: `User verification status updated to ${status}` 
     });
   } catch (error) {
-    console.error("Error updating verification:", error);
+    logError("Error updating verification:", error);
     res.status(500).json({ error: "Error updating verification" });
   }
 });
@@ -239,9 +238,9 @@ const sendRejectionEmail = async (email, firstName, lastName, reason) => {
         </div>
       `
     });
-    console.log(`Rejection email sent to ${email}`);
+    console.info("Rejection email sent");
   } catch (error) {
-    console.error("Error sending rejection email:", error);
+    logError("Error sending rejection email:", error);
     // Don't throw the error here to prevent the API from failing
     // Just log it and continue
   }
@@ -278,9 +277,9 @@ const sendThirdRejectionEmail = async (email, firstName, lastName, reason) => {
         </div>
       `
     });
-    console.log(`Final rejection email sent to ${email}`);
+    console.info("Final rejection email sent");
   } catch (error) {
-    console.error("Error sending third rejection email:", error);
+    logError("Error sending third rejection email:", error);
     // Don't throw the error here to prevent the API from failing
     // Just log it and continue
   }
@@ -395,7 +394,7 @@ router.post("/sessions", isAdmin, async (req, res) => {
     
     res.json({ success: true, sessionId: rows[0]?.id });
   } catch (error) {
-    console.error("Error creating session:", error);
+    logError("Error creating session:", error);
     res.status(500).json({ error: "Error creating session" });
   }
 });
@@ -414,7 +413,7 @@ router.get("/sessions", isAdmin, async (req, res) => {
     
     res.json(formattedSessions);
   } catch (error) {
-    console.error("Error fetching sessions:", error);
+    logError("Error fetching sessions:", error);
     res.status(500).json({ error: "Error fetching sessions" });
   }
 });
@@ -427,7 +426,7 @@ router.delete("/sessions/:sessionId", isAdmin, async (req, res) => {
     await db.promise().query("DELETE FROM sessions WHERE id = ?", [sessionId]);
     res.json({ success: true });
   } catch (error) {
-    console.error("Error deleting session:", error);
+    logError("Error deleting session:", error);
     res.status(500).json({ error: "Error deleting session" });
   }
 });
@@ -533,7 +532,7 @@ router.put("/sessions/:sessionId", isAdmin, async (req, res) => {
     );
     res.json({ success: true });
   } catch (error) {
-    console.error("Error updating session:", error);
+    logError("Error updating session:", error);
     res.status(500).json({ error: "Error updating session" });
   }
 });
@@ -550,7 +549,7 @@ router.get("/feedback", isAdmin, async (req, res) => {
     
     res.json(rows);
   } catch (error) {
-    console.error("Error fetching feedback:", error);
+    logError("Error fetching feedback:", error);
     res.status(500).json({ error: "Error fetching feedback" });
   }
 });
@@ -572,7 +571,7 @@ router.put("/feedback/:id", isAdmin, async (req, res) => {
     
     res.json({ success: true });
   } catch (error) {
-    console.error("Error updating feedback:", error);
+    logError("Error updating feedback:", error);
     res.status(500).json({ error: "Error updating feedback" });
   }
 });

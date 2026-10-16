@@ -1,3 +1,4 @@
+const { logError } = require("../utils/logger");
 const express = require("express");
 const router = express.Router();
 const crypto = require("crypto");
@@ -145,7 +146,7 @@ router.get("/pools", isAuthenticated, async (req, res) => {
     }));
     res.json(list);
   } catch (err) {
-    console.error("Error fetching member pools:", err);
+    logError("Error fetching member pools:", err);
     res.status(500).json({ error: "Failed to load pools" });
   }
 });
@@ -162,7 +163,7 @@ router.get("/user/me", isAuthenticated, async (req, res) => {
     if (userRows.length === 0) return res.status(404).json({ error: "User not found" });
     res.json(userRows[0]);
   } catch (error) {
-    console.error("Error fetching user:", error);
+    logError("Error fetching user:", error);
     res.status(500).json({ error: "Error fetching user information" });
   }
 });
@@ -183,7 +184,7 @@ router.post("/upload-health-report", isAuthenticated, uploadHealthReport.single(
     await db.promise().query("UPDATE users SET health_status = 'pending' WHERE id = ?", [userId]);
     res.json({ success: true, message: "Health report uploaded successfully" });
   } catch (error) {
-    console.error("Error uploading health report:", error);
+    logError("Error uploading health report:", error);
     res.status(500).json({ error: "Error uploading health report" });
   }
 });
@@ -197,7 +198,7 @@ router.get("/package", isAuthenticated, async (req, res) => {
     );
     res.json(packageInfo[0] || null);
   } catch (error) {
-    console.error("Error fetching package:", error);
+    logError("Error fetching package:", error);
     res.status(500).json({ error: "Error fetching package information" });
   }
 });
@@ -238,7 +239,7 @@ router.post("/packages", isAuthenticated, async (req, res) => {
     if (error.statusCode) {
       return res.status(error.statusCode).json({ error: error.message });
     }
-    console.error("Error purchasing package:", error);
+    logError("Error purchasing package:", error);
     res.status(500).json({ error: "Error purchasing package" });
   }
 });
@@ -276,7 +277,7 @@ router.get("/reservations", isAuthenticated, async (req, res) => {
 
     res.json(reservations);
   } catch (error) {
-    console.error("Error fetching reservations:", error);
+    logError("Error fetching reservations:", error);
     res.status(500).json({ error: "Error fetching reservations" });
   }
 });
@@ -287,7 +288,6 @@ router.get("/pools/:poolId/sessions", isAuthenticated, async (req, res) => {
   const userId = getCurrentUserId(req);
   
   try {
-    console.log(`Getting sessions for pool ${poolId} for user ${getCurrentUserId(req)}`);
     
     // First, check if user has an active package
     const [userPackages] = await db.promise().query(
@@ -296,7 +296,6 @@ router.get("/pools/:poolId/sessions", isAuthenticated, async (req, res) => {
     );
 
     if (!userPackages.length) {
-      console.log('No active package found');
       return res.json([]);
     }
 
@@ -309,7 +308,6 @@ router.get("/pools/:poolId/sessions", isAuthenticated, async (req, res) => {
     );
     
     const poolName = poolInfo.length ? poolInfo[0].name : 'Unknown Pool';
-    console.log(`Processing sessions for pool: ${poolName} (ID: ${poolId})`);
     
     // Get sessions matching the user's package type with proper filtering of past sessions
     const [sessions] = await db.promise().query(
@@ -325,12 +323,10 @@ router.get("/pools/:poolId/sessions", isAuthenticated, async (req, res) => {
       [userId, poolId, userPackageType]
     );
     
-    console.log(`Found ${sessions.length} sessions for pool ${poolId} (${poolName}) of type ${userPackageType}`);
     
     // Fix the time calculation for each session
     const sessionsWithLocalTime = sessions.map(session => {
       // Debug the actual session date
-      console.log(`Session ${session.id} - Raw session date:`, session.session_date);
       
       // If session.session_date is already a Date object, extract date parts directly
       let year, month, day;
@@ -340,7 +336,6 @@ router.get("/pools/:poolId/sessions", isAuthenticated, async (req, res) => {
         year = session.session_date.getFullYear();
         month = session.session_date.getMonth() + 1; // JS months are 0-indexed
         day = session.session_date.getDate();
-        console.log(`Session ${session.id} - Using date directly: ${year}-${month}-${day}`);
       } else {
         // Try to parse the date string or object
         try {
@@ -349,15 +344,12 @@ router.get("/pools/:poolId/sessions", isAuthenticated, async (req, res) => {
           year = rawDate.getFullYear();
           month = rawDate.getMonth() + 1;
           day = rawDate.getDate();
-          console.log(`Session ${session.id} - Parsed from value: ${year}-${month}-${day}`);
         } catch (err) {
-          console.log(`Error parsing date for session ${session.id}:`, err);
           return null;
         }
       }
       
       // Debug the extracted date components
-      console.log(`Session ${session.id} - Final date components: Y=${year}, M=${month}, D=${day}`);
       
       // Parse time (stored in Turkish local time)
       const [hours, minutes] = session.start_time.split(':').map(Number);
@@ -370,8 +362,6 @@ router.get("/pools/:poolId/sessions", isAuthenticated, async (req, res) => {
       const now = new Date();
       const hoursUntilSession = (sessionDateTime - now) / (1000 * 60 * 60);
       
-      console.log(`Session ${session.id} - Final constructed date: ${sessionDateTime.toISOString()}`);
-      console.log(`Session ${session.id} - Hours until: ${hoursUntilSession.toFixed(2)}`);
       
       return {
         ...session,
@@ -384,12 +374,11 @@ router.get("/pools/:poolId/sessions", isAuthenticated, async (req, res) => {
     // Final safety filter - remove any sessions that might have slipped through
     const filteredSessions = sessionsWithLocalTime.filter(session => session.hours_until > 0);
     if (filteredSessions.length !== sessionsWithLocalTime.length) {
-      console.log(`Removed ${sessionsWithLocalTime.length - filteredSessions.length} past sessions in final filter`);
     }
     
     res.json(filteredSessions);
   } catch (error) {
-    console.error("Error fetching sessions:", error);
+    logError("Error fetching sessions:", error);
     res.status(500).json({ error: "Failed to fetch sessions" });
   }
 });
@@ -413,7 +402,7 @@ router.get("/sessions", isAuthenticated, async (req, res) => {
 
     res.json(formattedSessions);
   } catch (error) {
-    console.error("Error fetching sessions:", error);
+    logError("Error fetching sessions:", error);
     res.status(500).json({ error: "Error fetching sessions" });
   }
 });
@@ -460,9 +449,6 @@ router.post("/reservations", isAuthenticated, async (req, res) => {
     }
 
     const session = sessionInfo[0];
-    console.log(`Pool: ${session.pool_id} - Session ID: ${sessionId}`);
-    console.log(`Session Date from DB: ${session.session_date}`);
-    console.log(`Session Time from DB: ${session.start_time}`);
 
     // Parse date correctly using local methods to avoid timezone issues
     // Get date components directly
@@ -477,17 +463,12 @@ router.post("/reservations", isAuthenticated, async (req, res) => {
     // Create a date object with the correct time
     const sessionDateTime = new Date(year, month, day, hours, minutes, 0);
     
-    console.log(`Session Time in Turkey (display): ${hours}:${minutes}`);
-    console.log(`Session Date Components: Y=${year}, M=${month+1}, D=${day}`);
-    console.log(`Final Session DateTime: ${sessionDateTime.toISOString()}`);
     
     // Compare with current time
     const now = new Date();
-    console.log(`Current Time: ${now.toISOString()}`);
     
     // Calculate hours until session
     const hoursUntilSession = (sessionDateTime - now) / (1000 * 60 * 60);
-    console.log(`Hours until session: ${hoursUntilSession}`);
 
     // Check if session is in the past
     if (hoursUntilSession <= 0) {
@@ -591,7 +572,7 @@ router.post("/reservations", isAuthenticated, async (req, res) => {
       if (error.healthStatus) body.healthStatus = error.healthStatus;
       return res.status(error.statusCode).json(body);
     }
-    console.error("Error booking session:", error);
+    logError("Error booking session:", error);
     res.status(500).json({ error: "Error booking session" });
   }
 });
@@ -626,7 +607,6 @@ router.delete("/reservations/:id", isAuthenticated, async (req, res) => {
     const now = new Date();
     const hoursUntilSession = (sessionDate - now) / (1000 * 60 * 60);
     
-    console.log('Hours until session:', hoursUntilSession);
     
     // If less than 3 hours until session, don't allow cancellation
     if (hoursUntilSession < 3) {
@@ -660,7 +640,7 @@ router.delete("/reservations/:id", isAuthenticated, async (req, res) => {
     });
     res.json({ success: true });
   } catch (error) {
-    console.error("Error canceling reservation:", error);
+    logError("Error canceling reservation:", error);
     res.status(500).json({ error: "Error canceling reservation" });
   }
 });
@@ -691,7 +671,7 @@ router.post("/feedback", isAuthenticated, async (req, res) => {
       message: "Feedback submitted successfully" 
     });
   } catch (error) {
-    console.error("Error submitting feedback:", error);
+    logError("Error submitting feedback:", error);
     res.status(500).json({ error: "Error submitting feedback" });
   }
 });
@@ -709,7 +689,7 @@ router.get("/feedback", isAuthenticated, async (req, res) => {
     
     res.json(feedback);
   } catch (error) {
-    console.error("Error fetching feedback history:", error);
+    logError("Error fetching feedback history:", error);
     res.status(500).json({ error: "Error fetching feedback history" });
   }
 });
@@ -766,7 +746,7 @@ router.get("/history", isAuthenticated, async (req, res) => {
       reservations: enhancedReservations
     });
   } catch (error) {
-    console.error("Error fetching transaction history:", error);
+    logError("Error fetching transaction history:", error);
     res.status(500).json({ error: "Error fetching transaction history" });
   }
 });
@@ -793,10 +773,9 @@ router.get("/pools/:poolId/sessions/count", isAuthenticated, async (req, res) =>
     );
 
     const count = rows && rows[0] ? Number(rows[0].count) : 0;
-    console.log(`Session count for pool ${poolId}, type ${type || 'all'}: ${count}`);
     res.json({ count });
   } catch (error) {
-    console.error("Error fetching session counts:", error);
+    logError("Error fetching session counts:", error);
     res.status(500).json({ error: "Error fetching session counts" });
   }
 });
@@ -827,7 +806,7 @@ router.get("/package-prices", async (req, res) => {
       }
     });
   } catch (error) {
-    console.error("Error fetching package prices:", error);
+    logError("Error fetching package prices:", error);
     res.status(500).json({ error: "Error fetching package prices" });
   }
 });
@@ -923,7 +902,7 @@ router.post("/resubmit-verification", isAuthenticated, upload.fields([
       message: "Personal information and verification documents updated and resubmitted successfully."
     });
   } catch (error) {
-    console.error("Error resubmitting verification:", error);
+    logError("Error resubmitting verification:", error);
     res.status(500).json({ error: "Failed to resubmit verification" });
   }
 });
@@ -945,7 +924,7 @@ router.get("/verification-status", isAuthenticated, async (req, res) => {
       reason: result[0].verification_reason
     });
   } catch (error) {
-    console.error("Error fetching verification status:", error);
+    logError("Error fetching verification status:", error);
     res.status(500).json({ error: "Failed to fetch verification status" });
   }
 });
@@ -965,10 +944,6 @@ router.get("/profile", isAuthenticated, async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
     
-    console.log("User profile fetched successfully");
-    console.log("Profile photo path:", rows[0].profile_photo_path);
-    console.log("ID card path:", rows[0].id_card_path);
-    console.log("User role:", rows[0].role);
 
     const workerUrl = process.env.R2_WORKER_URL;
     const profile = {
@@ -979,7 +954,7 @@ router.get("/profile", isAuthenticated, async (req, res) => {
 
     res.json(profile);
   } catch (error) {
-    console.error("Error fetching user profile:", error);
+    logError("Error fetching user profile:", error);
     res.status(500).json({ error: "Error fetching user profile" });
   }
 });
@@ -1095,7 +1070,7 @@ router.post("/check-in", isAuthenticated, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error("Error during member check-in:", error);
+    logError("Error during member check-in:", error);
     res.status(500).json({ error: "Error processing check-in" });
   }
 });
@@ -1110,10 +1085,9 @@ router.post("/update-profile", isAuthenticated, async (req, res) => {
     const genderValue = (gender === 'Prefer not to say' || !['Male', 'Female', 'Other'].includes(gender)) ? 'Other' : gender;
 
     if (!userId) {
-      console.error("Update profile: No user ID - session.user:", !!req.session?.user, "req.user:", !!req.user);
+      logError("Update profile: No authenticated user");
       return res.status(401).json({ error: "Session expired or invalid. Please log in again." });
     }
-    console.log("Update profile: userId=", userId, "role=", req.session?.user?.role ?? req.user?.role);
 
     // Validate required fields (gender can be "Prefer not to say" - we map it to Other)
     if (!name || !surname || !email || !phone || !date_of_birth || !gender) {
@@ -1165,7 +1139,7 @@ router.post("/update-profile", isAuthenticated, async (req, res) => {
     const pgSql = `UPDATE users SET name = $1, surname = $2, email = $3, phone = $4, date_of_birth = $5, gender = $6 WHERE id = $7`;
     const updateResult = await db.pool.query(pgSql, [name, surname, email, phone, date_of_birth, genderValue, userId]);
     if (updateResult.rowCount === 0) {
-      console.error("Update profile: No rows affected for userId=", userId);
+      logError("Update profile: No rows affected");
       return res.status(404).json({ error: "User not found. Please log in again." });
     }
 
@@ -1176,7 +1150,7 @@ router.post("/update-profile", isAuthenticated, async (req, res) => {
 
     res.json({ message: "Profile updated successfully" });
   } catch (error) {
-    console.error("Error updating profile:", error);
+    logError("Error updating profile:", error);
     // Show meaningful error message to user
     if (error.code === "ER_DUP_ENTRY") {
       if (error.message && error.message.includes("email")) {
@@ -1218,7 +1192,6 @@ router.post("/update-health-info", isAuthenticated, async (req, res) => {
     if (!userId) {
       return res.status(401).json({ error: "Session expired or invalid. Please log in again." });
     }
-    console.log("Update health-info: userId=", userId, "existing check...");
 
     // Always fetch existing health info - we update health questions even when emergency contact is empty
     const [existingHealthInfo] = await db.promise().query(
@@ -1227,7 +1200,6 @@ router.post("/update-health-info", isAuthenticated, async (req, res) => {
     );
 
     if (existingHealthInfo.length > 0) {
-      console.log("Update health-info: Updating existing record for userId=", userId);
       const existing = existingHealthInfo[0];
       // Update existing: use provided values or keep existing for required fields
       const ecName = (emergency_contact_name && emergency_contact_name.trim()) ? emergency_contact_name.trim() : existing.emergency_contact_name;
@@ -1266,7 +1238,6 @@ router.post("/update-health-info", isAuthenticated, async (req, res) => {
         userId
       ]);
     } else {
-      console.log("Update health-info: Creating new record for userId=", userId);
       // No health_info exists - INSERT new record (use placeholders for required NOT NULL fields if empty)
       const ecName = (emergency_contact_name && String(emergency_contact_name).trim()) ? String(emergency_contact_name).trim() : 'Not provided';
       const ecPhone = (emergency_contact_phone && String(emergency_contact_phone).trim()) ? String(emergency_contact_phone).trim() : '05000000000';
@@ -1292,7 +1263,7 @@ router.post("/update-health-info", isAuthenticated, async (req, res) => {
 
     res.json({ message: "Health information updated successfully" });
   } catch (error) {
-    console.error("Error updating health info:", error);
+    logError("Error updating health info:", error);
     res.status(500).json({ error: "Error updating health information" });
   }
 });
@@ -1311,7 +1282,7 @@ router.get("/health-info", isAuthenticated, async (req, res) => {
     
     res.json(healthInfo[0]);
   } catch (error) {
-    console.error("Error fetching health info:", error);
+    logError("Error fetching health info:", error);
     res.status(500).json({ error: "Error fetching health information" });
   }
 });
@@ -1331,8 +1302,8 @@ router.post("/upload-id-card", isAuthenticated, upload.single("idCard"), async (
     await db.promise().query("UPDATE users SET id_card_path = ? WHERE id = ?", [filePath, userId]);
     res.json({ message: "ID card uploaded successfully", filePath });
   } catch (error) {
-    console.error("Error uploading ID card:", error);
-    if (req.file?.path) fs.unlink(req.file.path, (err) => { if (err) console.error("Error deleting file:", err); });
+    logError("Error uploading ID card:", error);
+    if (req.file?.path) fs.unlink(req.file.path, (err) => { if (err) logError("Error deleting file:", err); });
     res.status(500).json({ error: "Error uploading ID card" });
   }
 });
@@ -1353,8 +1324,8 @@ router.post("/upload-profile-photo", isAuthenticated, upload.single("profilePhot
     if (req.session.user) req.session.user.profile_photo_path = filePath;
     res.json({ message: "Profile photo uploaded successfully", filePath });
   } catch (error) {
-    console.error("Error uploading profile photo:", error);
-    if (req.file?.path) fs.unlink(req.file.path, (err) => { if (err) console.error("Error deleting file:", err); });
+    logError("Error uploading profile photo:", error);
+    if (req.file?.path) fs.unlink(req.file.path, (err) => { if (err) logError("Error deleting file:", err); });
     res.status(500).json({ error: "Error uploading profile photo" });
   }
 });

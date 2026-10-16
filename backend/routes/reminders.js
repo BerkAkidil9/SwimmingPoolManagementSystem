@@ -1,3 +1,4 @@
+const { logError } = require("../utils/logger");
 const express = require("express");
 const router = express.Router();
 const db = require("../config/database");
@@ -42,9 +43,9 @@ const sendHealthReportReminderEmail = async (email, firstName, lastName, reason,
         </div>
       `
     });
-    console.log(`Health report reminder email sent to ${email}`);
+    console.info("Health report reminder email sent");
   } catch (error) {
-    console.error('Error sending health report reminder email:', error);
+    logError("Error sending health report reminder email:", error);
     throw error;
   }
 };
@@ -115,7 +116,7 @@ router.post("/send-health-report-reminders", isDoctorOrAdmin, async (req, res) =
           status: "sent"
         });
       } catch (error) {
-        console.error(`Failed to send reminder to ${user.email}:`, error);
+        logError("Failed to send health report reminder", error);
         remindersSent.push({
           userId: user.id,
           email: user.email,
@@ -131,7 +132,7 @@ router.post("/send-health-report-reminders", isDoctorOrAdmin, async (req, res) =
       remindersSent
     });
   } catch (error) {
-    console.error("Error sending health report reminders:", error);
+    logError("Error sending health report reminders:", error);
     res.status(500).json({ error: "Error sending health report reminders" });
   }
 });
@@ -194,7 +195,7 @@ router.post("/send-specific-reminders", isDoctorOrAdmin, async (req, res) => {
           status: "sent"
         });
       } catch (error) {
-        console.error(`Failed to send reminder to ${user.email}:`, error);
+        logError("Failed to send health report reminder", error);
         remindersSent.push({
           userId: user.id,
           email: user.email,
@@ -210,7 +211,7 @@ router.post("/send-specific-reminders", isDoctorOrAdmin, async (req, res) => {
       remindersSent
     });
   } catch (error) {
-    console.error("Error sending specific health report reminders:", error);
+    logError("Error sending specific health report reminders:", error);
     res.status(500).json({ 
       error: "Error sending health report reminders",
       remindersSent: []
@@ -255,10 +256,9 @@ const sendInvalidDocumentNotificationEmail = async (email, firstName, lastName, 
         </div>
       `
     });
-    console.log('Invalid document notification email sent');
     return result;
   } catch (error) {
-    console.error('Error sending invalid document notification email:', error);
+    logError("Error sending invalid document notification email:", error);
     throw error;
   }
 };
@@ -327,7 +327,7 @@ router.post("/send-invalid-document-notification", isDoctorOrAdmin, async (req, 
       success: true
     });
   } catch (error) {
-    console.error("Error sending invalid document notification:", error);
+    logError("Error sending invalid document notification:", error);
     res.status(500).json({ 
       error: "Error sending notification", 
       success: false 

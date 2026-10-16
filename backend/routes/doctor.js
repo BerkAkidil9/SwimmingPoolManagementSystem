@@ -1,3 +1,4 @@
+const { logError } = require("../utils/logger");
 const express = require("express");
 const router = express.Router();
 const db = require("../config/database");
@@ -90,7 +91,7 @@ router.get("/health-reviews", isDoctor, async (req, res) => {
     
     res.json(users);
   } catch (error) {
-    console.error("Error fetching health reviews:", error);
+    logError("Error fetching health reviews:", error);
     res.status(500).json({ error: "Error fetching health reviews" });
   }
 });
@@ -177,7 +178,7 @@ router.put("/health-status/:userId", isDoctor, async (req, res) => {
       message: `User health status updated to ${status}` 
     });
   } catch (error) {
-    console.error("Error updating health status:", error);
+    logError("Error updating health status:", error);
     res.status(500).json({ error: "Error updating health status" });
   }
 });
@@ -200,7 +201,7 @@ router.post("/upload-health-report-doctor/:userId", isDoctor, upload.single('rep
     await db.promise().query("UPDATE users SET health_status = 'pending' WHERE id = ?", [userId]);
     res.json({ success: true, message: "Health report uploaded successfully" });
   } catch (error) {
-    console.error("Error uploading health report:", error);
+    logError("Error uploading health report:", error);
     res.status(500).json({ error: "Error uploading health report" });
   }
 });
@@ -253,7 +254,7 @@ router.get("/health-reports/:reportId/download", isDoctor, async (req, res) => {
       res.sendFile(fullPath);
     }
   } catch (error) {
-    console.error("Health report download error:", error);
+    logError("Health report download error:", error);
     res.status(500).json({ error: "Download failed" });
   }
 });
@@ -280,7 +281,7 @@ router.get("/health-reports/:userId", isDoctor, async (req, res) => {
     
     res.json(transformed);
   } catch (error) {
-    console.error("Error fetching health reports:", error);
+    logError("Error fetching health reports:", error);
     res.status(500).json({ error: "Error fetching health reports" });
   }
 });
@@ -348,7 +349,7 @@ router.put("/health-reports/:reportId", isDoctor, async (req, res) => {
       message: `Health report status updated to ${status}` 
     });
   } catch (error) {
-    console.error("Error updating health report status:", error);
+    logError("Error updating health report status:", error);
     res.status(500).json({ error: "Error updating health report status" });
   }
 });
@@ -380,7 +381,7 @@ router.get("/users-with-reports", isDoctor, async (req, res) => {
     
     res.json(users);
   } catch (error) {
-    console.error("Error fetching users with reports:", error);
+    logError("Error fetching users with reports:", error);
     res.status(500).json({ error: "Error fetching users with reports" });
   }
 });
@@ -420,9 +421,9 @@ const sendHealthReportRequestEmail = async (email, firstName, lastName, reason, 
         </div>
       `
     });
-    console.log(`Health report request email sent to ${email}`);
+    console.info("Health report request email sent");
   } catch (error) {
-    console.error('Error sending health report request email:', error);
+    logError("Error sending health report request email:", error);
     throw error;
   }
 };
@@ -457,9 +458,9 @@ const sendHealthRejectionEmail = async (email, firstName, lastName, reason) => {
         </div>
       `
     });
-    console.log(`Health rejection email sent to ${email}`);
+    console.info("Health rejection email sent");
   } catch (error) {
-    console.error('Error sending health rejection email:', error);
+    logError("Error sending health rejection email:", error);
     throw error;
   }
 };
@@ -489,7 +490,7 @@ const sendHealthReportApprovedEmail = async (email, firstName, lastName) => {
       `
     });
   } catch (error) {
-    console.error("Error sending health report approved email:", error);
+    logError("Error sending health report approved email:", error);
     throw error;
   }
 };
@@ -524,7 +525,7 @@ const sendHealthReportRejectedEmail = async (email, firstName, lastName, reason)
       `
     });
   } catch (error) {
-    console.error("Error sending health report rejected email:", error);
+    logError("Error sending health report rejected email:", error);
     throw error;
   }
 };
@@ -580,7 +581,7 @@ router.get("/pending-health-report-reminders", isDoctor, async (req, res) => {
       reminderHistory
     });
   } catch (error) {
-    console.error("Error fetching pending health report reminders:", error);
+    logError("Error fetching pending health report reminders:", error);
     res.status(500).json({ error: "Server error" });
   }
 });

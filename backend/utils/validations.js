@@ -6,13 +6,10 @@ const patterns = {
 };
 
 const validateFiles = (files, errors) => {
-    console.log('=== File Validation Start ===');
-    console.log('Files received:', files);
 
     if (!files) {
         errors.idCard = 'ID card is required';
         errors.profilePhoto = 'Profile photo is required';
-        console.log('No files found');
         return;
     }
 
@@ -42,15 +39,9 @@ const validateFiles = (files, errors) => {
         }
     }
 
-    console.log('File Validation Errors:', errors);
-    console.log('=== File Validation End ===');
 };
 
 const validateRegistration = (formData, files, socialUser) => {
-    console.log('=== Registration Validation Start ===');
-    console.log('Form data:', formData);
-    console.log('Files:', files);
-    console.log('Social user:', socialUser);
 
     const errors = {};
 
@@ -72,8 +63,6 @@ const validateRegistration = (formData, files, socialUser) => {
     validateEmergencyContact(formData, errors);
     validateTerms(formData, errors);
 
-    console.log('Final validation errors:', errors);
-    console.log('=== Registration Validation End ===');
 
     return {
         isValid: Object.keys(errors).length === 0,
@@ -82,7 +71,6 @@ const validateRegistration = (formData, files, socialUser) => {
 };
 
 const validatePersonalInfo = (formData, errors, socialUser) => {
-    console.log('=== Personal Info Validation Start ===');
     
     // Name validation
     if (!formData.name) {
@@ -161,12 +149,9 @@ const validatePersonalInfo = (formData, errors, socialUser) => {
         }
     }
 
-    console.log('Personal Info Validation Errors:', errors);
-    console.log('=== Personal Info Validation End ===');
 };
 
 const validateHealthInfo = (values, errors) => {
-    console.log('=== Health Info Validation Start ===');
     
     // Height validation
     if (!values.height) {
@@ -198,12 +183,9 @@ const validateHealthInfo = (values, errors) => {
         errors.allergies = 'Allergies description is too long (max 500 characters)';
     }
 
-    console.log('Health Info Validation Errors:', errors);
-    console.log('=== Health Info Validation End ===');
 };
 
 const validateEmergencyContact = (values, errors) => {
-    console.log('=== Emergency Contact Validation Start ===');
     
     // Emergency contact name validation
     if (!values.emergency_contact_name) {
@@ -226,12 +208,9 @@ const validateEmergencyContact = (values, errors) => {
         errors.emergency_contact_relationship = 'Please specify the relationship';
     }
 
-    console.log('Emergency Contact Validation Errors:', errors);
-    console.log('=== Emergency Contact Validation End ===');
 };
 
 const validateHealthQuestions = (values, errors) => {
-    console.log('=== Health Questions Validation Start ===');
     
     // Required health questions
     const requiredQuestions = [
@@ -260,12 +239,9 @@ const validateHealthQuestions = (values, errors) => {
         errors.health_additional_info = 'Please provide details about your health conditions';
     }
 
-    console.log('Health Questions Validation Errors:', errors);
-    console.log('=== Health Questions Validation End ===');
 };
 
 const validateTerms = (values, errors) => {
-    console.log('=== Terms Validation Start ===');
     
     if (!values.terms_accepted) {
         errors.terms_accepted = 'You must accept the terms and conditions';
@@ -275,8 +251,6 @@ const validateTerms = (values, errors) => {
         errors.privacy_accepted = 'You must accept the privacy policy';
     }
 
-    console.log('Terms Validation Errors:', errors);
-    console.log('=== Terms Validation End ===');
 };
 
 module.exports = {

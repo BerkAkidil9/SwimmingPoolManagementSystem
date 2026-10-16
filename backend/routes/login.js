@@ -1,3 +1,4 @@
+const { logError } = require("../utils/logger");
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const rateLimit = require("express-rate-limit");
@@ -11,7 +12,6 @@ const loginLimiter = rateLimit({
 });
 
 router.post("/login", loginLimiter, async (req, res) => {
-  console.log("[LOGIN] POST /auth/login received");
 
   const { email, password } = req.body;
 
@@ -70,14 +70,6 @@ router.post("/login", loginLimiter, async (req, res) => {
         .json({ error: "Your health assessment has been rejected. You are unable to participate in swimming activities. Access is no longer available." });
     }
     
-    if (process.env.NODE_ENV !== 'production') {
-      console.log("LOGIN BACKEND - User found:", {
-        id: user.id,
-        role: user.role,
-        verification: user.verification_status
-      });
-    }
-    
     req.session.user = { 
       id: user.id, 
       email: user.email,
@@ -96,7 +88,7 @@ router.post("/login", loginLimiter, async (req, res) => {
       }
     });
   } catch (err) {
-    console.error("LOGIN ERROR:", err);
+    logError("LOGIN ERROR:", err);
     res.status(500).json({ error: "Invalid email or password." });
   }
 });

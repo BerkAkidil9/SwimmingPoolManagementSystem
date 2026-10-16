@@ -1,3 +1,4 @@
+const { logError } = require("../utils/logger");
 const express = require("express");
 const router = express.Router();
 const db = require("../config/database");
@@ -36,7 +37,7 @@ const getOrCreateStripeCustomer = async (userId, email) => {
     
     return customer.id;
   } catch (error) {
-    console.error("Error getting/creating Stripe customer:", error);
+    logError("Error getting/creating Stripe customer:", error);
     throw error;
   }
 };
@@ -88,7 +89,7 @@ router.post("/create-payment-intent", isAuthenticated, async (req, res) => {
       customerId: customerId
     });
   } catch (error) {
-    console.error("Error creating payment intent:", error);
+    logError("Error creating payment intent:", error);
     res.status(500).json({ error: "Failed to create payment" });
   }
 });
@@ -177,7 +178,7 @@ router.post("/payment-success", isAuthenticated, async (req, res) => {
             });
           } catch (attachError) {
             if (process.env.NODE_ENV !== 'production') {
-              console.log("Error attaching payment method - may already be attached:", attachError.message);
+              logError("Error attaching payment method", attachError);
             }
           }
           
@@ -218,10 +219,10 @@ router.post("/payment-success", isAuthenticated, async (req, res) => {
               );
             }
           } else {
-            console.error("Payment method missing card details");
+            logError("Payment method missing card details");
           }
         } catch (pmError) {
-          console.error("Error processing payment method:", pmError);
+          logError("Error processing payment method:", pmError);
         }
       }
     });
@@ -231,7 +232,7 @@ router.post("/payment-success", isAuthenticated, async (req, res) => {
     if (error.statusCode) {
       return res.status(error.statusCode).json({ error: error.message });
     }
-    console.error("Error processing payment:", error);
+    logError("Error processing payment:", error);
     res.status(500).json({ error: "Failed to process payment" });
   }
 });
@@ -246,7 +247,7 @@ router.get("/payment-methods", isAuthenticated, async (req, res) => {
     
     res.json({ payment_methods: paymentMethods });
   } catch (error) {
-    console.error("Error retrieving payment methods:", error);
+    logError("Error retrieving payment methods:", error);
     res.status(500).json({ error: "Failed to retrieve payment methods" });
   }
 });
@@ -280,7 +281,7 @@ router.put("/payment-methods/:id/default", isAuthenticated, async (req, res) => 
 
     res.json({ success: true });
   } catch (error) {
-    console.error("Error setting default payment method:", error);
+    logError("Error setting default payment method:", error);
     res.status(500).json({ error: "Failed to set default payment method" });
   }
 });
@@ -324,7 +325,7 @@ router.delete("/payment-methods/:id", isAuthenticated, async (req, res) => {
     
     res.json({ success: true });
   } catch (error) {
-    console.error("Error deleting payment method:", error);
+    logError("Error deleting payment method:", error);
     res.status(500).json({ error: "Failed to delete payment method" });
   }
 });

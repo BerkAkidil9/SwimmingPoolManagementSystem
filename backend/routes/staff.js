@@ -1,3 +1,4 @@
+const { logError } = require("../utils/logger");
 const express = require("express");
 const db = require("../config/database");
 const { isStaff, getCurrentUser, getCurrentUserId } = require("../middleware/auth");
@@ -19,7 +20,7 @@ router.get("/dashboard", async (req, res) => {
       }
     });
   } catch (err) {
-    console.error("Staff dashboard error:", err);
+    logError("Staff dashboard error:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
@@ -27,7 +28,6 @@ router.get("/dashboard", async (req, res) => {
 // Verify QR code - this endpoint handles the verification and prevents reuse
 router.post("/verify-qr-code", async (req, res) => {
   try {
-    console.log("QR Verification API - Request body:", req.body);
     const { qrData } = req.body;
     
     const MAX_QR_LENGTH = 2000;
@@ -51,7 +51,6 @@ router.post("/verify-qr-code", async (req, res) => {
     const membershipId = parsedData.membershipId;
     const date = parsedData.date;
     const time = parsedData.time;
-    console.log("QR Verification API - Extracted fields:", { reservationId, checkInCode, membershipId, date, time });
     
     const result = await db.transaction(async (trx) => {
       const [existingVerifications] = await trx.query(
@@ -140,7 +139,7 @@ router.post("/verify-qr-code", async (req, res) => {
       if (err.verifiedAt) body.details = { verifiedAt: err.verifiedAt };
       return res.status(err.statusCode).json(body);
     }
-    console.error("QR verification error:", err);
+    logError("QR verification error:", err);
     res.status(500).json({ error: "An internal error occurred during verification." });
   }
 });

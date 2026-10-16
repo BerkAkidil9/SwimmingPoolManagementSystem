@@ -8,11 +8,11 @@ stated otherwise.
 
 | Suite | Files | Tests | Location / requirements |
 |-------|------:|------:|-------------------------|
-| Backend unit | 15 | 52 | `backend/tests/unit/`; predominantly mocked dependencies |
+| Backend unit | 18 | 61 | `backend/tests/unit/`; predominantly mocked dependencies |
 | Frontend unit/component | 50 | 71 | `frontend/src/__tests__/`; jsdom |
 | PostgreSQL integration | 9 | 29 | `backend/tests/integration/`; disposable database |
 | Browser smoke | 12 | 13 | `tests/e2e/`; running frontend and Chromium |
-| **Total** | **86** | **165** | Source declarations, not a coverage percentage |
+| **Total** | **89** | **174** | Test cases, including parameterized cases; not a coverage percentage |
 
 Backend tests use Jest 30 and Supertest; frontend tests use Jest 30 and React
 Testing Library. Frontend setup and mocks live in `frontend/test/`; the Jest
@@ -21,6 +21,11 @@ visibility and navigation. Some URL assertions accept both the protected route
 and a login redirect. These tests do not establish completed registration,
 payment, reservation or QR workflows. Google, Stripe, email and R2 live-service
 behavior is outside the automated smoke coverage.
+
+Backend privacy tests submit multipart registrations with mocked database,
+email and R2 services. They check password hashing and prevent form data,
+uploaded content and provider error payloads from reaching logs on successful
+registration, validation failure, email failure and duplicate-email errors.
 
 ## Running Tests
 

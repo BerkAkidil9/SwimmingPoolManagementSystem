@@ -1,3 +1,4 @@
+const { logError } = require("./utils/logger");
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -149,7 +150,7 @@ app.use("/uploads", async (req, res, next) => {
           return res.status(403).json({ error: "Access denied" });
         }
       } catch (err) {
-        console.error("Upload authorization check error:", err);
+        logError("Upload authorization check error:", err);
         return res.status(500).json({ error: "Server error" });
       }
     }
@@ -181,16 +182,6 @@ app.use("/uploads", async (req, res, next) => {
   }
 });
 
-// Debugging middleware - only in non-production to avoid leaking session/user to logs
-if (process.env.NODE_ENV !== 'production') {
-  app.use((req, res, next) => {
-    console.log("Session ID:", req.sessionID);
-    console.log("Is Authenticated:", req.isAuthenticated?.());
-    console.log("User:", req.user);
-    next();
-  });
-}
-
 // Public pools endpoint at /pools (some ad blockers block /api/*)
 app.get("/pools", async (req, res) => {
   try {
@@ -204,7 +195,7 @@ app.get("/pools", async (req, res) => {
     `);
     res.json(pools);
   } catch (err) {
-    console.error("Error fetching pools:", err);
+    logError("Error fetching pools:", err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -224,7 +215,7 @@ app.use("/api/coach", coachRoutes);
 
 // Error handling middleware (do not expose err.message to client)
 app.use((err, req, res, next) => {
-  console.error("Error:", err);
+  logError("Error:", err);
   if (err.name === "MulterError") {
     return res.status(400).json({ error: "File upload error" });
   }
@@ -233,13 +224,13 @@ app.use((err, req, res, next) => {
 
 // Production: DATABASE_URL must be set (Neon connection string)
 if (process.env.NODE_ENV === "production" && !process.env.DATABASE_URL) {
-  console.error("FATAL: DATABASE_URL is not set. Render Dashboard -> swimcenter-api -> Environment -> Add DATABASE_URL (Neon connection string).");
+  logError("FATAL: DATABASE_URL is not set. Render Dashboard -> swimcenter-api -> Environment -> Add DATABASE_URL (Neon connection string).");
 }
 
 // Database connection and server start
 db.connect((err) => {
   if (err) {
-    console.error("Database connection error:", err);
+    logError("Database connection error:", err);
     return;
   }
   console.log("Connected to PostgreSQL database");
@@ -317,15 +308,15 @@ db.connect((err) => {
           );
           
           sentCount++;
-          console.log(`Health report reminder email sent to ${user.email}`);
+          console.info("Health report reminder email sent");
         } catch (error) {
-          console.error(`Failed to send reminder to ${user.email}:`, error);
+          logError("Failed to send health report reminder", error);
         }
       }
       
       console.log(`Health report reminders sent: ${sentCount} of ${users.length}`);
     } catch (error) {
-      console.error('Error running health report reminder task:', error);
+      logError("Error running health report reminder task:", error);
     }
   };
 
@@ -348,7 +339,7 @@ db.connect((err) => {
 process.on("SIGINT", () => {
   db.end((err) => {
     if (err) {
-      console.error("Error closing database connection:", err);
+      logError("Error closing database connection:", err);
     } else {
       console.log("Database connection closed.");
     }

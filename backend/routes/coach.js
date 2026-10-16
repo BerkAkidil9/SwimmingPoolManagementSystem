@@ -1,3 +1,4 @@
+const { logError } = require("../utils/logger");
 const express = require("express");
 const router = express.Router();
 const db = require("../config/database");
@@ -19,7 +20,7 @@ router.get("/members", isCoach, async (req, res) => {
 
     res.json(users);
   } catch (error) {
-    console.error("Error fetching members:", error);
+    logError("Error fetching members:", error);
     res.status(500).json({ error: "Error fetching members" });
   }
 });
@@ -47,7 +48,7 @@ router.put("/members/:userId/swimming-status", isCoach, async (req, res) => {
 
     res.json({ success: true, message: "Swimming ability updated successfully" });
   } catch (error) {
-    console.error("Error updating swimming status:", error);
+    logError("Error updating swimming status:", error);
     res.status(500).json({ error: "Error updating swimming ability" });
   }
 });

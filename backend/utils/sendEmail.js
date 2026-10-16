@@ -1,3 +1,4 @@
+const { logError } = require("./logger");
 /**
  * E-posta gönderimi - Render free tier SMTP engellendiği için HTTP tabanlı çözümler kullanır.
  * Öncelik: Gmail API (HTTPS) > Resend API > Nodemailer SMTP (sadece lokal)
@@ -115,7 +116,7 @@ async function sendEmail({ to, subject, html, from }) {
       const result = await sendViaGmailApi({ to, subject, html, from: fromAddr });
       if (result) return result;
     } catch (err) {
-      console.error("[sendEmail] Gmail API error:", err.message, err.response?.data || err);
+      logError("[sendEmail] Gmail API error:", err);
       throw err;
     }
   }
