@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { FaUpload, FaFileUpload, FaExclamationTriangle, FaCheck } from 'react-icons/fa';
 import axios from 'axios';
 import './HealthReportUpload.css';
 
 const HealthReportUpload = () => {
   const navigate = useNavigate();
+  const { userId } = useParams();
+  const [searchParams] = useSearchParams();
+  const requestedUserId = userId || searchParams.get('userId');
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [user, setUser] = useState(null);
@@ -14,6 +17,9 @@ const HealthReportUpload = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [preview, setPreview] = useState(null);
+  const [switchingAccount, setSwitchingAccount] = useState(false);
+  const accountMismatch = user && requestedUserId && String(user.id) !== requestedUserId;
+  const canUpload = user && !accountMismatch && user.health_status === 'needs_report';
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -56,6 +62,8 @@ const HealthReportUpload = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!canUpload || uploading) return;
+
     if (!file) {
       setError('Please select a file to upload');
       return;
@@ -78,6 +86,7 @@ const HealthReportUpload = () => {
       setUploading(true);
       const formData = new FormData();
       formData.append('report', file);
+      formData.append('expectedUserId', String(user.id));
 
       await axios.post('/api/member/upload-health-report', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -89,8 +98,32 @@ const HealthReportUpload = () => {
       setPreview(null);
     } catch (err) {
       setError('Error uploading file: ' + (err.response?.data?.error || err.message));
+      if ([403, 409].includes(err.response?.status)) {
+        try {
+          const response = await axios.get('/api/member/user/me', { withCredentials: true });
+          setUser(response.data);
+          setFile(null);
+          setPreview(null);
+        } catch {
+          // Keep the upload error if refreshing the account also fails.
+        }
+      }
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleSwitchAccount = async () => {
+    try {
+      setSwitchingAccount(true);
+      setError(null);
+      await axios.post('/auth/clear-session', {}, { withCredentials: true });
+      sessionStorage.removeItem('user');
+      navigate('/login');
+    } catch {
+      setError('Unable to sign out. Please try again.');
+    } finally {
+      setSwitchingAccount(false);
     }
   };
 
@@ -141,6 +174,30 @@ const HealthReportUpload = () => {
     );
   }
 
+  if (!canUpload) {
+    return (
+      <Container className="health-report-upload mt-5">
+        <Card>
+          <Card.Body>
+            <h2>{accountMismatch ? 'Sign in to the requested account' : 'No health report upload required'}</h2>
+            <p>You are signed in as <strong>{user.email}</strong>.</p>
+            <Alert variant="warning">
+              {accountMismatch
+                ? 'This health report request belongs to another account. Sign out and sign in with the account that received the request, then reopen the email link.'
+                : user.health_status === 'pending'
+                  ? 'Your health assessment is pending review. You can upload a report only when the medical team requests one.'
+                  : 'There is no active health report request for this account. If you received a request email, check that you are signed in to the correct account.'}
+            </Alert>
+            {error && <Alert variant="danger">{error}</Alert>}
+            <Button variant="primary" onClick={handleSwitchAccount} disabled={switchingAccount}>
+              {switchingAccount ? 'Signing out...' : 'Sign in with another account'}
+            </Button>
+          </Card.Body>
+        </Card>
+      </Container>
+    );
+  }
+
   return (
     <Container className="health-report-upload mt-5">
       <Card>
@@ -150,6 +207,7 @@ const HealthReportUpload = () => {
         <Card.Body>
           <div className="user-info mb-4">
             <h4>Health Report Request for {user.name} {user.surname}</h4>
+            <p>Signed in as <strong>{user.email}</strong>.</p>
             <Alert variant="info">
               <p><strong>Reason for Additional Documentation:</strong></p>
               <p>{user.health_status_reason || 'Our medical team has requested additional health documentation to complete your assessment.'}</p>

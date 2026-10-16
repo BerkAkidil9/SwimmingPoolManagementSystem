@@ -133,6 +133,16 @@ All endpoints require authentication unless noted.
 | POST | `/api/member/upload-id-card` | Yes | Upload ID card |
 | POST | `/api/member/upload-profile-photo` | Yes | Upload profile photo |
 
+Health-report uploads require the signed-in user's current `health_status` to
+be `needs_report`; otherwise the endpoint returns 403. `health_status_reason`
+is explanatory text and does not grant upload permission. A successful upload
+saves the report for that user and changes the status to `pending` for review.
+The optional multipart field `expectedUserId` checks that the browser is still
+signed in to the account shown on the upload form; a mismatch returns 409.
+It never selects or authorizes another user's account. Email links include the
+recipient ID, which the upload page compares with `/api/member/user/me` before
+showing the form.
+
 ---
 
 ## Payment (`/api/payment`)

@@ -9,10 +9,10 @@ stated otherwise.
 | Suite | Files | Tests | Location / requirements |
 |-------|------:|------:|-------------------------|
 | Backend unit | 18 | 61 | `backend/tests/unit/`; predominantly mocked dependencies |
-| Frontend unit/component | 50 | 71 | `frontend/src/__tests__/`; jsdom |
-| PostgreSQL integration | 9 | 29 | `backend/tests/integration/`; disposable database |
+| Frontend unit/component | 50 | 79 | `frontend/src/__tests__/`; jsdom |
+| PostgreSQL integration | 10 | 32 | `backend/tests/integration/`; disposable database |
 | Browser smoke | 12 | 13 | `tests/e2e/`; running frontend and Chromium |
-| **Total** | **89** | **174** | Test cases, including parameterized cases; not a coverage percentage |
+| **Total** | **90** | **185** | Test cases, including parameterized cases; not a coverage percentage |
 
 Backend tests use Jest 30 and Supertest; frontend tests use Jest 30 and React
 Testing Library. Frontend setup and mocks live in `frontend/test/`; the Jest
@@ -26,6 +26,11 @@ Backend privacy tests submit multipart registrations with mocked database,
 email and R2 services. They check password hashing and prevent form data,
 uploaded content and provider error payloads from reaching logs on successful
 registration, validation failure, email failure and duplicate-email errors.
+
+Health-report integration tests cover a doctor's request, the recipient's
+upload, the resulting pending-review status and rejection of a second upload,
+using disposable PostgreSQL with mocked email and R2. Component tests cover
+recipient-link account mismatches and hide uploads without an active request.
 
 ## Running Tests
 

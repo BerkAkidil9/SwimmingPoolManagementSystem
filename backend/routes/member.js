@@ -173,6 +173,11 @@ router.post("/upload-health-report", isAuthenticated, uploadHealthReport.single(
   try {
     const userId = getCurrentUserId(req);
     if (!userId) return res.status(401).json({ error: "Unauthorized" });
+    if (req.body?.expectedUserId !== undefined && String(req.body.expectedUserId) !== String(userId)) {
+      return res.status(409).json({
+        error: "Your signed-in account changed. Reopen the request email after signing in to the correct account.",
+      });
+    }
     const [userRows] = await db.promise().query("SELECT id, health_status FROM users WHERE id = ?", [userId]);
     if (userRows.length === 0) return res.status(404).json({ error: "User not found" });
     if (userRows[0].health_status !== 'needs_report') {
